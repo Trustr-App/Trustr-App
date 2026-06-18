@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,276 +6,359 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trustr</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
     :root {
-      --primary:       #7C3AED;
-      --primary-light: #EDE9FE;
-      --success:       #16A34A;
-      --success-light: #DCFCE7;
-      --warning:       #D97706;
-      --warning-light: #FEF3C7;
-      --danger:        #DC2626;
-      --danger-light:  #FEE2E2;
-      --gray:          #6B7280;
-      --gray-light:    #F3F4F6;
-      --text:          #111827;
-      --text-sub:      #6B7280;
-      --bg:            #F5F3FF;
-      --card:          #FFFFFF;
-      --border:        #E5E7EB;
-      --nav-h:         64px;
-      --hdr-h:         60px;
+      --grad-top:    #FFAA6B;
+      --grad-bot:    #FF5C5C;
+      --teal:        #5BA8A0;
+      --teal-dark:   #4A9490;
+      --teal-light:  #E0F2F1;
+      --purple:      #3C0060;
+      --purple-mid:  #6B0FA0;
+      --danger:      #D93030;
+      --danger-light:#FDEAEA;
+      --success:     #2E9E6B;
+      --success-light:#E0F5EC;
+      --warning:     #C97A00;
+      --warning-light:#FFF3DC;
+      --card:        #F0EEEE;
+      --card-border: rgba(0,0,0,0.07);
+      --text:        #111111;
+      --text-sub:    #555;
+      --hdr-h:       64px;
+      --tab-h:       48px;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(170deg, var(--grad-top) 0%, var(--grad-bot) 100%);
+      background-attachment: fixed;
       color: var(--text);
       max-width: 430px;
       margin: 0 auto;
       min-height: 100vh;
     }
 
-    /* ── HEADER ─────────────────────────────── */
+    /* ── HEADER ─────────────────────────────────── */
     .header {
       position: fixed; top: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 430px; height: var(--hdr-h);
-      background: white; border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(8px);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px; z-index: 100;
-      box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+      padding: 0 14px; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
     }
-    .logo { font-size: 24px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
-    .logo span { color: #A78BFA; }
 
-    .user-switcher { display: flex; background: var(--gray-light); border-radius: 20px; padding: 3px; gap: 2px; }
+    .logo-wrap { display:flex; align-items:center; gap:8px; }
+    .logo-shield {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #FF8C00, #FF4444);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; box-shadow: 0 2px 6px rgba(255,100,0,0.35);
+    }
+    .logo-text {
+      font-size: 20px; font-weight: 900; letter-spacing: 1px;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-mid) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-right { display:flex; align-items:center; gap:8px; }
+
+    .user-switcher {
+      display:flex; background:#EDEDED; border-radius:20px; padding:3px; gap:2px;
+    }
     .user-btn {
-      padding: 5px 13px; border-radius: 16px; border: none;
-      background: transparent; font-size: 13px; font-weight: 600;
-      color: var(--gray); cursor: pointer; transition: all 0.2s;
+      padding: 4px 10px; border-radius:16px; border:none;
+      background:transparent; font-size:12px; font-weight:700;
+      color:#777; cursor:pointer; transition:all 0.2s; font-family:inherit;
     }
-    .user-btn.active { background: var(--primary); color: white; }
+    .user-btn.active { background:var(--teal); color:white; }
 
-    /* ── CONTENT ─────────────────────────────── */
+    .btn-new-loan {
+      background: var(--teal); color: white;
+      border: none; border-radius: 20px;
+      padding: 7px 13px; font-size: 13px; font-weight: 700;
+      cursor: pointer; display:flex; align-items:center; gap:4px;
+      font-family: inherit; transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-new-loan:active { background: var(--teal-dark); }
+
+    /* ── TAB BAR ─────────────────────────────────── */
+    .tab-bar {
+      position: fixed; top: var(--hdr-h); left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px; height: var(--tab-h);
+      background: rgba(200,190,190,0.55);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center;
+      padding: 6px 10px; gap: 6px;
+      z-index: 99; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tab-bar::-webkit-scrollbar { display:none; }
+
+    .tab-pill {
+      flex-shrink: 0; padding: 6px 14px;
+      border-radius: 20px; border: none;
+      background: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.9);
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      font-family: inherit;
+    }
+    .tab-pill.active {
+      background: rgba(255,255,255,0.95);
+      color: var(--purple);
+    }
+    .tab-pill .pill-badge {
+      display:inline-flex; align-items:center; justify-content:center;
+      background: var(--danger); color:white;
+      font-size:10px; font-weight:800;
+      width:16px; height:16px; border-radius:50%;
+      margin-left:4px; vertical-align:middle;
+    }
+
+    /* ── CONTENT ─────────────────────────────────── */
     .content {
-      padding-top: calc(var(--hdr-h) + 20px);
-      padding-bottom: calc(var(--nav-h) + 20px);
-      padding-left: 16px; padding-right: 16px;
+      padding-top: calc(var(--hdr-h) + var(--tab-h) + 16px);
+      padding-bottom: 28px;
+      padding-left: 14px; padding-right: 14px;
+      min-height: 100vh;
     }
 
-    /* ── BOTTOM NAV ──────────────────────────── */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 430px; height: var(--nav-h);
-      background: white; border-top: 1px solid var(--border);
-      display: flex; z-index: 100;
-    }
-    .nav-item {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 3px; cursor: pointer;
-      border: none; background: transparent; color: var(--gray);
-      font-size: 11px; font-weight: 600; transition: color 0.2s; position: relative;
-    }
-    .nav-item.active { color: var(--primary); }
-    .nav-icon { font-size: 22px; line-height: 1; }
-    .nav-badge {
-      position: absolute; top: 6px; right: calc(50% - 18px);
-      background: var(--danger); color: white; font-size: 10px; font-weight: 800;
-      min-width: 17px; height: 17px; border-radius: 9px; padding: 0 4px;
-      display: none; align-items: center; justify-content: center;
-      border: 2px solid white;
+    /* ── SCREENS ─────────────────────────────────── */
+    .screen { display:none; }
+    .screen.active { display:block; }
+
+    /* ── SECTION TITLE ───────────────────────────── */
+    .section-title {
+      font-size: 19px; font-weight: 900;
+      color: var(--purple); margin-bottom: 14px;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.4);
     }
 
-    /* ── SCREENS ─────────────────────────────── */
-    .screen { display: none; }
-    .screen.active { display: block; }
-
-    /* ── SECTION TITLE ───────────────────────── */
-    .section-title { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
-
-    /* ── CARDS ───────────────────────────────── */
+    /* ── CARDS ───────────────────────────────────── */
     .card {
-      background: var(--card); border-radius: 18px; padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 12px;
+      background: var(--card);
+      border-radius: 16px; padding: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.13);
+      margin-bottom: 12px;
+      border: 1px solid var(--card-border);
     }
 
-    /* ── STATUS BADGES ───────────────────────── */
+    /* ── STATUS BADGES ───────────────────────────── */
     .badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      display:inline-flex; align-items:center; gap:4px;
+      padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;
     }
-    .b-requested      { background: var(--warning-light); color: var(--warning); }
-    .b-active         { background: var(--success-light);  color: var(--success); }
-    .b-pending_return { background: var(--primary-light);  color: var(--primary); }
-    .b-returned       { background: var(--gray-light);     color: var(--gray); }
-    .b-late           { background: var(--danger-light);   color: var(--danger); }
-    .b-lost           { background: #1F2937;               color: white; }
+    .b-requested      { background:var(--warning-light); color:var(--warning); }
+    .b-active         { background:var(--success-light);  color:var(--success); }
+    .b-pending_return { background:var(--teal-light);     color:var(--teal-dark); }
+    .b-returned       { background:#EBEBEB;               color:#555; }
+    .b-late           { background:var(--danger-light);   color:var(--danger); }
+    .b-lost           { background:#1F2937;               color:white; }
 
-    /* ── BUTTONS ─────────────────────────────── */
+    /* ── BUTTONS ─────────────────────────────────── */
     .btn {
-      padding: 11px 16px; border-radius: 13px; border: none;
+      padding: 11px 16px; border-radius: 25px; border: none;
       font-size: 14px; font-weight: 700; cursor: pointer;
-      transition: all 0.15s; display: inline-flex; align-items: center;
-      justify-content: center; gap: 6px; font-family: inherit;
+      transition: all 0.15s; display:inline-flex; align-items:center;
+      justify-content:center; gap:6px; font-family:inherit;
     }
-    .btn:active { transform: scale(0.96); opacity: 0.9; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-danger  { background: var(--danger);  color: white; }
-    .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
-    .btn-ghost   { background: var(--gray-light); color: var(--text); }
-    .btn-full    { width: 100%; }
-    .btn-sm      { padding: 8px 13px; font-size: 13px; }
+    .btn:active { transform:scale(0.96); opacity:0.9; }
+    .btn-primary { background:var(--teal);    color:white; }
+    .btn-success { background:var(--teal);    color:white; }
+    .btn-danger  { background:var(--danger);  color:white; }
+    .btn-outline { background:transparent; color:var(--teal); border:2px solid var(--teal); }
+    .btn-ghost   { background:rgba(255,255,255,0.6); color:var(--text); }
+    .btn-full    { width:100%; }
+    .btn-sm      { padding:7px 14px; font-size:13px; }
 
-    /* ── FORM ────────────────────────────────── */
-    .form-group { margin-bottom: 14px; }
-    .form-label { font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; display: block; }
+    /* ── FORM ────────────────────────────────────── */
+    .form-group { margin-bottom:14px; }
+    .form-label { font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:.4px; }
     .form-input {
-      width: 100%; padding: 12px 14px;
-      border: 1.5px solid var(--border); border-radius: 13px;
-      font-size: 15px; outline: none; transition: border-color 0.2s;
-      font-family: inherit; color: var(--text); background: white;
+      width:100%; padding:11px 14px;
+      border:1.5px solid rgba(0,0,0,0.12); border-radius:12px;
+      font-size:15px; outline:none; transition:border-color 0.2s;
+      font-family:inherit; color:var(--text); background:white;
     }
-    .form-input:focus { border-color: var(--primary); }
+    .form-input:focus { border-color:var(--teal); }
 
-    /* ── TABS ────────────────────────────────── */
-    .tabs {
-      display: flex; gap: 0; margin-bottom: 16px;
-      background: var(--gray-light); border-radius: 13px; padding: 3px;
+    /* ── INNER TABS (Active/History) ─────────────── */
+    .inner-tabs {
+      display:flex; gap:0; margin-bottom:16px;
+      background:rgba(0,0,0,0.12); border-radius:14px; padding:3px;
     }
-    .tab {
-      flex: 1; padding: 9px; text-align: center; border: none;
-      background: transparent; border-radius: 10px;
-      font-size: 13px; font-weight: 700; color: var(--gray);
-      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    .inner-tab {
+      flex:1; padding:8px; text-align:center; border:none;
+      background:transparent; border-radius:11px;
+      font-size:13px; font-weight:700; color:rgba(255,255,255,0.7);
+      cursor:pointer; transition:all 0.2s; font-family:inherit;
     }
-    .tab.active { background: white; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .inner-tab.active { background:white; color:var(--purple); box-shadow:0 1px 4px rgba(0,0,0,0.15); }
 
-    /* ── INFO ROWS ───────────────────────────── */
+    /* ── INFO ROWS ───────────────────────────────── */
     .info-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 0; font-size: 14px; border-bottom: 1px solid var(--gray-light);
+      display:flex; justify-content:space-between; align-items:center;
+      padding:7px 0; font-size:13px; border-bottom:1px solid rgba(0,0,0,0.06);
     }
-    .info-row:last-child { border-bottom: none; }
-    .info-label { color: var(--text-sub); }
-    .info-value { font-weight: 700; text-align: right; max-width: 60%; }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { color:var(--text-sub); }
+    .info-value { font-weight:700; text-align:right; max-width:60%; }
 
-    /* ── DIVIDER ─────────────────────────────── */
-    .divider { height: 1px; background: var(--border); margin: 14px 0; }
+    /* ── DIVIDER ─────────────────────────────────── */
+    .divider { height:1px; background:rgba(0,0,0,0.08); margin:12px 0; }
 
-    /* ── FLOW STEPS ──────────────────────────── */
-    .flow-steps { display: flex; align-items: flex-start; margin: 4px 0 12px; }
-    .flow-step  { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    /* ── FLOW STEPS ──────────────────────────────── */
+    .flow-steps { display:flex; align-items:flex-start; margin:4px 0 10px; }
+    .flow-step  { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
     .flow-dot {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--gray-light); color: var(--gray);
-      font-size: 11px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center; z-index: 1;
+      width:26px; height:26px; border-radius:50%;
+      background:#DDD; color:#888;
+      font-size:10px; font-weight:800;
+      display:flex; align-items:center; justify-content:center; z-index:1;
     }
-    .flow-dot.done    { background: var(--success); color: white; font-size: 14px; }
-    .flow-dot.current { background: var(--primary); color: white; }
-    .flow-dot.late    { background: var(--danger);  color: white; font-size: 14px; }
-    .flow-dot.lost    { background: #1F2937;         color: white; font-size: 14px; }
-    .flow-line { flex: 1; height: 2px; background: var(--border); margin-top: 13px; }
-    .flow-line.done   { background: var(--success); }
-    .flow-label { font-size: 10px; color: var(--gray); font-weight: 600; text-align: center; line-height: 1.2; }
-    .flow-label.active-label { color: var(--primary); font-weight: 800; }
-    .flow-label.done-label   { color: var(--success); }
+    .flow-dot.done    { background:var(--teal);  color:white; font-size:13px; }
+    .flow-dot.current { background:var(--purple); color:white; }
+    .flow-dot.late    { background:var(--danger); color:white; font-size:13px; }
+    .flow-dot.lost    { background:#1F2937;       color:white; font-size:13px; }
+    .flow-line { flex:1; height:2px; background:#DDD; margin-top:12px; }
+    .flow-line.done   { background:var(--teal); }
+    .flow-label { font-size:9px; color:#888; font-weight:700; text-align:center; line-height:1.2; }
+    .flow-label.active-label { color:var(--purple); font-weight:900; }
+    .flow-label.done-label   { color:var(--teal); }
 
-    /* ── EMPTY STATE ─────────────────────────── */
-    .empty-state { text-align: center; padding: 48px 24px; color: var(--text-sub); }
-    .empty-icon  { font-size: 52px; margin-bottom: 12px; }
-    .empty-state p { font-size: 15px; font-weight: 500; }
+    /* ── EMPTY STATE ─────────────────────────────── */
+    .empty-state { text-align:center; padding:48px 24px; }
+    .empty-icon  { font-size:52px; margin-bottom:12px; }
+    .empty-state p { font-size:15px; font-weight:600; color:rgba(255,255,255,0.85); }
 
-    /* ── ITEM CARD ───────────────────────────── */
-    .item-row { display: flex; align-items: center; gap: 14px; }
+    /* ── ITEM ROW ────────────────────────────────── */
+    .item-row { display:flex; align-items:center; gap:12px; }
     .item-emoji {
-      font-size: 32px; width: 56px; height: 56px;
-      background: var(--primary-light); border-radius: 14px;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      font-size:28px; width:50px; height:50px;
+      background:rgba(91,168,160,0.15); border-radius:13px;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
     }
-    .item-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-    .item-meta { font-size: 13px; color: var(--text-sub); margin-top: 1px; }
+    .item-name { font-size:15px; font-weight:800; margin-bottom:2px; color:var(--text); }
+    .item-meta { font-size:12px; color:var(--text-sub); margin-top:1px; }
 
-    /* ── STATS GRID ──────────────────────────── */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .stat-card  { border-radius: 16px; padding: 16px; text-align: center; }
-    .stat-number { font-size: 30px; font-weight: 900; }
-    .stat-label  { font-size: 11px; color: var(--gray); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+    /* ── STATS GRID ──────────────────────────────── */
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+    .stat-card  { border-radius:14px; padding:14px; text-align:center; background:var(--card); box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .stat-number { font-size:28px; font-weight:900; color:var(--purple); }
+    .stat-label  { font-size:11px; color:var(--text-sub); margin-top:3px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; }
 
-    /* ── REP BAR ─────────────────────────────── */
-    .rep-row { margin-bottom: 12px; }
-    .rep-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-    .rep-bar { background: var(--gray-light); border-radius: 8px; height: 8px; overflow: hidden; }
-    .rep-fill { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
+    /* ── REP BAR ─────────────────────────────────── */
+    .rep-row { margin-bottom:12px; }
+    .rep-header { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:5px; }
+    .rep-bar { background:#E0E0E0; border-radius:8px; height:9px; overflow:hidden; }
+    .rep-fill { height:100%; border-radius:8px; transition:width 0.6s ease; }
 
-    /* ── PHOTO BOX ───────────────────────────── */
+    /* ── PHOTO BOX ───────────────────────────────── */
     .photo-box {
-      background: var(--gray-light); border-radius: 13px; padding: 22px 16px;
-      text-align: center; color: var(--gray); cursor: pointer;
-      border: 2px dashed var(--border); transition: all 0.2s;
+      background:rgba(255,255,255,0.5); border-radius:13px; padding:20px 16px;
+      text-align:center; color:#555; cursor:pointer;
+      border:2px dashed rgba(0,0,0,0.18); transition:all 0.2s;
     }
-    .photo-box:hover { border-color: var(--primary); background: var(--primary-light); }
-    .photo-box .photo-icon { font-size: 36px; margin-bottom: 6px; }
-    .photo-box p { font-size: 13px; font-weight: 600; }
+    .photo-box:hover { border-color:var(--teal); background:var(--teal-light); }
+    .photo-box .photo-icon { font-size:34px; margin-bottom:6px; }
+    .photo-box p { font-size:13px; font-weight:600; }
 
-    /* ── MODAL ───────────────────────────────── */
+    /* ── MODAL ───────────────────────────────────── */
     .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45); z-index: 200;
-      align-items: flex-end; justify-content: center;
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.5); z-index:200;
+      align-items:flex-end; justify-content:center;
     }
-    .modal-overlay.open { display: flex; }
+    .modal-overlay.open { display:flex; }
     .modal {
-      background: white; border-radius: 24px 24px 0 0;
-      padding: 8px 20px 28px; width: 100%; max-width: 430px;
-      max-height: 88vh; overflow-y: auto;
+      background:white; border-radius:24px 24px 0 0;
+      padding:8px 18px 28px; width:100%; max-width:430px;
+      max-height:88vh; overflow-y:auto;
     }
-    .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 20px; }
-    .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 18px; }
+    .modal-handle { width:40px; height:4px; background:#DDD; border-radius:2px; margin:12px auto 18px; }
+    .modal-title  { font-size:19px; font-weight:900; color:var(--purple); margin-bottom:16px; }
 
-    /* ── TOAST ───────────────────────────────── */
+    /* ── TOAST ───────────────────────────────────── */
     .toast {
-      position: fixed; bottom: calc(var(--nav-h) + 12px);
-      left: 50%; transform: translateX(-50%) translateY(12px);
-      background: #1F2937; color: white; padding: 12px 20px;
-      border-radius: 14px; font-size: 14px; font-weight: 600;
-      z-index: 300; opacity: 0; transition: all 0.28s;
-      white-space: nowrap; pointer-events: none;
+      position:fixed; bottom:24px;
+      left:50%; transform:translateX(-50%) translateY(12px);
+      background:#1F2937; color:white; padding:11px 20px;
+      border-radius:25px; font-size:14px; font-weight:700;
+      z-index:300; opacity:0; transition:all 0.28s;
+      white-space:nowrap; pointer-events:none;
     }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-    /* ── STARS ───────────────────────────────── */
-    .star-row { display: flex; gap: 6px; margin: 6px 0 12px; }
-    .star { font-size: 28px; cursor: pointer; opacity: 0.25; transition: opacity 0.15s, transform 0.1s; user-select: none; }
-    .star.lit { opacity: 1; }
-    .star:active { transform: scale(1.3); }
+    /* ── STARS ───────────────────────────────────── */
+    .star-row { display:flex; gap:5px; margin:6px 0 12px; }
+    .star { font-size:26px; cursor:pointer; opacity:0.2; transition:opacity 0.15s, transform 0.1s; user-select:none; }
+    .star.lit { opacity:1; }
+    .star:active { transform:scale(1.3); }
 
-    /* ── DUE CHIP ────────────────────────────── */
-    .due-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 10px; }
-    .due-ok   { background: var(--success-light); color: var(--success); }
-    .due-soon { background: var(--warning-light);  color: var(--warning); }
-    .due-over { background: var(--danger-light);   color: var(--danger); }
+    /* ── DUE CHIP ────────────────────────────────── */
+    .due-chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:3px 9px; border-radius:10px; }
+    .due-ok   { background:var(--success-light); color:var(--success); }
+    .due-soon { background:var(--warning-light);  color:var(--warning); }
+    .due-over { background:var(--danger-light);   color:var(--danger); }
 
-    /* ── LEND ITEM LIST ──────────────────────── */
+    /* ── LEND ITEM LIST ──────────────────────────── */
     .lent-item-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 0; border-bottom: 1px solid var(--gray-light);
+      display:flex; align-items:center; gap:10px;
+      padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.07);
     }
-    .lent-item-row:last-child { border-bottom: none; }
-    .avail-chip { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 9px; white-space: nowrap; }
+    .lent-item-row:last-child { border-bottom:none; }
+    .avail-chip { font-size:11px; font-weight:700; padding:4px 9px; border-radius:10px; white-space:nowrap; }
+
+    /* ── PROFILE AVATAR ──────────────────────────── */
+    .avatar-wrap {
+      text-align:center; padding:24px 16px 18px;
+    }
+    .avatar-emoji { font-size:72px; display:block; margin-bottom:8px; }
+    .avatar-name  { font-size:22px; font-weight:900; color:var(--purple); }
+    .avatar-sub   { color:var(--text-sub); font-size:13px; font-weight:600; margin-top:4px; }
+
+    /* ── REQUEST CARD ACTIONS ────────────────────── */
+    .req-actions { display:flex; gap:8px; margin-top:12px; }
+
+    /* ── RELIABILITY SCORE BAR (History style) ───── */
+    .score-label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:var(--text-sub); margin-bottom:6px; }
+    .score-bar-wrap { background:#E0E0E0; border-radius:20px; height:14px; overflow:hidden; }
+    .score-bar-fill { height:100%; border-radius:20px; background:var(--success); transition:width 0.6s ease; }
   </style>
 </head>
 <body>
 
 <!-- ════════ HEADER ════════ -->
 <div class="header">
-  <div class="logo">Tru<span>str</span></div>
-  <div class="user-switcher">
-    <button class="user-btn active" onclick="switchUser('alex')">👦 Alex</button>
-    <button class="user-btn"        onclick="switchUser('jordan')">👧 Jordan</button>
+  <div class="logo-wrap">
+    <div class="logo-shield">🤝</div>
+    <div class="logo-text">TRUSTR</div>
   </div>
+  <div class="header-right">
+    <div class="user-switcher">
+      <button class="user-btn active" onclick="switchUser('alex')">👦 Alex</button>
+      <button class="user-btn"        onclick="switchUser('jordan')">👧 Jordan</button>
+    </div>
+    <button class="btn-new-loan" onclick="navigate('lend')">+ New Loan</button>
+  </div>
+</div>
+
+<!-- ════════ TAB BAR ════════ -->
+<div class="tab-bar">
+  <button class="tab-pill active" id="nav-home"     onclick="navigate('home')">Homepage</button>
+  <button class="tab-pill"        id="nav-borrows"  onclick="navigate('borrows')">My Borrows</button>
+  <button class="tab-pill"        id="nav-lend"     onclick="navigate('lend')">Lend Item</button>
+  <button class="tab-pill"        id="nav-requests" onclick="navigate('requests')">Requests<span class="pill-badge" id="req-badge" style="display:none">0</span></button>
+  <button class="tab-pill"        id="nav-profile"  onclick="navigate('profile')">Profile</button>
 </div>
 
 <!-- ════════ CONTENT ════════ -->
@@ -289,9 +373,9 @@
   <!-- MY BORROWS -->
   <div class="screen" id="screen-borrows">
     <div class="section-title">My Borrows 📦</div>
-    <div class="tabs">
-      <button class="tab active" id="tab-active"   onclick="switchBorrowTab('active')">Active</button>
-      <button class="tab"        id="tab-history"  onclick="switchBorrowTab('history')">History</button>
+    <div class="inner-tabs">
+      <button class="inner-tab active" id="tab-active"   onclick="switchBorrowTab('active')">Active</button>
+      <button class="inner-tab"        id="tab-history"  onclick="switchBorrowTab('history')">History</button>
     </div>
     <div id="borrows-active"></div>
     <div id="borrows-history" style="display:none"></div>
@@ -303,7 +387,7 @@
     <div class="card">
       <div class="form-group">
         <label class="form-label">Item Name</label>
-        <input class="form-input" id="lend-name" type="text" placeholder="e.g. Scientific Calculator">
+        <input class="form-input" id="lend-name" type="text" placeholder="e.g. English Textbook">
       </div>
       <div class="form-group">
         <label class="form-label">Category</label>
@@ -333,7 +417,6 @@
       </div>
       <button class="btn btn-primary btn-full" onclick="listItem()">+ List Item for Lending</button>
     </div>
-
     <div class="section-title" style="margin-top:4px">My Listed Items</div>
     <div id="my-items-list"></div>
   </div>
@@ -346,33 +429,12 @@
 
   <!-- PROFILE -->
   <div class="screen" id="screen-profile">
-    <div class="section-title">Profile 👤</div>
     <div id="profile-content"></div>
   </div>
 
 </div>
 
-<!-- ════════ BOTTOM NAV ════════ -->
-<div class="bottom-nav">
-  <button class="nav-item active" id="nav-home"     onclick="navigate('home')">
-    <span class="nav-icon">🏠</span><span>Browse</span>
-  </button>
-  <button class="nav-item"        id="nav-borrows"  onclick="navigate('borrows')">
-    <span class="nav-icon">📦</span><span>Borrows</span>
-  </button>
-  <button class="nav-item"        id="nav-lend"     onclick="navigate('lend')">
-    <span class="nav-icon">🤝</span><span>Lend</span>
-  </button>
-  <button class="nav-item"        id="nav-requests" onclick="navigate('requests')">
-    <span class="nav-icon">📬</span><span>Requests</span>
-    <span class="nav-badge" id="req-badge">0</span>
-  </button>
-  <button class="nav-item"        id="nav-profile"  onclick="navigate('profile')">
-    <span class="nav-icon">👤</span><span>Profile</span>
-  </button>
-</div>
-
-<!-- ════════ MODAL: BORROW REQUEST ════════ -->
+<!-- ════════ MODAL: BORROW ════════ -->
 <div class="modal-overlay" id="modal-borrow">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -381,7 +443,7 @@
   </div>
 </div>
 
-<!-- ════════ MODAL: RETURN REQUEST ════════ -->
+<!-- ════════ MODAL: RETURN ════════ -->
 <div class="modal-overlay" id="modal-return">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -399,44 +461,42 @@
 // ──────────────────────────────────────────────
 
 const USERS = {
-  alex:   { id: 'alex',   name: 'Alex',   emoji: '👦' },
-  jordan: { id: 'jordan', name: 'Jordan', emoji: '👧' }
+  alex:   { id:'alex',   name:'Alex',   emoji:'👦' },
+  jordan: { id:'jordan', name:'Jordan', emoji:'👧' }
 };
 
-// Demo date: June 10 2026
 const TODAY     = new Date('2026-06-10T00:00:00');
 const TODAY_STR = '2026-06-10';
 
 let currentUser = 'alex';
 
 let items = [
-  { id: 1, name: 'Scientific Calculator', owner: 'jordan', emoji: '🔢', condition: 'Good',     notes: 'Works perfectly, small scratch on back', available: true  },
-  { id: 2, name: 'USB-C Charger (65W)',   owner: 'jordan', emoji: '🔌', condition: 'Like New', notes: '',                                        available: true  },
-  { id: 3, name: 'Noise-Cancelling Headphones', owner: 'jordan', emoji: '🎧', condition: 'Good', notes: 'Right ear-pad slightly worn',           available: false },
-  { id: 4, name: 'Physics Textbook',      owner: 'jordan', emoji: '📚', condition: 'Fair',     notes: 'Highlighting in chapter 3',               available: true  },
-  { id: 5, name: 'Ruler & Compass Set',   owner: 'alex',   emoji: '📐', condition: 'Good',     notes: '',                                        available: true  },
+  { id:1, name:'Scientific Calculator', owner:'jordan', emoji:'🔢', condition:'Good',     notes:'Works perfectly, small scratch on back', available:true  },
+  { id:2, name:'USB-C Charger (65W)',   owner:'jordan', emoji:'🔌', condition:'Like New', notes:'',                                        available:true  },
+  { id:3, name:'Noise-Cancelling Headphones', owner:'jordan', emoji:'🎧', condition:'Good', notes:'Right ear-pad slightly worn',           available:false },
+  { id:4, name:'Physics Textbook',      owner:'jordan', emoji:'📚', condition:'Fair',     notes:'Highlighting in chapter 3',               available:true  },
+  { id:5, name:'Ruler & Compass Set',   owner:'alex',   emoji:'📐', condition:'Good',     notes:'',                                        available:true  },
 ];
 let nextItemId = 6;
 
-// Status flow: requested → active → pending_return → returned | late | lost
 let transactions = [
   {
-    id: 1, itemId: 3,
-    borrower: 'alex', lender: 'jordan',
-    status: 'active',
-    requestedAt: '2026-06-08', startDate: '2026-06-09', dueDate: '2026-06-14',
-    returnRequestAt: null, returnedAt: null,
-    conditionRating: null, lenderNotes: '',
-    borrowerNote: 'Need it for finals week'
+    id:1, itemId:3,
+    borrower:'alex', lender:'jordan',
+    status:'active',
+    requestedAt:'2026-06-08', startDate:'2026-06-09', dueDate:'2026-06-14',
+    returnRequestAt:null, returnedAt:null,
+    conditionRating:null, lenderNotes:'',
+    borrowerNote:'Need it for finals week'
   },
   {
-    id: 2, itemId: 5,
-    borrower: 'jordan', lender: 'alex',
-    status: 'returned',
-    requestedAt: '2026-06-01', startDate: '2026-06-02', dueDate: '2026-06-07',
-    returnRequestAt: '2026-06-06', returnedAt: '2026-06-07',
-    conditionRating: 5, lenderNotes: 'Perfect condition, returned early!',
-    borrowerNote: 'Just for one project'
+    id:2, itemId:5,
+    borrower:'jordan', lender:'alex',
+    status:'returned',
+    requestedAt:'2026-06-01', startDate:'2026-06-02', dueDate:'2026-06-07',
+    returnRequestAt:'2026-06-06', returnedAt:'2026-06-07',
+    conditionRating:5, lenderNotes:'Perfect condition, returned early!',
+    borrowerNote:'Just for one project'
   }
 ];
 let nextTxId = 3;
@@ -465,7 +525,7 @@ document.querySelectorAll('.modal-overlay').forEach(o =>
 function fmt(dateStr) {
   if (!dateStr) return '—';
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
 }
 
 function dueChip(dueDateStr) {
@@ -477,9 +537,6 @@ function dueChip(dueDateStr) {
   return              `<span class="due-chip due-ok">📅 ${diff}d left</span>`;
 }
 
-// Late rule:
-//   On time  → return request sent on or before midnight of due date
-//   Late     → return request sent after midnight OR never sent and today > due date
 function isLate(tx) {
   const due = new Date(tx.dueDate + 'T23:59:59');
   if (!tx.returnRequestAt) return TODAY > due;
@@ -500,7 +557,7 @@ function updateBadge() {
   const n  = pendingCount(currentUser);
   const el = $('req-badge');
   el.textContent = n;
-  el.style.display = n > 0 ? 'flex' : 'none';
+  el.style.display = n > 0 ? 'inline-flex' : 'none';
 }
 
 function emptyState(icon, msg) {
@@ -515,7 +572,7 @@ let currentScreen = 'home';
 
 function navigate(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.tab-pill').forEach(n => n.classList.remove('active'));
   $('screen-' + screen).classList.add('active');
   $('nav-'    + screen).classList.add('active');
   currentScreen = screen;
@@ -542,37 +599,35 @@ function switchUser(uid) {
 }
 
 // ──────────────────────────────────────────────
-//  FLOW STEPS WIDGET
+//  FLOW STEPS
 // ──────────────────────────────────────────────
 
 function flowSteps(tx) {
   const terminal = ['returned','late','lost'].includes(tx.status);
   const STEPS = [
-    { key: 'requested',      label: 'Requested' },
-    { key: 'active',         label: 'Active' },
-    { key: 'pending_return', label: 'Returning' },
-    { key: 'done',           label: tx.status === 'lost' ? 'Lost' : tx.status === 'late' ? 'Late' : 'Done' }
+    { key:'requested',      label:'Requested' },
+    { key:'active',         label:'Active' },
+    { key:'pending_return', label:'Returning' },
+    { key:'done',           label: tx.status==='lost'?'Lost': tx.status==='late'?'Late':'Done' }
   ];
   const ORDER  = ['requested','active','pending_return','returned','late','lost'];
   const curIdx = ORDER.indexOf(tx.status);
 
   let html = '<div class="flow-steps">';
   STEPS.forEach((step, i) => {
-    const stepOrdIdx = i < 3 ? i : 3; // steps 0-2 map directly; step 3 = "done" group
     const past    = (i < 3) && (curIdx > i);
     const isLast  = i === 3;
-    const isDone  = past || (isLast && terminal);
     const isCur   = !terminal && curIdx === i;
 
     let dotClass = '';
     let dotInner = i + 1;
-    if (past)   { dotClass = 'done'; dotInner = '✓'; }
+    if (past) { dotClass='done'; dotInner='✓'; }
     if (isLast && terminal) {
-      if (tx.status === 'returned') { dotClass = 'done'; dotInner = '✓'; }
-      if (tx.status === 'late')     { dotClass = 'late'; dotInner = '⚠'; }
-      if (tx.status === 'lost')     { dotClass = 'lost'; dotInner = '✕'; }
+      if (tx.status==='returned') { dotClass='done'; dotInner='✓'; }
+      if (tx.status==='late')     { dotClass='late'; dotInner='⚠'; }
+      if (tx.status==='lost')     { dotClass='lost'; dotInner='✕'; }
     }
-    if (isCur)  { dotClass = 'current'; }
+    if (isCur) dotClass='current';
 
     const lblClass = (isCur || (isLast && terminal)) ? 'active-label' : past ? 'done-label' : '';
 
@@ -580,7 +635,7 @@ function flowSteps(tx) {
       <div class="flow-dot ${dotClass}">${dotInner}</div>
       <div class="flow-label ${lblClass}">${step.label}</div>
     </div>`;
-    if (i < 3) html += `<div class="flow-line ${past ? 'done' : ''}"></div>`;
+    if (i < 3) html += `<div class="flow-line ${past ? 'done':''}"></div>`;
   });
   html += '</div>';
   return html;
@@ -602,15 +657,15 @@ function renderHome() {
         <div class="item-emoji">${item.emoji}</div>
         <div style="flex:1">
           <div class="item-name">${item.name}</div>
-          <div class="item-meta">Owner: ${USERS[item.owner].emoji} ${USERS[item.owner].name}</div>
+          <div class="item-meta">${USERS[item.owner].emoji} ${USERS[item.owner].name}</div>
           <div class="item-meta">Condition: ${item.condition}</div>
-          ${item.notes ? `<div class="item-meta" style="font-style:italic;margin-top:2px">"${item.notes}"</div>` : ''}
+          ${item.notes ? `<div class="item-meta" style="font-style:italic">"${item.notes}"</div>` : ''}
         </div>
       </div>
       <div style="margin-top:12px">
         ${item.available
           ? `<button class="btn btn-primary btn-full" onclick="openBorrowModal(${item.id})">Request to Borrow</button>`
-          : `<button class="btn btn-ghost btn-full" disabled style="opacity:0.45;cursor:not-allowed">Currently Lent Out</button>`
+          : `<button class="btn btn-ghost btn-full" disabled style="opacity:0.5;cursor:not-allowed">Currently Lent Out</button>`
         }
       </div>
     </div>
@@ -628,7 +683,7 @@ function openBorrowModal(itemId) {
   const defDueStr = defDue.toISOString().split('T')[0];
 
   $('modal-borrow-body').innerHTML = `
-    <div class="card" style="margin-bottom:16px;background:var(--primary-light)">
+    <div style="background:#F5F5F5;border-radius:14px;padding:14px;margin-bottom:16px">
       <div class="item-row">
         <div class="item-emoji">${item.emoji}</div>
         <div>
@@ -658,7 +713,7 @@ function openBorrowModal(itemId) {
     </div>
 
     <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-borrow')">Cancel</button>
+      <button class="btn btn-ghost" style="flex:1;border-radius:25px" onclick="closeModal('modal-borrow')">Cancel</button>
       <button class="btn btn-primary" style="flex:2" onclick="submitBorrow(${itemId})">✉️ Send Request</button>
     </div>
   `;
@@ -666,9 +721,9 @@ function openBorrowModal(itemId) {
 }
 
 function fakePhoto(el) {
-  el.innerHTML = `<div class="photo-icon">✅</div><p style="color:var(--success);font-weight:700">Photo captured!</p>`;
-  el.style.borderColor = 'var(--success)';
-  el.style.background  = 'var(--success-light)';
+  el.innerHTML = `<div class="photo-icon">✅</div><p style="color:#2E9E6B;font-weight:700">Photo captured!</p>`;
+  el.style.borderColor = '#2E9E6B';
+  el.style.background  = '#E0F5EC';
   el.onclick = null;
 }
 
@@ -679,16 +734,15 @@ function submitBorrow(itemId) {
 
   const item = getItem(itemId);
   transactions.push({
-    id: nextTxId++, itemId,
-    borrower: currentUser, lender: item.owner,
-    status: 'requested',
-    requestedAt: TODAY_STR, startDate: null, dueDate: due,
-    returnRequestAt: null, returnedAt: null,
-    conditionRating: null, lenderNotes: '',
-    borrowerNote: note
+    id:nextTxId++, itemId,
+    borrower:currentUser, lender:item.owner,
+    status:'requested',
+    requestedAt:TODAY_STR, startDate:null, dueDate:due,
+    returnRequestAt:null, returnedAt:null,
+    conditionRating:null, lenderNotes:'',
+    borrowerNote:note
   });
   item.available = false;
-
   closeModal('modal-borrow');
   toast(`✉️ Request sent to ${USERS[item.owner].name}!`);
   updateBadge();
@@ -703,24 +757,21 @@ let borrowTab = 'active';
 
 function switchBorrowTab(tab) {
   borrowTab = tab;
-  $('tab-active').classList.toggle('active', tab === 'active');
-  $('tab-history').classList.toggle('active', tab === 'history');
-  $('borrows-active').style.display  = tab === 'active'  ? 'block' : 'none';
-  $('borrows-history').style.display = tab === 'history' ? 'block' : 'none';
+  $('tab-active').classList.toggle('active', tab==='active');
+  $('tab-history').classList.toggle('active', tab==='history');
+  $('borrows-active').style.display  = tab==='active'  ? 'block':'none';
+  $('borrows-history').style.display = tab==='history' ? 'block':'none';
 }
 
 function renderBorrows() {
   const active  = transactions.filter(tx =>
-    tx.borrower === currentUser &&
-    ['requested','active','pending_return'].includes(tx.status)
+    tx.borrower===currentUser && ['requested','active','pending_return'].includes(tx.status)
   );
   const history = transactions.filter(tx =>
-    tx.borrower === currentUser &&
-    ['returned','late','lost'].includes(tx.status)
+    tx.borrower===currentUser && ['returned','late','lost'].includes(tx.status)
   );
-
-  $('borrows-active').innerHTML  = active.length  ? active.map(borrowCard).join('')  : emptyState('📭', 'No active borrows.');
-  $('borrows-history').innerHTML = history.length ? history.map(borrowCard).join('') : emptyState('📋', 'No borrow history yet.');
+  $('borrows-active').innerHTML  = active.length  ? active.map(borrowCard).join('')  : emptyState('📭','No active borrows.');
+  $('borrows-history').innerHTML = history.length ? history.map(borrowCard).join('') : emptyState('📋','No borrow history yet.');
 }
 
 function borrowCard(tx) {
@@ -728,36 +779,31 @@ function borrowCard(tx) {
   const lender = USERS[tx.lender];
   let actionHTML = '';
 
-  if (tx.status === 'requested') {
-    actionHTML = `
-      <div style="padding:12px;background:var(--warning-light);border-radius:12px;text-align:center;font-size:13px;color:#92400E;font-weight:600">
-        ⏳ Waiting for ${lender.name} to approve…
-      </div>`;
-  } else if (tx.status === 'active') {
+  if (tx.status==='requested') {
+    actionHTML = `<div style="padding:11px;background:#FFF8E7;border-radius:12px;text-align:center;font-size:13px;color:#C97A00;font-weight:700">
+      ⏳ Waiting for ${lender.name} to approve…
+    </div>`;
+  } else if (tx.status==='active') {
     actionHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        ${dueChip(tx.dueDate)}
-        <span class="badge b-active">✅ Active</span>
+        ${dueChip(tx.dueDate)}<span class="badge b-active">✅ Active</span>
       </div>
       <button class="btn btn-outline btn-full" onclick="openReturnModal(${tx.id})">📦 Send Return Request</button>`;
-  } else if (tx.status === 'pending_return') {
-    actionHTML = `
-      <div style="padding:12px;background:var(--primary-light);border-radius:12px;text-align:center;font-size:13px;color:var(--primary);font-weight:600">
-        🔄 Waiting for ${lender.name} to confirm return…
-      </div>`;
-  } else if (tx.status === 'returned') {
-    actionHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span class="badge b-returned">✔️ Returned on time</span>
-        ${tx.conditionRating ? `<span style="color:#F59E0B;font-size:15px">${'⭐'.repeat(tx.conditionRating)}</span>` : ''}
-      </div>`;
-  } else if (tx.status === 'late') {
-    actionHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span class="badge b-late">🔴 Returned Late</span>
-        ${tx.conditionRating ? `<span style="color:#F59E0B;font-size:15px">${'⭐'.repeat(tx.conditionRating)}</span>` : ''}
-      </div>`;
-  } else if (tx.status === 'lost') {
+  } else if (tx.status==='pending_return') {
+    actionHTML = `<div style="padding:11px;background:#E0F2F1;border-radius:12px;text-align:center;font-size:13px;color:#4A9490;font-weight:700">
+      🔄 Waiting for ${lender.name} to confirm return…
+    </div>`;
+  } else if (tx.status==='returned') {
+    actionHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="badge b-returned">✔️ Returned on time</span>
+      ${tx.conditionRating?`<span style="color:#F59E0B;font-size:14px">${'⭐'.repeat(tx.conditionRating)}</span>`:''}
+    </div>`;
+  } else if (tx.status==='late') {
+    actionHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="badge b-late">🔴 Returned Late</span>
+      ${tx.conditionRating?`<span style="color:#F59E0B;font-size:14px">${'⭐'.repeat(tx.conditionRating)}</span>`:''}
+    </div>`;
+  } else if (tx.status==='lost') {
     actionHTML = `<span class="badge b-lost">❌ Marked as Lost</span>`;
   }
 
@@ -774,11 +820,10 @@ function borrowCard(tx) {
       <div class="divider"></div>
       <div class="info-row"><span class="info-label">Requested</span><span class="info-value">${fmt(tx.requestedAt)}</span></div>
       <div class="info-row"><span class="info-label">Due date</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
-      ${tx.borrowerNote ? `<div class="info-row"><span class="info-label">Your note</span><span class="info-value">${tx.borrowerNote}</span></div>` : ''}
-      ${tx.lenderNotes  ? `<div class="info-row"><span class="info-label">Lender note</span><span class="info-value">${tx.lenderNotes}</span></div>` : ''}
+      ${tx.borrowerNote?`<div class="info-row"><span class="info-label">Your note</span><span class="info-value">${tx.borrowerNote}</span></div>`:''}
+      ${tx.lenderNotes ?`<div class="info-row"><span class="info-label">Lender note</span><span class="info-value">${tx.lenderNotes}</span></div>`:''}
       <div style="margin-top:12px">${actionHTML}</div>
-    </div>
-  `;
+    </div>`;
 }
 
 // ──────────────────────────────────────────────
@@ -788,11 +833,10 @@ function borrowCard(tx) {
 function openReturnModal(txId) {
   const tx   = getTx(txId);
   const item = getItem(tx.itemId);
-  // Simulate: if we send the request today, will it be late?
-  const simulatedLate = isLate({ ...tx, returnRequestAt: TODAY_STR });
+  const simulatedLate = isLate({ ...tx, returnRequestAt:TODAY_STR });
 
   $('modal-return-body').innerHTML = `
-    <div class="card" style="margin-bottom:16px;background:var(--primary-light)">
+    <div style="background:#F5F5F5;border-radius:14px;padding:14px;margin-bottom:16px">
       <div class="item-row">
         <div class="item-emoji">${item.emoji}</div>
         <div>
@@ -812,28 +856,27 @@ function openReturnModal(txId) {
     </div>
 
     ${simulatedLate
-      ? `<div style="padding:12px;background:var(--danger-light);border-radius:12px;font-size:13px;color:var(--danger);font-weight:600;margin-bottom:14px">
-           ⚠️ This return is past the due date — it will be marked <strong>Late</strong>.
+      ? `<div style="padding:12px;background:#FDEAEA;border-radius:12px;font-size:13px;color:#D93030;font-weight:700;margin-bottom:14px">
+           ⚠️ Past the due date — this will be marked <strong>Late</strong>.
          </div>`
-      : `<div style="padding:12px;background:var(--success-light);border-radius:12px;font-size:13px;color:var(--success);font-weight:600;margin-bottom:14px">
+      : `<div style="padding:12px;background:#E0F5EC;border-radius:12px;font-size:13px;color:#2E9E6B;font-weight:700;margin-bottom:14px">
            ✅ Returning on time — great!
          </div>`
     }
 
     <p style="font-size:13px;color:var(--text-sub);margin-bottom:16px">
-      ${USERS[tx.lender].name} will confirm receipt and rate the item condition.
+      ${USERS[tx.lender].name} will confirm receipt and rate the condition.
     </p>
 
     <div style="display:flex;gap:10px">
-      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-return')">Cancel</button>
+      <button class="btn btn-ghost" style="flex:1;border-radius:25px" onclick="closeModal('modal-return')">Cancel</button>
       <button class="btn btn-primary" style="flex:2" onclick="submitReturn(${txId})">📦 Send Return Request</button>
-    </div>
-  `;
+    </div>`;
   openModal('modal-return');
 }
 
 function submitReturn(txId) {
-  const tx     = getTx(txId);
+  const tx = getTx(txId);
   tx.status          = 'pending_return';
   tx.returnRequestAt = TODAY_STR;
   closeModal('modal-return');
@@ -847,29 +890,27 @@ function submitReturn(txId) {
 // ──────────────────────────────────────────────
 
 function renderLend() {
-  const mine = items.filter(i => i.owner === currentUser);
+  const mine = items.filter(i => i.owner===currentUser);
   if (!mine.length) {
-    $('my-items-list').innerHTML = emptyState('📭', 'No items listed yet.');
+    $('my-items-list').innerHTML = emptyState('📭','No items listed yet.');
     return;
   }
   $('my-items-list').innerHTML = `
     <div class="card">
       ${mine.map(item => `
         <div class="lent-item-row">
-          <span style="font-size:26px">${item.emoji}</span>
+          <span style="font-size:24px">${item.emoji}</span>
           <div style="flex:1">
-            <div style="font-weight:700;font-size:14px">${item.name}</div>
-            <div style="font-size:12px;color:var(--text-sub)">${item.condition}${item.notes ? ' · ' + item.notes : ''}</div>
+            <div style="font-weight:800;font-size:14px">${item.name}</div>
+            <div style="font-size:12px;color:var(--text-sub)">${item.condition}${item.notes?' · '+item.notes:''}</div>
           </div>
           <span class="avail-chip" style="${item.available
-            ? 'background:var(--success-light);color:var(--success)'
-            : 'background:var(--danger-light);color:var(--danger)'}">
-            ${item.available ? '✅ Available' : '📤 Lent Out'}
+            ?'background:#E0F5EC;color:#2E9E6B'
+            :'background:#FDEAEA;color:#D93030'}">
+            ${item.available?'✅ Available':'📤 Lent Out'}
           </span>
-        </div>
-      `).join('')}
-    </div>
-  `;
+        </div>`).join('')}
+    </div>`;
 }
 
 function listItem() {
@@ -879,7 +920,7 @@ function listItem() {
   const notes     = $('lend-notes').value.trim();
   if (!name) { toast('⚠️ Please enter an item name'); return; }
 
-  items.push({ id: nextItemId++, name, owner: currentUser, emoji, condition, notes, available: true });
+  items.push({ id:nextItemId++, name, owner:currentUser, emoji, condition, notes, available:true });
   $('lend-name').value  = '';
   $('lend-notes').value = '';
   toast('✅ Item listed!');
@@ -893,18 +934,18 @@ function listItem() {
 let starRating = {};
 
 function renderRequests() {
-  const borrowReqs = transactions.filter(tx => tx.lender === currentUser && tx.status === 'requested');
-  const returnReqs = transactions.filter(tx => tx.lender === currentUser && tx.status === 'pending_return');
+  const borrowReqs = transactions.filter(tx => tx.lender===currentUser && tx.status==='requested');
+  const returnReqs = transactions.filter(tx => tx.lender===currentUser && tx.status==='pending_return');
 
   if (!borrowReqs.length && !returnReqs.length) {
-    $('requests-list').innerHTML = emptyState('🎉', 'No pending requests right now!');
+    $('requests-list').innerHTML = emptyState('🎉','No pending requests!');
     updateBadge(); return;
   }
 
   let html = '';
 
   if (borrowReqs.length) {
-    html += `<div style="font-size:12px;font-weight:800;color:var(--text-sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px">Borrow Requests</div>`;
+    html += `<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.7);margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px">Borrow Requests</div>`;
     html += borrowReqs.map(tx => {
       const item = getItem(tx.itemId);
       const b    = USERS[tx.borrower];
@@ -914,22 +955,21 @@ function renderRequests() {
             <div class="item-emoji">${item.emoji}</div>
             <div>
               <div class="item-name">${item.name}</div>
-              <div class="item-meta">${b.emoji} ${b.name} wants to borrow this</div>
+              <div class="item-meta">${b.emoji} ${b.name}</div>
             </div>
           </div>
           <div class="info-row"><span class="info-label">Return by</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
-          ${tx.borrowerNote ? `<div class="info-row"><span class="info-label">Note</span><span class="info-value">"${tx.borrowerNote}"</span></div>` : ''}
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn btn-danger btn-sm" style="flex:1"  onclick="respondBorrow(${tx.id}, false)">✕ Deny</button>
-            <button class="btn btn-success btn-sm" style="flex:2" onclick="respondBorrow(${tx.id}, true)">✓ Accept</button>
+          ${tx.borrowerNote?`<div class="info-row"><span class="info-label">Note</span><span class="info-value">"${tx.borrowerNote}"</span></div>`:''}
+          <div class="req-actions">
+            <button class="btn btn-danger btn-sm" style="flex:1"  onclick="respondBorrow(${tx.id},false)">✕ Deny</button>
+            <button class="btn btn-success btn-sm" style="flex:2" onclick="respondBorrow(${tx.id},true)">✓ Accept</button>
           </div>
-        </div>
-      `;
+        </div>`;
     }).join('');
   }
 
   if (returnReqs.length) {
-    html += `<div style="font-size:12px;font-weight:800;color:var(--text-sub);margin:8px 0 10px;text-transform:uppercase;letter-spacing:.8px">Return Confirmations</div>`;
+    html += `<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.7);margin:8px 0 10px;text-transform:uppercase;letter-spacing:.8px">Return Confirmations</div>`;
     html += returnReqs.map(tx => {
       const item = getItem(tx.itemId);
       const b    = USERS[tx.borrower];
@@ -941,36 +981,28 @@ function renderRequests() {
               <div class="item-emoji">${item.emoji}</div>
               <div>
                 <div class="item-name">${item.name}</div>
-                <div class="item-meta">${b.emoji} ${b.name} is returning this</div>
+                <div class="item-meta">${b.emoji} ${b.name}</div>
               </div>
             </div>
-            ${late
-              ? `<span class="badge b-late">🔴 Late</span>`
-              : `<span class="badge b-active">✅ On Time</span>`
-            }
+            ${late?`<span class="badge b-late">🔴 Late</span>`:`<span class="badge b-active">✅ On Time</span>`}
           </div>
           <div class="info-row"><span class="info-label">Due date</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
           <div class="info-row"><span class="info-label">Return sent</span><span class="info-value">${fmt(tx.returnRequestAt)}</span></div>
 
-          <div style="margin-top:14px">
+          <div style="margin-top:12px">
             <div class="form-label">Rate item condition</div>
             <div class="star-row" id="stars-${tx.id}">
-              ${[1,2,3,4,5].map(n =>
-                `<span class="star" onclick="setStar(${tx.id}, ${n})">⭐</span>`
-              ).join('')}
+              ${[1,2,3,4,5].map(n=>`<span class="star" onclick="setStar(${tx.id},${n})">⭐</span>`).join('')}
             </div>
           </div>
-
           <div class="form-group">
             <input class="form-input" id="lnotes-${tx.id}" type="text" placeholder="Notes about condition (optional)">
           </div>
-
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-danger btn-sm"  style="flex:1"  onclick="confirmReturn(${tx.id}, 'lost')">❌ Mark Lost</button>
-            <button class="btn btn-success btn-sm" style="flex:2"  onclick="confirmReturn(${tx.id}, 'returned')">✅ Confirm Return</button>
+          <div class="req-actions">
+            <button class="btn btn-danger btn-sm"  style="flex:1"  onclick="confirmReturn(${tx.id},'lost')">❌ Mark Lost</button>
+            <button class="btn btn-success btn-sm" style="flex:2"  onclick="confirmReturn(${tx.id},'returned')">✅ Confirm Return</button>
           </div>
-        </div>
-      `;
+        </div>`;
     }).join('');
   }
 
@@ -980,7 +1012,7 @@ function renderRequests() {
 
 function setStar(txId, rating) {
   starRating[txId] = rating;
-  document.querySelectorAll(`#stars-${txId} .star`).forEach((s, i) =>
+  document.querySelectorAll(`#stars-${txId} .star`).forEach((s,i) =>
     s.classList.toggle('lit', i < rating)
   );
 }
@@ -992,7 +1024,7 @@ function respondBorrow(txId, accept) {
     tx.startDate = TODAY_STR;
     toast('✅ Borrow approved!');
   } else {
-    tx.status = 'returned'; // cancelled — re-open item
+    tx.status = 'returned';
     getItem(tx.itemId).available = true;
     toast('✕ Borrow request denied.');
   }
@@ -1003,17 +1035,17 @@ function respondBorrow(txId, accept) {
 function confirmReturn(txId, outcome) {
   const tx   = getTx(txId);
   const item = getItem(tx.itemId);
-  const notes  = $('lnotes-' + txId)?.value || '';
+  const notes  = $('lnotes-'+txId)?.value || '';
   const rating = starRating[txId] || null;
   const late   = isLate(tx);
 
-  if (outcome === 'returned') {
+  if (outcome==='returned') {
     tx.status          = late ? 'late' : 'returned';
     tx.returnedAt      = TODAY_STR;
     tx.conditionRating = rating;
     tx.lenderNotes     = notes;
     item.available     = true;
-    toast(late ? '🔴 Confirmed — marked as late return.' : '✅ Return confirmed!');
+    toast(late ? '🔴 Confirmed — marked as late.' : '✅ Return confirmed!');
   } else {
     tx.status      = 'lost';
     tx.lenderNotes = notes;
@@ -1031,84 +1063,78 @@ function confirmReturn(txId, outcome) {
 
 function renderProfile() {
   const u          = USERS[currentUser];
-  const asBorrower = transactions.filter(tx => tx.borrower === currentUser);
-  const asLender   = transactions.filter(tx => tx.lender   === currentUser);
+  const asBorrower = transactions.filter(tx => tx.borrower===currentUser);
+  const asLender   = transactions.filter(tx => tx.lender===currentUser);
   const finished   = asBorrower.filter(tx => ['returned','late','lost'].includes(tx.status));
-  const onTime     = finished.filter(tx => tx.status === 'returned').length;
-  const lateCount  = finished.filter(tx => tx.status === 'late').length;
-  const lostCount  = finished.filter(tx => tx.status === 'lost').length;
-  const pct        = finished.length ? Math.round(onTime / finished.length * 100) : null;
-  const myItems    = items.filter(i => i.owner === currentUser);
+  const onTime     = finished.filter(tx => tx.status==='returned').length;
+  const lateCount  = finished.filter(tx => tx.status==='late').length;
+  const lostCount  = finished.filter(tx => tx.status==='lost').length;
+  const pct        = finished.length ? Math.round(onTime/finished.length*100) : null;
+  const myItems    = items.filter(i => i.owner===currentUser);
 
   $('profile-content').innerHTML = `
-    <div class="card" style="text-align:center;padding:28px 16px 20px">
-      <div style="font-size:72px;margin-bottom:8px">${u.emoji}</div>
-      <div style="font-size:24px;font-weight:900;letter-spacing:-0.5px">${u.name}</div>
-      <div style="color:var(--text-sub);font-size:14px;margin-top:4px;font-weight:500">Trustr Member</div>
+    <div class="card avatar-wrap">
+      <span class="avatar-emoji">${u.emoji}</span>
+      <div class="avatar-name">${u.name}</div>
+      <div class="avatar-sub">Trustr Member</div>
     </div>
 
     <div class="stats-grid">
-      <div class="stat-card" style="background:var(--primary-light)">
-        <div class="stat-number" style="color:var(--primary)">${asBorrower.length}</div>
-        <div class="stat-label">Total Borrows</div>
+      <div class="stat-card">
+        <div class="stat-number">${asBorrower.length}</div>
+        <div class="stat-label">Borrows</div>
       </div>
-      <div class="stat-card" style="background:var(--primary-light)">
-        <div class="stat-number" style="color:var(--primary)">${asLender.length}</div>
+      <div class="stat-card">
+        <div class="stat-number">${asLender.length}</div>
         <div class="stat-label">Items Lent</div>
       </div>
-      <div class="stat-card" style="background:var(--success-light)">
-        <div class="stat-number" style="color:var(--success)">${onTime}</div>
-        <div class="stat-label">On-Time Returns</div>
+      <div class="stat-card" style="background:#E0F5EC">
+        <div class="stat-number" style="color:#2E9E6B">${onTime}</div>
+        <div class="stat-label">On Time</div>
       </div>
-      <div class="stat-card" style="background:var(--danger-light)">
-        <div class="stat-number" style="color:var(--danger)">${lateCount + lostCount}</div>
+      <div class="stat-card" style="background:#FDEAEA">
+        <div class="stat-number" style="color:#D93030">${lateCount+lostCount}</div>
         <div class="stat-label">Late / Lost</div>
       </div>
     </div>
 
     ${pct !== null ? `
     <div class="card">
-      <div style="font-weight:800;font-size:16px;margin-bottom:14px">My Reputation</div>
-      <div class="rep-row">
-        <div class="rep-header">
-          <span>On-time return rate</span>
-          <span style="color:${pct>=80?'var(--success)':pct>=50?'var(--warning)':'var(--danger)'}">${pct}%</span>
+      <div style="font-weight:900;font-size:15px;color:var(--purple);margin-bottom:14px">Reliability Score</div>
+      <div class="score-label">On-time return rate</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div class="score-bar-wrap" style="flex:1">
+          <div class="score-bar-fill" style="width:${pct}%;background:${pct>=80?'#2E9E6B':pct>=50?'#C97A00':'#D93030'}"></div>
         </div>
-        <div class="rep-bar">
-          <div class="rep-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--warning)':'var(--danger)'}"></div>
-        </div>
+        <span style="font-size:16px;font-weight:900;color:${pct>=80?'#2E9E6B':pct>=50?'#C97A00':'#D93030'}">${pct}%</span>
       </div>
-      ${lateCount > 0 ? `
-      <div class="rep-row">
-        <div class="rep-header"><span>Late returns</span><span style="color:var(--danger)">${lateCount}</span></div>
-        <div class="rep-bar"><div class="rep-fill" style="width:${Math.round(lateCount/finished.length*100)}%;background:var(--danger)"></div></div>
-      </div>` : ''}
-      ${lostCount > 0 ? `
-      <div class="rep-row">
-        <div class="rep-header"><span>Lost items</span><span style="color:#1F2937">${lostCount}</span></div>
-        <div class="rep-bar"><div class="rep-fill" style="width:${Math.round(lostCount/finished.length*100)}%;background:#1F2937"></div></div>
-      </div>` : ''}
-    </div>
-    ` : ''}
+      ${lateCount>0?`
+      <div class="score-label">Late returns</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div class="score-bar-wrap" style="flex:1">
+          <div class="score-bar-fill" style="width:${Math.round(lateCount/finished.length*100)}%;background:#D93030"></div>
+        </div>
+        <span style="font-size:16px;font-weight:900;color:#D93030">${lateCount}</span>
+      </div>`:''}
+    </div>` : ''}
 
     <div class="card">
-      <div style="font-weight:800;font-size:16px;margin-bottom:12px">My Listed Items</div>
-      ${myItems.length === 0
-        ? `<div style="color:var(--text-sub);font-size:14px">No items listed yet. Go to the Lend tab!</div>`
-        : myItems.map(item => `
+      <div style="font-weight:900;font-size:15px;color:var(--purple);margin-bottom:12px">My Listed Items</div>
+      ${myItems.length===0
+        ? `<div style="color:var(--text-sub);font-size:14px">No items listed yet. Go to Lend Item to add some!</div>`
+        : myItems.map(item=>`
           <div class="lent-item-row">
-            <span style="font-size:24px">${item.emoji}</span>
+            <span style="font-size:22px">${item.emoji}</span>
             <div style="flex:1">
-              <div style="font-weight:700;font-size:14px">${item.name}</div>
+              <div style="font-weight:800;font-size:14px">${item.name}</div>
               <div style="font-size:12px;color:var(--text-sub)">${item.condition}</div>
             </div>
             <span class="avail-chip" style="${item.available
-              ? 'background:var(--success-light);color:var(--success)'
-              : 'background:var(--danger-light);color:var(--danger)'}">
-              ${item.available ? 'Available' : 'Lent Out'}
+              ?'background:#E0F5EC;color:#2E9E6B'
+              :'background:#FDEAEA;color:#D93030'}">
+              ${item.available?'Available':'Lent Out'}
             </span>
-          </div>
-        `).join('')
+          </div>`).join('')
       }
     </div>
   `;
