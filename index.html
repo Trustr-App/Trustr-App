@@ -51,7 +51,6 @@
       padding: 0 14px; z-index: 100;
       box-shadow: 0 2px 12px rgba(0,0,0,0.12);
     }
-
     .logo-wrap { display:flex; align-items:center; gap:8px; }
     .logo-shield {
       width: 36px; height: 36px;
@@ -66,9 +65,7 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
     .header-right { display:flex; align-items:center; gap:8px; }
-
     .user-switcher {
       display:flex; background:#EDEDED; border-radius:20px; padding:3px; gap:2px;
     }
@@ -91,7 +88,6 @@
       scrollbar-width: none;
     }
     .tab-bar::-webkit-scrollbar { display:none; }
-
     .tab-pill {
       flex-shrink: 0; padding: 6px 14px;
       border-radius: 20px; border: none;
@@ -232,24 +228,50 @@
     .due-soon { background:var(--warning-light);  color:var(--warning); }
     .due-over { background:var(--danger-light);   color:var(--danger); }
 
-    /* ── FLOW STEPS ──────────────────────────────── */
-    .flow-steps { display:flex; align-items:flex-start; margin:4px 0 10px; }
-    .flow-step  { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
-    .flow-dot {
-      width:26px; height:26px; border-radius:50%;
-      background:#DDD; color:#888;
-      font-size:10px; font-weight:800;
-      display:flex; align-items:center; justify-content:center; z-index:1;
+    /* ── FRIEND ROW ──────────────────────────────── */
+    .friend-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.07); }
+    .friend-row:last-child { border-bottom:none; }
+    .friend-avatar { font-size:32px; width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:rgba(91,168,160,0.15); border-radius:12px; }
+    .friend-info { flex:1; }
+    .friend-name { font-weight:800; font-size:14px; color:var(--text); }
+    .friend-status { font-size:12px; color:var(--text-sub); margin-top:2px; }
+
+    /* ── CHAT ─────────────────────────────────────── */
+    .chat-container { display:flex; flex-direction:column; height:60vh; background:white; border-radius:16px; overflow:hidden; }
+    .chat-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:8px; }
+    .message { display:flex; gap:8px; margin-bottom:8px; }
+    .message.sent { justify-content:flex-end; }
+    .message.sent .msg-bubble { background:var(--teal); color:white; }
+    .message.received .msg-bubble { background:#EBEBEB; color:var(--text); }
+    .msg-bubble { max-width:75%; padding:10px 14px; border-radius:12px; font-size:13px; word-wrap:break-word; line-height:1.4; }
+    .chat-input { padding:12px; border-top:1px solid rgba(0,0,0,0.1); display:flex; gap:8px; }
+    .chat-input input { flex:1; padding:8px 12px; border:1px solid rgba(0,0,0,0.15); border-radius:20px; font-size:13px; font-family:inherit; outline:none; }
+    .chat-input button { padding:8px 14px; background:var(--teal); color:white; border:none; border-radius:20px; cursor:pointer; font-weight:700; font-size:12px; font-family:inherit; }
+
+    /* ── PHOTO BOX ───────────────────────────────── */
+    .photo-box {
+      background:rgba(255,255,255,0.5); border-radius:13px; padding:20px 16px;
+      text-align:center; color:#555; cursor:pointer;
+      border:2px dashed rgba(0,0,0,0.18); transition:all 0.2s;
     }
-    .flow-dot.done    { background:var(--teal);  color:white; font-size:13px; }
-    .flow-dot.current { background:var(--purple); color:white; }
-    .flow-dot.late    { background:var(--danger); color:white; font-size:13px; }
-    .flow-dot.lost    { background:#1F2937;       color:white; font-size:13px; }
-    .flow-line { flex:1; height:2px; background:#DDD; margin-top:12px; }
-    .flow-line.done   { background:var(--teal); }
-    .flow-label { font-size:9px; color:#888; font-weight:700; text-align:center; line-height:1.2; }
-    .flow-label.active-label { color:var(--purple); font-weight:900; }
-    .flow-label.done-label   { color:var(--teal); }
+    .photo-box:hover { border-color:var(--teal); background:var(--teal-light); }
+    .photo-box .photo-icon { font-size:34px; margin-bottom:6px; }
+    .photo-box p { font-size:13px; font-weight:600; }
+
+    /* ── STARS ───────────────────────────────────── */
+    .star-row { display:flex; gap:5px; margin:6px 0 12px; }
+    .star { font-size:26px; cursor:pointer; opacity:0.2; transition:opacity 0.15s, transform 0.1s; user-select:none; }
+    .star.lit { opacity:1; }
+    .star:active { transform:scale(1.3); }
+
+    /* ── REP BAR ─────────────────────────────────── */
+    .rep-row { margin-bottom:12px; }
+    .rep-header { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:5px; }
+    .rep-bar { background:#E0E0E0; border-radius:8px; height:9px; overflow:hidden; }
+    .rep-fill { height:100%; border-radius:8px; transition:width 0.6s ease; }
+
+    /* ── REQ ACTIONS ────────────────────────────── */
+    .req-actions { display:flex; gap:8px; margin-top:12px; }
 
     /* ── MODAL ───────────────────────────────────── */
     .modal-overlay {
@@ -278,58 +300,181 @@
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
     /* ── PROFILE AVATAR ──────────────────────────── */
-    .avatar-wrap {
-      text-align:center; padding:24px 16px 18px;
-    }
+    .avatar-wrap { text-align:center; padding:24px 16px 18px; }
     .avatar-emoji { font-size:72px; display:block; margin-bottom:8px; }
     .avatar-name  { font-size:22px; font-weight:900; color:var(--purple); }
     .avatar-sub   { color:var(--text-sub); font-size:13px; font-weight:600; margin-top:4px; }
 
-    /* ── FRIEND ROW ──────────────────────────────── */
-    .friend-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.07); }
-    .friend-row:last-child { border-bottom:none; }
-    .friend-avatar { font-size:32px; width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:rgba(91,168,160,0.15); border-radius:12px; }
-    .friend-info { flex:1; }
-    .friend-name { font-weight:800; font-size:14px; color:var(--text); }
-    .friend-status { font-size:12px; color:var(--text-sub); margin-top:2px; }
-
-    /* ── CHAT STYLES ──────────────────────────────── */
-    .chat-container { display:flex; flex-direction:column; height:60vh; background:white; border-radius:16px; overflow:hidden; }
-    .chat-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:8px; }
-    .message { display:flex; gap:8px; margin-bottom:8px; }
-    .message.sent { justify-content:flex-end; }
-    .message.sent .msg-bubble { background:var(--teal); color:white; }
-    .message.received .msg-bubble { background:#EBEBEB; color:var(--text); }
-    .msg-bubble { max-width:75%; padding:10px 14px; border-radius:12px; font-size:13px; word-wrap:break-word; line-height:1.4; }
-    .msg-time { font-size:10px; color:var(--text-sub); margin-top:2px; text-align:right; }
-    .chat-input { padding:12px; border-top:1px solid rgba(0,0,0,0.1); display:flex; gap:8px; }
-    .chat-input input { flex:1; padding:8px 12px; border:1px solid rgba(0,0,0,0.15); border-radius:20px; font-size:13px; }
-    .chat-input button { padding:8px 12px; background:var(--teal); color:white; border:none; border-radius:20px; cursor:pointer; font-weight:700; font-size:12px; }
-
-    /* ── BORROW REQUEST MODAL ────────────────────── */
-    .photo-box {
-      background:rgba(255,255,255,0.5); border-radius:13px; padding:20px 16px;
-      text-align:center; color:#555; cursor:pointer;
-      border:2px dashed rgba(0,0,0,0.18); transition:all 0.2s;
+    /* ════════════════════════════════════════════
+       SETTINGS STYLES
+    ════════════════════════════════════════════ */
+    .sett-section-label {
+      font-size:11px; font-weight:800;
+      color:rgba(255,255,255,0.55);
+      text-transform:uppercase; letter-spacing:.8px;
+      margin:16px 0 6px; padding:0 2px;
     }
-    .photo-box:hover { border-color:var(--teal); background:var(--teal-light); }
-    .photo-box .photo-icon { font-size:34px; margin-bottom:6px; }
-    .photo-box p { font-size:13px; font-weight:600; }
+    .sett-row {
+      display:flex; align-items:center; gap:12px;
+      padding:13px 2px; cursor:pointer; transition:opacity .15s;
+    }
+    .sett-row:active { opacity:.7; }
+    .sett-row + .sett-row { border-top:1px solid rgba(0,0,0,0.06); }
+    .sett-icon  { font-size:20px; width:28px; text-align:center; flex-shrink:0; }
+    .sett-info  { flex:1; }
+    .sett-label { font-size:15px; font-weight:700; color:var(--text); }
+    .sett-sub   { font-size:12px; color:var(--text-sub); margin-top:1px; }
+    .sett-chev  { font-size:22px; color:#CCC; line-height:1; }
 
-    /* ── STARS ───────────────────────────────────── */
-    .star-row { display:flex; gap:5px; margin:6px 0 12px; }
-    .star { font-size:26px; cursor:pointer; opacity:0.2; transition:opacity 0.15s, transform 0.1s; user-select:none; }
-    .star.lit { opacity:1; }
-    .star:active { transform:scale(1.3); }
+    /* Theme grid */
+    .theme-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .theme-opt {
+      border:3px solid transparent; border-radius:14px;
+      cursor:pointer; padding:10px 6px; text-align:center;
+      transition:all .2s; background:rgba(0,0,0,0.04);
+    }
+    .theme-opt.sel { border-color:var(--teal); }
+    .theme-preview {
+      height:44px; border-radius:9px; margin-bottom:8px;
+      display:flex; align-items:center; justify-content:center; font-size:18px;
+    }
+    .theme-label { font-size:11px; font-weight:800; color:var(--text-sub); }
 
-    /* ── REP BAR ─────────────────────────────────── */
-    .rep-row { margin-bottom:12px; }
-    .rep-header { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:5px; }
-    .rep-bar { background:#E0E0E0; border-radius:8px; height:9px; overflow:hidden; }
-    .rep-fill { height:100%; border-radius:8px; transition:width 0.6s ease; }
+    /* Toggle */
+    .toggle-row {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:13px 2px;
+    }
+    .toggle-row + .toggle-row { border-top:1px solid rgba(0,0,0,0.06); }
+    .toggle-lbl { font-size:15px; font-weight:700; color:var(--text); }
+    .toggle-sub { font-size:12px; color:var(--text-sub); margin-top:1px; }
+    .tog-track {
+      width:44px; height:24px; border-radius:12px; background:#D0D0D0;
+      position:relative; cursor:pointer; transition:background .2s; flex-shrink:0;
+    }
+    .tog-track.on { background:var(--teal); }
+    .tog-thumb {
+      position:absolute; width:20px; height:20px; background:white;
+      border-radius:50%; top:2px; left:2px;
+      transition:left .2s; box-shadow:0 1px 4px rgba(0,0,0,.25);
+    }
+    .tog-track.on .tog-thumb { left:22px; }
 
-    /* ── REQUEST ACTIONS ────────────────────────── */
-    .req-actions { display:flex; gap:8px; margin-top:12px; }
+    /* Avatar picker grid */
+    .av-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:14px; }
+    .av-opt {
+      width:48px; height:48px; border-radius:12px; font-size:26px;
+      display:flex; align-items:center; justify-content:center;
+      border:3px solid transparent; cursor:pointer;
+      background:rgba(0,0,0,0.05); transition:all .15s;
+    }
+    .av-opt.sel { border-color:var(--teal); background:var(--teal-light); }
+    .av-opt:active { transform:scale(.9); }
+
+    /* Add-friend rows */
+    .af-row {
+      display:flex; align-items:center; gap:12px;
+      padding:11px 0; border-bottom:1px solid rgba(0,0,0,0.07);
+    }
+    .af-row:last-child { border-bottom:none; }
+    .af-avatar {
+      font-size:24px; width:42px; height:42px; flex-shrink:0;
+      border-radius:11px; background:rgba(91,168,160,0.15);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .af-name   { font-weight:800; font-size:14px; color:var(--text); }
+    .af-status { font-size:12px; color:var(--text-sub); margin-top:2px; }
+
+    /* ════════════════════════════════════════════
+       DARK THEME
+    ════════════════════════════════════════════ */
+    body[data-theme="dark"] {
+      background: #0D0D1A;
+    }
+    body[data-theme="dark"] .header       { background:#1A1A30; box-shadow:0 2px 16px rgba(0,0,0,0.5); }
+    body[data-theme="dark"] .logo-text    { background:linear-gradient(135deg,#A78BFA,#C084FC); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    body[data-theme="dark"] .tab-bar      { background:#111124; }
+    body[data-theme="dark"] .tab-pill     { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
+    body[data-theme="dark"] .tab-pill.active { background:rgba(255,255,255,0.15); color:#fff; }
+    body[data-theme="dark"] .card         { background:#1C1C35; border-color:rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .section-title { color:#A78BFA; text-shadow:none; }
+    body[data-theme="dark"] .inner-tabs   { background:rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .inner-tab    { color:rgba(255,255,255,0.4); }
+    body[data-theme="dark"] .inner-tab.active { background:rgba(255,255,255,0.1); color:#fff; }
+    body[data-theme="dark"] .form-input   { background:#252545; color:#E8E8FF; border-color:rgba(255,255,255,0.12); }
+    body[data-theme="dark"] .form-input:focus { border-color:var(--teal); }
+    body[data-theme="dark"] .item-name    { color:#E8E8FF; }
+    body[data-theme="dark"] .item-meta    { color:#7070A0; }
+    body[data-theme="dark"] .info-row     { border-color:rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .info-label   { color:#7070A0; }
+    body[data-theme="dark"] .info-value   { color:#BEBEFF; }
+    body[data-theme="dark"] .divider      { background:rgba(255,255,255,0.07); }
+    body[data-theme="dark"] .empty-state p { color:rgba(255,255,255,0.45); }
+    body[data-theme="dark"] .avatar-name  { color:#A78BFA; }
+    body[data-theme="dark"] .avatar-sub   { color:#7070A0; }
+    body[data-theme="dark"] .stat-card    { background:#252545; }
+    body[data-theme="dark"] .stat-number  { color:#A78BFA; }
+    body[data-theme="dark"] .stat-label   { color:#7070A0; }
+    body[data-theme="dark"] .rep-bar      { background:#252545; }
+    body[data-theme="dark"] .rep-header span:first-child { color:#9090B8; }
+    body[data-theme="dark"] .btn-ghost    { background:rgba(255,255,255,0.08); color:#E8E8FF; }
+    body[data-theme="dark"] .btn-outline  { border-color:var(--teal); color:var(--teal); }
+    body[data-theme="dark"] .modal        { background:#1A1A30; }
+    body[data-theme="dark"] .modal-handle { background:#333355; }
+    body[data-theme="dark"] .modal-title  { color:#A78BFA; }
+    body[data-theme="dark"] .form-label   { color:#7070A0; }
+    body[data-theme="dark"] .photo-box    { background:#252545; border-color:rgba(255,255,255,0.18); color:#9090B8; }
+    body[data-theme="dark"] .friend-avatar { background:rgba(91,168,160,0.1); }
+    body[data-theme="dark"] .friend-name  { color:#E8E8FF; }
+    body[data-theme="dark"] .friend-status { color:#7070A0 !important; }
+    body[data-theme="dark"] .friend-row   { border-color:rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .chat-container { background:#1A1A30; }
+    body[data-theme="dark"] .chat-messages  { background:#1A1A30; }
+    body[data-theme="dark"] .message.received .msg-bubble { background:#252545; color:#E8E8FF; }
+    body[data-theme="dark"] .chat-input   { border-color:rgba(255,255,255,0.07); background:#1A1A30; }
+    body[data-theme="dark"] .chat-input input { background:#252545; color:#E8E8FF; border-color:rgba(255,255,255,0.12); }
+    body[data-theme="dark"] .item-emoji   { background:rgba(91,168,160,0.1); }
+    body[data-theme="dark"] .user-switcher { background:#252545; }
+    body[data-theme="dark"] .user-btn     { color:#7070A0; }
+    body[data-theme="dark"] .user-btn.active { background:var(--teal); color:white; }
+    body[data-theme="dark"] .sett-section-label { color:rgba(255,255,255,0.3); }
+    body[data-theme="dark"] .sett-label   { color:#E8E8FF; }
+    body[data-theme="dark"] .sett-sub     { color:#7070A0; }
+    body[data-theme="dark"] .sett-chev    { color:#444468; }
+    body[data-theme="dark"] .sett-row + .sett-row { border-color:rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .toggle-row + .toggle-row { border-color:rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .toggle-lbl   { color:#E8E8FF; }
+    body[data-theme="dark"] .toggle-sub   { color:#7070A0; }
+    body[data-theme="dark"] .tog-track    { background:#333355; }
+    body[data-theme="dark"] .theme-opt    { background:rgba(255,255,255,0.04); }
+    body[data-theme="dark"] .theme-label  { color:#7070A0; }
+    body[data-theme="dark"] .av-opt       { background:rgba(255,255,255,0.05); }
+    body[data-theme="dark"] .av-opt.sel   { background:rgba(91,168,160,0.2); }
+    body[data-theme="dark"] .af-avatar    { background:rgba(91,168,160,0.1); }
+    body[data-theme="dark"] .af-name      { color:#E8E8FF; }
+    body[data-theme="dark"] .af-status    { color:#7070A0; }
+    body[data-theme="dark"] .af-row       { border-color:rgba(255,255,255,0.06); }
+    body[data-theme="dark"] .b-returned   { background:#222240; color:#9090B8; }
+
+    /* ════════════════════════════════════════════
+       LIGHT THEME
+    ════════════════════════════════════════════ */
+    body[data-theme="light"] {
+      background: #EEEEF8;
+    }
+    body[data-theme="light"] .header      { background:white; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
+    body[data-theme="light"] .logo-text   { background:linear-gradient(135deg, var(--purple), var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    body[data-theme="light"] .tab-bar     { background:white; border-bottom:1px solid #E0E0EC; backdrop-filter:none; }
+    body[data-theme="light"] .tab-pill    { background:#F0F0F8; color:#888; }
+    body[data-theme="light"] .tab-pill.active { background:var(--teal); color:white; }
+    body[data-theme="light"] .card        { background:white; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
+    body[data-theme="light"] .section-title { color:#333; text-shadow:none; }
+    body[data-theme="light"] .inner-tabs  { background:rgba(0,0,0,0.06); }
+    body[data-theme="light"] .inner-tab   { color:#888; }
+    body[data-theme="light"] .inner-tab.active { color:var(--purple); }
+    body[data-theme="light"] .empty-state p { color:#777; }
+    body[data-theme="light"] .sett-section-label { color:#AAA; }
+    body[data-theme="light"] .user-switcher { background:#EEEEF8; }
   </style>
 </head>
 <body>
@@ -342,8 +487,8 @@
   </div>
   <div class="header-right">
     <div class="user-switcher">
-      <button class="user-btn active" onclick="switchUser('alex')">👦 Alex</button>
-      <button class="user-btn"        onclick="switchUser('jordan')">👧 Jordan</button>
+      <button class="user-btn active" id="switcher-alex"   onclick="switchUser('alex')">👦 Alex</button>
+      <button class="user-btn"        id="switcher-jordan" onclick="switchUser('jordan')">👧 Jordan</button>
     </div>
   </div>
 </div>
@@ -354,6 +499,7 @@
   <button class="tab-pill"        id="nav-borrows"  onclick="navigate('borrows')">My Borrows</button>
   <button class="tab-pill"        id="nav-requests" onclick="navigate('requests')">Requests<span class="pill-badge" id="req-badge" style="display:none">0</span></button>
   <button class="tab-pill"        id="nav-profile"  onclick="navigate('profile')">Profile</button>
+  <button class="tab-pill"        id="nav-settings" onclick="navigate('settings')">Settings</button>
 </div>
 
 <!-- ════════ CONTENT ════════ -->
@@ -363,8 +509,8 @@
   <div class="screen active" id="screen-friends">
     <div class="section-title">Friends 👥</div>
     <div class="inner-tabs">
-      <button class="inner-tab active" id="tab-my-friends"   onclick="switchFriendsTab('my-friends')">My Friends</button>
-      <button class="inner-tab"        id="tab-pending-req"  onclick="switchFriendsTab('pending-req')">Pending<span class="pill-badge" id="friend-req-badge" style="display:none;margin-left:2px">0</span></button>
+      <button class="inner-tab active" id="tab-my-friends"  onclick="switchFriendsTab('my-friends')">My Friends</button>
+      <button class="inner-tab"        id="tab-pending-req" onclick="switchFriendsTab('pending-req')">Pending<span class="pill-badge" id="friend-req-badge" style="display:none;margin-left:2px">0</span></button>
     </div>
     <div id="friends-my-friends"></div>
     <div id="friends-pending-req" style="display:none"></div>
@@ -374,8 +520,8 @@
   <div class="screen" id="screen-borrows">
     <div class="section-title">My Borrows 📦</div>
     <div class="inner-tabs">
-      <button class="inner-tab active" id="tab-active"   onclick="switchBorrowTab('active')">Active</button>
-      <button class="inner-tab"        id="tab-history"  onclick="switchBorrowTab('history')">History</button>
+      <button class="inner-tab active" id="tab-active"  onclick="switchBorrowTab('active')">Active</button>
+      <button class="inner-tab"        id="tab-history" onclick="switchBorrowTab('history')">History</button>
     </div>
     <div id="borrows-active"></div>
     <div id="borrows-history" style="display:none"></div>
@@ -390,6 +536,12 @@
   <!-- PROFILE -->
   <div class="screen" id="screen-profile">
     <div id="profile-content"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="screen" id="screen-settings">
+    <div class="section-title">Settings ⚙️</div>
+    <div id="settings-content"></div>
   </div>
 
 </div>
@@ -427,6 +579,15 @@
   </div>
 </div>
 
+<!-- ════════ MODAL: CHANGE NAME ════════ -->
+<div class="modal-overlay" id="modal-name">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Change Display Name</div>
+    <div id="modal-name-body"></div>
+  </div>
+</div>
+
 <!-- ════════ TOAST ════════ -->
 <div class="toast" id="toast"></div>
 
@@ -437,7 +598,11 @@
 
 const USERS = {
   alex:   { id:'alex',   name:'Alex',   emoji:'👦' },
-  jordan: { id:'jordan', name:'Jordan', emoji:'👧' }
+  jordan: { id:'jordan', name:'Jordan', emoji:'👧' },
+  sam:    { id:'sam',    name:'Sam',    emoji:'🧑' },
+  riley:  { id:'riley',  name:'Riley',  emoji:'👱' },
+  morgan: { id:'morgan', name:'Morgan', emoji:'🧔' },
+  casey:  { id:'casey',  name:'Casey',  emoji:'🧕' },
 };
 
 const TODAY     = new Date('2026-06-10T00:00:00');
@@ -445,62 +610,60 @@ const TODAY_STR = '2026-06-10';
 
 let currentUser = 'alex';
 
-// Friendships
 let friendships = {
-  alex: {
-    friends: ['jordan'],
-    pendingIncoming: [],
-    pendingOutgoing: []
-  },
-  jordan: {
-    friends: ['alex'],
-    pendingIncoming: [],
-    pendingOutgoing: []
-  }
+  alex:   { friends:['jordan'], pendingIncoming:[], pendingOutgoing:[] },
+  jordan: { friends:['alex'],   pendingIncoming:[], pendingOutgoing:[] },
+  sam:    { friends:['riley'],  pendingIncoming:[], pendingOutgoing:[] },
+  riley:  { friends:['sam'],    pendingIncoming:[], pendingOutgoing:[] },
+  morgan: { friends:[],          pendingIncoming:[], pendingOutgoing:[] },
+  casey:  { friends:[],          pendingIncoming:[], pendingOutgoing:[] },
 };
 
-// Chat messages between friends
 let chats = {
   'alex-jordan': [
-    { from:'jordan', text:'Hey, do you have a spare calculator?', time:'2026-06-09 14:30' },
-    { from:'alex', text:'Yeah! I have one you can borrow', time:'2026-06-09 14:32' },
-    { from:'jordan', text:'Great! Can I use it for a week?', time:'2026-06-09 14:33' }
+    { from:'jordan', text:'Hey, do you have a spare calculator?', time:'2:30 PM' },
+    { from:'alex',   text:'Yeah! I have one you can borrow',      time:'2:32 PM' },
+    { from:'jordan', text:'Great! Can I use it for a week?',      time:'2:33 PM' },
   ]
 };
-
-// Items are ONLY created when a borrow request is made
-let items = [];
-let nextItemId = 1;
 
 let transactions = [
   {
     id:1, itemId:1,
     borrower:'alex', lender:'jordan',
-    itemName:'Noise-Cancelling Headphones',
-    itemEmoji:'🎧',
-    itemCondition:'Good',
-    itemNotes:'Right ear-pad slightly worn',
+    itemName:'Noise-Cancelling Headphones', itemEmoji:'🎧',
+    itemCondition:'Good', itemNotes:'Right ear-pad slightly worn',
     status:'active',
     requestedAt:'2026-06-08', startDate:'2026-06-09', dueDate:'2026-06-14',
     returnRequestAt:null, returnedAt:null,
-    conditionRating:null, lenderNotes:'',
-    borrowerNote:'Need it for finals week'
+    conditionRating:null, lenderNotes:'', borrowerNote:'Need it for finals week'
   },
   {
     id:2, itemId:2,
     borrower:'jordan', lender:'alex',
-    itemName:'Ruler & Compass Set',
-    itemEmoji:'📐',
-    itemCondition:'Good',
-    itemNotes:'',
+    itemName:'Ruler & Compass Set', itemEmoji:'📐',
+    itemCondition:'Good', itemNotes:'',
     status:'returned',
     requestedAt:'2026-06-01', startDate:'2026-06-02', dueDate:'2026-06-07',
     returnRequestAt:'2026-06-06', returnedAt:'2026-06-07',
-    conditionRating:5, lenderNotes:'Perfect condition, returned early!',
-    borrowerNote:'Just for one project'
+    conditionRating:5, lenderNotes:'Perfect condition, returned early!', borrowerNote:'Just for one project'
   }
 ];
 let nextTxId = 3;
+
+// ──────────────────────────────────────────────
+//  SETTINGS STATE
+// ──────────────────────────────────────────────
+
+let currentTheme = 'orange';
+let toggles = { borrowNotifs:true, returnReminders:true, friendRequests:true, lateAlerts:true };
+let friendSearchQ = '';
+
+const AVATAR_OPTIONS = [
+  '👦','👧','🧑','👱','🧔','🧕','👴','👵','🧓',
+  '👨‍💻','👩‍💻','🧑‍🎨','🧑‍🚀','👨‍🏫','👩‍🏫','🧑‍🎤',
+  '🦸','🦹','🧙','🐱','🐶','🦊','🐺','🐻','🐼','🦁',
+];
 
 // ──────────────────────────────────────────────
 //  HELPERS
@@ -554,7 +717,7 @@ function pendingCount(userId) {
 }
 
 function pendingFriendRequests(userId) {
-  return friendships[userId].pendingIncoming.length;
+  return (friendships[userId] || { pendingIncoming:[] }).pendingIncoming.length;
 }
 
 function updateBadges() {
@@ -563,7 +726,7 @@ function updateBadges() {
   el.textContent = n;
   el.style.display = n > 0 ? 'inline-flex' : 'none';
 
-  const fr = pendingFriendRequests(currentUser);
+  const fr  = pendingFriendRequests(currentUser);
   const el2 = $('friend-req-badge');
   el2.textContent = fr;
   el2.style.display = fr > 0 ? 'inline-flex' : 'none';
@@ -593,16 +756,13 @@ function render(screen) {
   if (screen === 'borrows')  renderBorrows();
   if (screen === 'requests') renderRequests();
   if (screen === 'profile')  renderProfile();
+  if (screen === 'settings') renderSettings();
   updateBadges();
 }
 
 function switchUser(uid) {
   currentUser = uid;
-  document.querySelectorAll('.user-btn').forEach((b, i) =>
-    b.classList.toggle('active',
-      (i === 0 && uid === 'alex') || (i === 1 && uid === 'jordan')
-    )
-  );
+  updateUserSwitcher();
   render(currentScreen);
 }
 
@@ -622,10 +782,11 @@ function switchFriendsTab(tab) {
 }
 
 function renderFriends() {
-  const myFriends = friendships[currentUser].friends.map(id => USERS[id]);
-  const pendingRequests = friendships[currentUser].pendingIncoming.map(id => USERS[id]);
+  const fs = friendships[currentUser];
+  const myFriends      = (fs.friends || []).map(id => USERS[id]).filter(Boolean);
+  const pendingReqs    = (fs.pendingIncoming || []).map(id => USERS[id]).filter(Boolean);
 
-  $('friends-my-friends').innerHTML = myFriends.length 
+  $('friends-my-friends').innerHTML = myFriends.length
     ? myFriends.map(friend => `
         <div class="card">
           <div class="friend-row">
@@ -636,42 +797,49 @@ function renderFriends() {
             </div>
             <button class="btn btn-sm btn-primary" onclick="openChat('${friend.id}')">💬 Chat</button>
           </div>
-        </div>
-      `).join('')
-    : emptyState('😔', 'No friends yet.');
+        </div>`).join('')
+    : emptyState('😔', 'No friends yet. Add some in Settings!');
 
-  $('friends-pending-req').innerHTML = pendingRequests.length
-    ? pendingRequests.map(friend => `
+  $('friends-pending-req').innerHTML = pendingReqs.length
+    ? pendingReqs.map(friend => `
         <div class="card">
           <div class="friend-row">
             <div class="friend-avatar">${friend.emoji}</div>
             <div class="friend-info">
               <div class="friend-name">${friend.name}</div>
-              <div class="friend-status">⏳ Pending request</div>
+              <div class="friend-status">⏳ Wants to be friends</div>
             </div>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
             <button class="btn btn-danger btn-sm" style="flex:1" onclick="respondFriendRequest('${friend.id}',false)">✕ Deny</button>
             <button class="btn btn-success btn-sm" style="flex:2" onclick="respondFriendRequest('${friend.id}',true)">✓ Accept</button>
           </div>
-        </div>
-      `).join('')
+        </div>`).join('')
     : emptyState('🎉', 'No pending requests!');
 }
 
 function respondFriendRequest(userId, accept) {
-  const idx = friendships[currentUser].pendingIncoming.indexOf(userId);
+  const fs = friendships[currentUser];
+  const idx = fs.pendingIncoming.indexOf(userId);
   if (idx === -1) return;
-  friendships[currentUser].pendingIncoming.splice(idx, 1);
+  fs.pendingIncoming.splice(idx, 1);
 
   if (accept) {
-    friendships[currentUser].friends.push(userId);
-    const idx2 = friendships[userId].pendingOutgoing.indexOf(currentUser);
-    if (idx2 !== -1) friendships[userId].pendingOutgoing.splice(idx2, 1);
-    friendships[userId].friends.push(currentUser);
+    fs.friends.push(userId);
+    const other = friendships[userId];
+    if (other) {
+      const idx2 = other.pendingOutgoing.indexOf(currentUser);
+      if (idx2 !== -1) other.pendingOutgoing.splice(idx2, 1);
+      if (!other.friends.includes(currentUser)) other.friends.push(currentUser);
+    }
     toast(`✅ You're now friends with ${USERS[userId].name}!`);
   } else {
-    toast(`✕ Friend request declined`);
+    const other = friendships[userId];
+    if (other) {
+      const idx2 = other.pendingOutgoing.indexOf(currentUser);
+      if (idx2 !== -1) other.pendingOutgoing.splice(idx2, 1);
+    }
+    toast('✕ Friend request declined');
   }
   renderFriends();
   updateBadges();
@@ -694,35 +862,29 @@ function openChat(friendId) {
 }
 
 function renderChatMessages(key) {
-  const messages = chats[key] || [];
   const msgEl = $('chat-messages');
-  msgEl.innerHTML = messages.map(msg => `
+  msgEl.innerHTML = (chats[key] || []).map(msg => `
     <div class="message ${msg.from === currentUser ? 'sent' : 'received'}">
       <div class="msg-bubble">${msg.text}</div>
-    </div>
-  `).join('');
+    </div>`).join('');
   msgEl.scrollTop = msgEl.scrollHeight;
 }
 
 function sendMessage() {
   const input = $('chat-input-field');
-  const text = input.value.trim();
+  const text  = input.value.trim();
   if (!text) return;
-
   const key = [currentUser, currentChatFriend].sort().join('-');
   if (!chats[key]) chats[key] = [];
-
-  const now = new Date(TODAY);
-  now.setHours(now.getHours() + Math.floor(Math.random() * 5));
-  const timeStr = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
-
-  chats[key].push({ from:currentUser, text, time:timeStr });
+  chats[key].push({ from:currentUser, text, time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) });
   input.value = '';
   renderChatMessages(key);
 }
 
+$('chat-input-field').addEventListener('keydown', e => { if (e.key==='Enter') sendMessage(); });
+
 // ──────────────────────────────────────────────
-//  BORROWS SCREEN
+//  MY BORROWS
 // ──────────────────────────────────────────────
 
 let borrowTab = 'active';
@@ -736,12 +898,8 @@ function switchBorrowTab(tab) {
 }
 
 function renderBorrows() {
-  const active  = transactions.filter(tx =>
-    tx.borrower===currentUser && ['requested','active','pending_return'].includes(tx.status)
-  );
-  const history = transactions.filter(tx =>
-    tx.borrower===currentUser && ['returned','late','lost'].includes(tx.status)
-  );
+  const active  = transactions.filter(tx => tx.borrower===currentUser && ['requested','active','pending_return'].includes(tx.status));
+  const history = transactions.filter(tx => tx.borrower===currentUser && ['returned','late','lost'].includes(tx.status));
   $('borrows-active').innerHTML  = active.length  ? active.map(borrowCard).join('')  : emptyState('📭','No active borrows.');
   $('borrows-history').innerHTML = history.length ? history.map(borrowCard).join('') : emptyState('📋','No borrow history yet.');
 }
@@ -751,9 +909,8 @@ function borrowCard(tx) {
   let actionHTML = '';
 
   if (tx.status==='requested') {
-    actionHTML = `<div style="padding:11px;background:#FFF8E7;border-radius:12px;text-align:center;font-size:13px;color:#C97A00;font-weight:700">
-      ⏳ Waiting for ${lender.name} to approve…
-    </div>`;
+    actionHTML = `<div style="padding:11px;background:#FFF8E7;border-radius:12px;text-align:center;font-size:13px;color:var(--warning);font-weight:700">
+      ⏳ Waiting for ${lender.name} to approve…</div>`;
   } else if (tx.status==='active') {
     actionHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -761,9 +918,8 @@ function borrowCard(tx) {
       </div>
       <button class="btn btn-outline btn-full" onclick="openReturnModal(${tx.id})">📦 Send Return Request</button>`;
   } else if (tx.status==='pending_return') {
-    actionHTML = `<div style="padding:11px;background:#E0F2F1;border-radius:12px;text-align:center;font-size:13px;color:#4A9490;font-weight:700">
-      🔄 Waiting for ${lender.name} to confirm return…
-    </div>`;
+    actionHTML = `<div style="padding:11px;background:var(--teal-light);border-radius:12px;text-align:center;font-size:13px;color:var(--teal-dark);font-weight:700">
+      🔄 Waiting for ${lender.name} to confirm return…</div>`;
   } else if (tx.status==='returned') {
     actionHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
       <span class="badge b-returned">✔️ Returned on time</span>
@@ -801,11 +957,11 @@ function borrowCard(tx) {
 // ──────────────────────────────────────────────
 
 function openReturnModal(txId) {
-  const tx   = getTx(txId);
+  const tx = getTx(txId);
   const simulatedLate = isLate({ ...tx, returnRequestAt:TODAY_STR });
 
   $('modal-return-body').innerHTML = `
-    <div style="background:#F5F5F5;border-radius:14px;padding:14px;margin-bottom:16px">
+    <div style="background:rgba(0,0,0,0.04);border-radius:14px;padding:14px;margin-bottom:16px">
       <div class="item-row">
         <div class="item-emoji">${tx.itemEmoji}</div>
         <div>
@@ -815,7 +971,6 @@ function openReturnModal(txId) {
         </div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">📸 Photo of item being returned</label>
       <div class="photo-box" onclick="fakePhoto(this)">
@@ -823,20 +978,13 @@ function openReturnModal(txId) {
         <p>Tap to capture photo of item</p>
       </div>
     </div>
-
     ${simulatedLate
-      ? `<div style="padding:12px;background:#FDEAEA;border-radius:12px;font-size:13px;color:#D93030;font-weight:700;margin-bottom:14px">
-           ⚠️ Past the due date — this will be marked <strong>Late</strong>.
-         </div>`
-      : `<div style="padding:12px;background:#E0F5EC;border-radius:12px;font-size:13px;color:#2E9E6B;font-weight:700;margin-bottom:14px">
-           ✅ Returning on time — great!
-         </div>`
+      ? `<div style="padding:12px;background:var(--danger-light);border-radius:12px;font-size:13px;color:var(--danger);font-weight:700;margin-bottom:14px">⚠️ Past the due date — this will be marked <strong>Late</strong>.</div>`
+      : `<div style="padding:12px;background:var(--success-light);border-radius:12px;font-size:13px;color:var(--success);font-weight:700;margin-bottom:14px">✅ Returning on time — great!</div>`
     }
-
     <p style="font-size:13px;color:var(--text-sub);margin-bottom:16px">
       ${USERS[tx.lender].name} will confirm receipt and rate the condition.
     </p>
-
     <div style="display:flex;gap:10px">
       <button class="btn btn-ghost" style="flex:1;border-radius:25px" onclick="closeModal('modal-return')">Cancel</button>
       <button class="btn btn-primary" style="flex:2" onclick="submitReturn(${txId})">📦 Send Return Request</button>
@@ -845,15 +993,15 @@ function openReturnModal(txId) {
 }
 
 function fakePhoto(el) {
-  el.innerHTML = `<div class="photo-icon">✅</div><p style="color:#2E9E6B;font-weight:700">Photo captured!</p>`;
-  el.style.borderColor = '#2E9E6B';
-  el.style.background  = '#E0F5EC';
+  el.innerHTML = `<div class="photo-icon">✅</div><p style="color:var(--success);font-weight:700">Photo captured!</p>`;
+  el.style.borderColor = 'var(--success)';
+  el.style.background  = 'var(--success-light)';
   el.onclick = null;
 }
 
 function submitReturn(txId) {
   const tx = getTx(txId);
-  tx.status          = 'pending_return';
+  tx.status = 'pending_return';
   tx.returnRequestAt = TODAY_STR;
   closeModal('modal-return');
   toast('📦 Return request sent!');
@@ -881,7 +1029,7 @@ function renderRequests() {
   if (borrowReqs.length) {
     html += `<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.7);margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px">Borrow Requests</div>`;
     html += borrowReqs.map(tx => {
-      const b    = USERS[tx.borrower];
+      const b = USERS[tx.borrower];
       return `
         <div class="card">
           <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
@@ -921,7 +1069,6 @@ function renderRequests() {
           </div>
           <div class="info-row"><span class="info-label">Due date</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
           <div class="info-row"><span class="info-label">Return sent</span><span class="info-value">${fmt(tx.returnRequestAt)}</span></div>
-
           <div style="margin-top:12px">
             <div class="form-label">Rate item condition</div>
             <div class="star-row" id="stars-${tx.id}">
@@ -932,7 +1079,7 @@ function renderRequests() {
             <input class="form-input" id="lnotes-${tx.id}" type="text" placeholder="Notes about condition (optional)">
           </div>
           <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn btn-ghost btn-sm" style="flex:1" onclick="denyReturn(${tx.id})">✕ Reject Return</button>
+            <button class="btn btn-ghost btn-sm" style="flex:1" onclick="denyReturn(${tx.id})">✕ Reject</button>
             <button class="btn btn-success btn-sm" style="flex:2" onclick="confirmReturn(${tx.id})">✓ Confirm Return</button>
           </div>
         </div>`;
@@ -945,40 +1092,24 @@ function renderRequests() {
 
 function setStar(txId, rating) {
   starRating[txId] = rating;
-  const starEl = $(`stars-${txId}`);
-  starEl.querySelectorAll('.star').forEach((s, i) => {
-    s.classList.toggle('lit', i < rating);
-  });
+  $(`stars-${txId}`).querySelectorAll('.star').forEach((s, i) => s.classList.toggle('lit', i < rating));
 }
 
 function respondBorrow(txId, accept) {
   const tx = getTx(txId);
-  if (accept) {
-    tx.status = 'active';
-    tx.startDate = TODAY_STR;
-    toast(`✅ Borrow request accepted!`);
-  } else {
-    transactions = transactions.filter(t => t.id !== txId);
-    toast(`✕ Borrow request denied.`);
-  }
+  if (accept) { tx.status = 'active'; tx.startDate = TODAY_STR; toast('✅ Borrow request accepted!'); }
+  else        { transactions = transactions.filter(t => t.id !== txId); toast('✕ Borrow request denied.'); }
   renderRequests();
 }
 
 function confirmReturn(txId) {
-  const tx = getTx(txId);
+  const tx     = getTx(txId);
   const rating = starRating[txId] || 0;
-  const notes = $(`lnotes-${txId}`).value.trim();
-  
-  if (rating === 0) {
-    toast('⚠️ Please rate the item condition');
-    return;
-  }
-
+  if (rating === 0) { toast('⚠️ Please rate the item condition'); return; }
   tx.conditionRating = rating;
-  tx.lenderNotes = notes;
-  tx.status = isLate(tx) ? 'late' : 'returned';
-  tx.returnedAt = TODAY_STR;
-  
+  tx.lenderNotes     = $(`lnotes-${txId}`).value.trim();
+  tx.status          = isLate(tx) ? 'late' : 'returned';
+  tx.returnedAt      = TODAY_STR;
   toast('✅ Return confirmed!');
   renderRequests();
 }
@@ -992,19 +1123,19 @@ function denyReturn(txId) {
 }
 
 // ──────────────────────────────────────────────
-//  PROFILE SCREEN
+//  PROFILE
 // ──────────────────────────────────────────────
 
 function renderProfile() {
-  const userTxs = transactions.filter(tx => tx.borrower===currentUser || tx.lender===currentUser);
-  const totalTxs = userTxs.length;
+  const userTxs  = transactions.filter(tx => tx.borrower===currentUser || tx.lender===currentUser);
+  const total    = userTxs.length;
   const returned = userTxs.filter(tx => tx.status==='returned').length;
-  const late = userTxs.filter(tx => tx.status==='late').length;
-  const lost = userTxs.filter(tx => tx.status==='lost').length;
+  const late     = userTxs.filter(tx => tx.status==='late').length;
+  const lost     = userTxs.filter(tx => tx.status==='lost').length;
 
-  const successPct = totalTxs ? Math.round((returned / totalTxs) * 100) : 0;
-  const latePct    = totalTxs ? Math.round((late / totalTxs) * 100) : 0;
-  const lostPct    = totalTxs ? Math.round((lost / totalTxs) * 100) : 0;
+  const successPct = total ? Math.round((returned/total)*100) : 0;
+  const latePct    = total ? Math.round((late/total)*100)     : 0;
+  const lostPct    = total ? Math.round((lost/total)*100)     : 0;
 
   $('profile-content').innerHTML = `
     <div class="avatar-wrap">
@@ -1018,61 +1149,251 @@ function renderProfile() {
     <div class="section-title">Reliability Score</div>
     <div class="card">
       <div class="rep-row">
-        <div class="rep-header">
-          <span>Good Transactions</span>
-          <span style="color:var(--success);font-weight:900">${successPct}%</span>
-        </div>
-        <div class="rep-bar">
-          <div class="rep-fill" style="width:${successPct}%;background:var(--success)"></div>
-        </div>
+        <div class="rep-header"><span>Good Transactions</span><span style="color:var(--success)">${successPct}%</span></div>
+        <div class="rep-bar"><div class="rep-fill" style="width:${successPct}%;background:var(--success)"></div></div>
       </div>
-
       <div class="rep-row">
-        <div class="rep-header">
-          <span>Late Returns</span>
-          <span style="color:var(--warning);font-weight:900">${latePct}%</span>
-        </div>
-        <div class="rep-bar">
-          <div class="rep-fill" style="width:${latePct}%;background:var(--warning)"></div>
-        </div>
+        <div class="rep-header"><span>Late Returns</span><span style="color:var(--warning)">${latePct}%</span></div>
+        <div class="rep-bar"><div class="rep-fill" style="width:${latePct}%;background:var(--warning)"></div></div>
       </div>
-
       <div class="rep-row">
-        <div class="rep-header">
-          <span>Lost Items</span>
-          <span style="color:var(--danger);font-weight:900">${lostPct}%</span>
-        </div>
-        <div class="rep-bar">
-          <div class="rep-fill" style="width:${lostPct}%;background:var(--danger)"></div>
-        </div>
+        <div class="rep-header"><span>Lost Items</span><span style="color:var(--danger)">${lostPct}%</span></div>
+        <div class="rep-bar"><div class="rep-fill" style="width:${lostPct}%;background:var(--danger)"></div></div>
       </div>
     </div>
 
     <div class="section-title" style="margin-top:20px">Transaction History</div>
     <div class="card">
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-number">${totalTxs}</div>
-          <div class="stat-label">Total Transactions</div>
+        <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
+        <div class="stat-card"><div class="stat-number">${returned}</div><div class="stat-label">On Time</div></div>
+        <div class="stat-card"><div class="stat-number">${late}</div><div class="stat-label">Late</div></div>
+        <div class="stat-card"><div class="stat-number">${lost}</div><div class="stat-label">Lost</div></div>
+      </div>
+    </div>`;
+}
+
+// ──────────────────────────────────────────────
+//  SETTINGS
+// ──────────────────────────────────────────────
+
+function renderSettings() {
+  const me        = USERS[currentUser];
+  const fs        = friendships[currentUser] || { friends:[], pendingIncoming:[], pendingOutgoing:[] };
+  const myFriends = fs.friends;
+  const myOut     = fs.pendingOutgoing;
+
+  const discoverable = Object.keys(USERS).filter(uid =>
+    uid !== currentUser &&
+    !myFriends.includes(uid) &&
+    !fs.pendingIncoming.includes(uid)
+  );
+
+  const filtered = friendSearchQ
+    ? discoverable.filter(uid => USERS[uid].name.toLowerCase().includes(friendSearchQ.toLowerCase()))
+    : discoverable;
+
+  const themes = [
+    { key:'orange', label:'Sunrise', icon:'🌅', style:'background:linear-gradient(135deg,#FFAA6B,#FF5C5C)' },
+    { key:'light',  label:'Light',   icon:'☀️',  style:'background:#EEEEF8;border:1px solid #DDD' },
+    { key:'dark',   label:'Dark',    icon:'🌙', style:'background:linear-gradient(135deg,#0D0D1A,#1A1A30)' },
+  ];
+
+  const notifToggles = [
+    { key:'borrowNotifs',    label:'Borrow Requests',  sub:'When someone wants to borrow your item' },
+    { key:'returnReminders', label:'Return Reminders',  sub:'Reminder 1 day before your due date'   },
+    { key:'friendRequests',  label:'Friend Requests',   sub:'When someone sends you a friend request' },
+    { key:'lateAlerts',      label:'Late Alerts',       sub:'Alert when a return is overdue'         },
+  ];
+
+  $('settings-content').innerHTML = `
+
+    <div class="sett-section-label">Profile</div>
+    <div class="card">
+      <div class="sett-row" onclick="openNameModal()">
+        <div class="sett-icon">✏️</div>
+        <div class="sett-info">
+          <div class="sett-label">Display Name</div>
+          <div class="sett-sub">${me.name}</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-number">${returned}</div>
-          <div class="stat-label">On Time</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">${late}</div>
-          <div class="stat-label">Late</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">${lost}</div>
-          <div class="stat-label">Lost</div>
-        </div>
+        <div class="sett-chev">›</div>
       </div>
     </div>
+
+    <div class="sett-section-label">Avatar</div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:60px;margin-bottom:4px">${me.emoji}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-sub)">Tap any icon to change</div>
+      <div class="av-grid">
+        ${AVATAR_OPTIONS.map(e => `
+          <div class="av-opt${me.emoji===e?' sel':''}" onclick="setAvatar('${currentUser}','${e}')">${e}</div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="sett-section-label">Add Friends</div>
+    <div class="card">
+      <input class="form-input" placeholder="🔍  Search users…"
+        style="margin-bottom:${filtered.length ? '12px' : '0'}"
+        value="${friendSearchQ.replace(/"/g,'&quot;')}"
+        oninput="friendSearchQ=this.value;renderSettings()">
+      ${filtered.map(uid => {
+        const u = USERS[uid];
+        const isPending = myOut.includes(uid);
+        const isFriend  = myFriends.includes(uid);
+        return `
+          <div class="af-row">
+            <div class="af-avatar">${u.emoji}</div>
+            <div style="flex:1">
+              <div class="af-name">${u.name}</div>
+              <div class="af-status">${isFriend ? '✅ Already friends' : isPending ? '⏳ Request sent' : '@'+uid}</div>
+            </div>
+            ${!isPending && !isFriend ? `<button class="btn btn-sm btn-outline" onclick="sendFriendRequest('${uid}')">+ Add</button>` : ''}
+          </div>`;
+      }).join('') || (friendSearchQ ? `<p style="text-align:center;padding:16px;color:var(--text-sub);font-size:14px;font-weight:600">No users found</p>` : '')}
+    </div>
+
+    <div class="sett-section-label">Appearance</div>
+    <div class="card">
+      <div class="theme-grid">
+        ${themes.map(t => `
+          <div class="theme-opt${currentTheme===t.key?' sel':''}" onclick="setTheme('${t.key}')">
+            <div class="theme-preview" style="${t.style}">${t.icon}</div>
+            <div class="theme-label">${t.label}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="sett-section-label">Notifications</div>
+    <div class="card">
+      ${notifToggles.map(t => `
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-lbl">${t.label}</div>
+            <div class="toggle-sub">${t.sub}</div>
+          </div>
+          <div class="tog-track${toggles[t.key]?' on':''}" onclick="toggleSetting('${t.key}')">
+            <div class="tog-thumb"></div>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div class="sett-section-label">About</div>
+    <div class="card">
+      <div class="info-row"><span class="info-label">App</span><span class="info-value" style="font-weight:900">Trustr 🤝</span></div>
+      <div class="info-row"><span class="info-label">Version</span><span class="info-value">1.0.0</span></div>
+      <div class="info-row"><span class="info-label">Theme</span><span class="info-value">${themes.find(t=>t.key===currentTheme).label}</span></div>
+      <div class="info-row"><span class="info-label">Friends</span><span class="info-value">${myFriends.length}</span></div>
+    </div>
+
+    <div style="height:12px"></div>
   `;
 }
 
-// Initialize
+// ──────────────────────────────────────────────
+//  SETTINGS ACTIONS
+// ──────────────────────────────────────────────
+
+function openNameModal() {
+  $('modal-name-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Your Display Name</label>
+      <input class="form-input" id="name-edit-input" type="text"
+        value="${USERS[currentUser].name}" maxlength="20" placeholder="Enter a name">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-name')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveName()">✓ Save</button>
+    </div>`;
+  openModal('modal-name');
+  setTimeout(() => { const i=$('name-edit-input'); if(i){i.focus();i.select();} }, 120);
+}
+
+function saveName() {
+  const val = ($('name-edit-input').value || '').trim();
+  if (!val) { toast('⚠️ Name cannot be empty'); return; }
+  USERS[currentUser].name = val;
+  closeModal('modal-name');
+  updateUserSwitcher();
+  saveSettings();
+  renderSettings();
+  toast('✅ Name updated!');
+}
+
+function setAvatar(uid, emoji) {
+  USERS[uid].emoji = emoji;
+  updateUserSwitcher();
+  saveSettings();
+  renderSettings();
+}
+
+function setTheme(t) {
+  currentTheme = t;
+  document.body.setAttribute('data-theme', t === 'orange' ? '' : t);
+  saveSettings();
+  renderSettings();
+}
+
+function toggleSetting(key) {
+  toggles[key] = !toggles[key];
+  saveSettings();
+  renderSettings();
+}
+
+function sendFriendRequest(toUid) {
+  if (!friendships[toUid]) friendships[toUid] = { friends:[], pendingIncoming:[], pendingOutgoing:[] };
+  if (!friendships[currentUser].pendingOutgoing.includes(toUid)) {
+    friendships[currentUser].pendingOutgoing.push(toUid);
+    friendships[toUid].pendingIncoming.push(currentUser);
+    toast(`📨 Friend request sent to ${USERS[toUid].name}!`);
+  }
+  renderSettings();
+}
+
+function updateUserSwitcher() {
+  ['alex','jordan'].forEach((uid, i) => {
+    const btn = i===0 ? $('switcher-alex') : $('switcher-jordan');
+    if (btn) {
+      btn.textContent = USERS[uid].emoji + ' ' + USERS[uid].name;
+      btn.classList.toggle('active', uid === currentUser);
+    }
+  });
+}
+
+// ──────────────────────────────────────────────
+//  PERSIST SETTINGS
+// ──────────────────────────────────────────────
+
+function saveSettings() {
+  try {
+    localStorage.setItem('trustr_theme', currentTheme);
+    localStorage.setItem('trustr_toggles', JSON.stringify(toggles));
+    const profiles = {};
+    Object.keys(USERS).forEach(k => { profiles[k] = { name:USERS[k].name, emoji:USERS[k].emoji }; });
+    localStorage.setItem('trustr_profiles', JSON.stringify(profiles));
+  } catch(e) {}
+}
+
+function loadSettings() {
+  try {
+    const t = localStorage.getItem('trustr_theme');
+    if (t) { currentTheme = t; document.body.setAttribute('data-theme', t==='orange'?'':t); }
+    const tg = localStorage.getItem('trustr_toggles');
+    if (tg) toggles = { ...toggles, ...JSON.parse(tg) };
+    const prof = localStorage.getItem('trustr_profiles');
+    if (prof) {
+      const p = JSON.parse(prof);
+      Object.keys(p).forEach(k => { if (USERS[k]) { USERS[k].name=p[k].name; USERS[k].emoji=p[k].emoji; } });
+    }
+  } catch(e) {}
+}
+
+// ──────────────────────────────────────────────
+//  INIT
+// ──────────────────────────────────────────────
+
+loadSettings();
+updateUserSwitcher();
 render('friends');
 </script>
 </body>
