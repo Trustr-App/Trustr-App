@@ -135,7 +135,10 @@
       box-shadow: 0 3px 10px rgba(0,0,0,0.13);
       margin-bottom: 12px;
       border: 1px solid var(--card-border);
+      cursor: pointer;
+      transition: all 0.15s;
     }
+    .card:active { transform: scale(0.98); opacity: 0.9; }
 
     /* ── STATUS BADGES ───────────────────────────── */
     .badge {
@@ -276,6 +279,17 @@
     .photo-box .photo-icon { font-size:34px; margin-bottom:6px; }
     .photo-box p { font-size:13px; font-weight:600; }
 
+    /* ── EMOJI PICKER ────────────────────────────── */
+    .emoji-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:14px; }
+    .emoji-opt {
+      width:48px; height:48px; border-radius:12px; font-size:26px;
+      display:flex; align-items:center; justify-content:center;
+      border:3px solid transparent; cursor:pointer;
+      background:rgba(0,0,0,0.05); transition:all .15s;
+    }
+    .emoji-opt.sel { border-color:var(--teal); background:var(--teal-light); }
+    .emoji-opt:active { transform:scale(.9); }
+
     /* ── STARS ───────────────────────────────────── */
     .star-row { display:flex; gap:5px; margin:6px 0 12px; }
     .star { font-size:26px; cursor:pointer; opacity:0.2; transition:opacity 0.15s, transform 0.1s; user-select:none; }
@@ -403,6 +417,12 @@
     .af-name   { font-weight:800; font-size:14px; color:var(--text); }
     .af-status { font-size:12px; color:var(--text-sub); margin-top:2px; }
 
+    /* ── SUBSECTION TITLE ─────────────────────── */
+    .subsection-title {
+      font-size: 14px; font-weight: 800;
+      color: var(--purple); margin-top: 16px; margin-bottom: 10px;
+    }
+
     /* ════════════════════════════════════════════
        DARK THEME
     ════════════════════════════════════════════ */
@@ -473,6 +493,9 @@
     body[data-theme="dark"] .af-status    { color:#7070A0; }
     body[data-theme="dark"] .af-row       { border-color:rgba(255,255,255,0.06); }
     body[data-theme="dark"] .b-returned   { background:#222240; color:#9090B8; }
+    body[data-theme="dark"] .emoji-opt    { background:rgba(255,255,255,0.05); }
+    body[data-theme="dark"] .emoji-opt.sel { background:rgba(91,168,160,0.2); }
+    body[data-theme="dark"] .subsection-title { color:#A78BFA; }
 
     /* ════════════════════════════════════════════
        LIGHT THEME
@@ -493,6 +516,7 @@
     body[data-theme="light"] .empty-state p { color:#777; }
     body[data-theme="light"] .sett-section-label { color:#AAA; }
     body[data-theme="light"] .user-switcher { background:#EEEEF8; }
+    body[data-theme="light"] .subsection-title { color:#333; }
   </style>
 </head>
 <body>
@@ -514,7 +538,7 @@
 <!-- ════════ TAB BAR ════════ -->
 <div class="tab-bar">
   <button class="tab-pill active" id="nav-friends"  onclick="navigate('friends')">Friends</button>
-  <button class="tab-pill"        id="nav-borrows"  onclick="navigate('borrows')">My Borrows</button>
+  <button class="tab-pill"        id="nav-borrows"  onclick="navigate('borrows')">Items</button>
   <button class="tab-pill"        id="nav-requests" onclick="navigate('requests')">Requests<span class="pill-badge" id="req-badge" style="display:none">0</span></button>
   <button class="tab-pill"        id="nav-profile"  onclick="navigate('profile')">Profile</button>
   <button class="tab-pill"        id="nav-settings" onclick="navigate('settings')">Settings</button>
@@ -534,14 +558,16 @@
     <div id="friends-pending-req" style="display:none"></div>
   </div>
 
-  <!-- MY BORROWS -->
+  <!-- ITEMS (formerly MY BORROWS) -->
   <div class="screen" id="screen-borrows">
-    <div class="section-title">My Borrows 📦</div>
+    <div class="section-title">Items 📦</div>
     <div class="inner-tabs">
-      <button class="inner-tab active" id="tab-active"  onclick="switchBorrowTab('active')">Active</button>
-      <button class="inner-tab"        id="tab-history" onclick="switchBorrowTab('history')">History</button>
+      <button class="inner-tab active" id="tab-borrowed"  onclick="switchBorrowTab('borrowed')">Borrowed</button>
+      <button class="inner-tab"        id="tab-lent"      onclick="switchBorrowTab('lent')">Lent</button>
+      <button class="inner-tab"        id="tab-history"   onclick="switchBorrowTab('history')">History</button>
     </div>
-    <div id="borrows-active"></div>
+    <div id="borrows-borrowed"></div>
+    <div id="borrows-lent" style="display:none"></div>
     <div id="borrows-history" style="display:none"></div>
   </div>
 
@@ -612,6 +638,15 @@
   </div>
 </div>
 
+<!-- ════════ MODAL: TRANSACTION DETAILS ════════ -->
+<div class="modal-overlay" id="modal-details">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="details-title"></div>
+    <div id="modal-details-body"></div>
+  </div>
+</div>
+
 <!-- ════════ TOAST ════════ -->
 <div class="toast" id="toast"></div>
 
@@ -629,8 +664,8 @@ const USERS = {
   casey:  { id:'casey',  name:'Casey',  emoji:'🧕' },
 };
 
-const TODAY     = new Date('2026-06-10T00:00:00');
-const TODAY_STR = '2026-06-10';
+// Use real current date/time
+const NOW = new Date();
 
 let currentUser = 'alex';
 
@@ -689,6 +724,12 @@ const AVATAR_OPTIONS = [
   '🦸','🦹','🧙','🐱','🐶','🦊','🐺','🐻','🐼','🦁',
 ];
 
+const ITEM_EMOJIS = [
+  '📦','📚','🎧','💻','📱','⌚','🎮','🎸','🎹',
+  '📷','🎬','🎨','✏️','🖊️','📐','📏','🔧','🔨',
+  '👟','👕','🧥','🎒','👜','💼','⛱️','🎾','🏀',
+];
+
 // Borrow form state
 let borrowFormState = {
   itemName: '',
@@ -696,7 +737,6 @@ let borrowFormState = {
   itemCondition: 'Good',
   dueDate: '',
   borrowerNote: '',
-  photoCapture: false,
   targetFriend: null
 };
 
@@ -727,9 +767,15 @@ function fmt(dateStr) {
   return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
 }
 
+function fmtTime(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+}
+
 function dueChip(dueDateStr) {
   const due  = new Date(dueDateStr + 'T23:59:59');
-  const diff = Math.ceil((due - TODAY) / 864e5);
+  const diff = Math.ceil((due - NOW) / 864e5);
   if (diff < 0)   return `<span class="due-chip due-over">🔴 ${Math.abs(diff)}d overdue</span>`;
   if (diff === 0) return `<span class="due-chip due-soon">⚠️ Due today</span>`;
   if (diff <= 3)  return `<span class="due-chip due-soon">⚡ ${diff}d left</span>`;
@@ -738,7 +784,7 @@ function dueChip(dueDateStr) {
 
 function isLate(tx) {
   const due = new Date(tx.dueDate + 'T23:59:59');
-  if (!tx.returnRequestAt) return TODAY > due;
+  if (!tx.returnRequestAt) return NOW > due;
   return new Date(tx.returnRequestAt + 'T23:59:59') > due;
 }
 
@@ -958,10 +1004,18 @@ function openBorrowModal(targetFriend = null) {
     return;
   }
 
+  const emojiGrid = ITEM_EMOJIS.map(emoji => 
+    `<button type="button" class="emoji-opt ${borrowFormState.itemEmoji === emoji ? 'sel' : ''}" onclick="selectItemEmoji('${emoji}')">${emoji}</button>`
+  ).join('');
+
+  const minDate = new Date(NOW);
+  minDate.setDate(minDate.getDate() + 1);
+  const minDateStr = minDate.toISOString().split('T')[0];
+
   $('modal-borrow-body').innerHTML = `
     <div class="form-group">
       <label class="form-label">👥 Borrowing from</label>
-      <select id="borrow-friend" class="form-input" style="width:100%;padding:11px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;font-size:15px;font-family:inherit;color:var(--text);background:white;cursor:pointer;">
+      <select id="borrow-friend" class="form-input" style="width:100%;padding:11px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;font-size:15px;font-family:inherit;color:var(--text)">
         <option value="">Select a friend...</option>
         ${friendOptions}
       </select>
@@ -971,15 +1025,12 @@ function openBorrowModal(targetFriend = null) {
       <input type="text" id="borrow-item-name" class="form-input" placeholder="e.g. Calculator, Headphones..." value="${borrowFormState.itemName}">
     </div>
     <div class="form-group">
-      <label class="form-label">📸 Photo of item</label>
-      <div class="photo-box" onclick="capturePhotoBorrow(this)">
-        <div class="photo-icon">${borrowFormState.photoCapture ? '✅' : '📷'}</div>
-        <p>${borrowFormState.photoCapture ? 'Photo captured!' : 'Tap to capture photo of item'}</p>
-      </div>
+      <label class="form-label">📸 Item emoji</label>
+      <div class="emoji-grid">${emojiGrid}</div>
     </div>
     <div class="form-group">
       <label class="form-label">📋 Item condition</label>
-      <select id="borrow-condition" class="form-input" style="width:100%;padding:11px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;font-size:15px;font-family:inherit;color:var(--text);background:white;cursor:pointer;">
+      <select id="borrow-condition" class="form-input" style="width:100%;padding:11px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;font-size:15px;font-family:inherit;color:var(--text)">
         <option value="Like New">Like New</option>
         <option value="Good" selected>Good</option>
         <option value="Fair">Fair</option>
@@ -988,7 +1039,7 @@ function openBorrowModal(targetFriend = null) {
     </div>
     <div class="form-group">
       <label class="form-label">📅 Return date (required)</label>
-      <input type="date" id="borrow-due-date" class="form-input" value="${borrowFormState.dueDate}">
+      <input type="date" id="borrow-due-date" class="form-input" value="${borrowFormState.dueDate}" min="${minDateStr}">
     </div>
     <div class="form-group">
       <label class="form-label">📝 Note (optional)</label>
@@ -998,256 +1049,280 @@ function openBorrowModal(targetFriend = null) {
       <button class="btn btn-ghost" style="flex:1;border-radius:25px" onclick="closeBorrowModal()">Cancel</button>
       <button class="btn btn-primary" style="flex:2" onclick="submitBorrowRequest()">📦 Send Request</button>
     </div>`;
-  
-  if (borrowFormState.targetFriend) {
-    document.getElementById('borrow-friend').value = borrowFormState.targetFriend;
-  }
-  
   openModal('modal-borrow');
 }
 
-function capturePhotoBorrow(el) {
-  borrowFormState.photoCapture = true;
-  el.innerHTML = `<div class="photo-icon">✅</div><p style="color:var(--success);font-weight:700">Photo captured!</p>`;
-  el.style.borderColor = 'var(--success)';
-  el.style.background  = 'var(--success-light)';
-  el.onclick = null;
+function selectItemEmoji(emoji) {
+  borrowFormState.itemEmoji = emoji;
+  document.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('sel'));
+  event.target.classList.add('sel');
 }
 
 function closeBorrowModal() {
-  borrowFormState = { itemName: '', itemEmoji: '📦', itemCondition: 'Good', dueDate: '', borrowerNote: '', photoCapture: false, targetFriend: null };
   closeModal('modal-borrow');
 }
 
 function submitBorrowRequest() {
-  const friendEl = document.getElementById('borrow-friend');
-  const itemNameEl = document.getElementById('borrow-item-name');
-  const dueDateEl = document.getElementById('borrow-due-date');
-  const conditionEl = document.getElementById('borrow-condition');
-  const noteEl = document.getElementById('borrow-note');
+  const friendId = $('borrow-friend').value;
+  const itemName = $('borrow-item-name').value.trim();
+  const dueDate = $('borrow-due-date').value;
 
-  const friend = friendEl.value;
-  const itemName = itemNameEl.value.trim();
-  const dueDate = dueDateEl.value;
-  const condition = conditionEl.value;
-  const note = noteEl.value.trim();
-
-  // Validation
-  const errors = [];
-  if (!friend) errors.push('Please select a friend');
-  if (!itemName) errors.push('Please enter item name');
-  if (!dueDate) errors.push('Please select a return date');
-  if (!borrowFormState.photoCapture) errors.push('Please capture a photo');
-
-  if (errors.length > 0) {
-    errors.forEach((err, idx) => {
-      setTimeout(() => toast(err), idx * 300);
-    });
+  if (!friendId || !itemName || !dueDate) {
+    toast('❌ Please fill all required fields');
     return;
   }
 
-  // Create transaction
   const tx = {
     id: nextTxId++,
     itemId: nextTxId,
     borrower: currentUser,
-    lender: friend,
+    lender: friendId,
     itemName: itemName,
-    itemEmoji: '📦',
-    itemCondition: condition,
+    itemEmoji: borrowFormState.itemEmoji,
+    itemCondition: $('borrow-condition').value,
     itemNotes: '',
     status: 'requested',
-    requestedAt: TODAY_STR,
+    requestedAt: NOW.toISOString().split('T')[0],
     startDate: null,
     dueDate: dueDate,
     returnRequestAt: null,
     returnedAt: null,
     conditionRating: null,
     lenderNotes: '',
-    borrowerNote: note
+    borrowerNote: $('borrow-note').value.trim()
   };
 
   transactions.push(tx);
-  toast('✅ Borrow request sent!');
-  closeBorrowModal();
-  
-  if (currentScreen === 'borrows') {
-    renderBorrows();
-  } else if (currentScreen === 'requests') {
-    renderRequests();
-  }
+  toast(`✅ Borrow request sent to ${USERS[friendId].name}!`);
+  closeModal('modal-borrow');
+  borrowFormState = { itemName: '', itemEmoji: '📦', itemCondition: 'Good', dueDate: '', borrowerNote: '', targetFriend: null };
+  renderBorrows();
   updateBadges();
 }
 
 // ──────────────────────────────────────────────
-//  MY BORROWS
+//  BORROWS SCREEN
 // ──────────────────────────────────────────────
 
-let borrowTab = 'active';
+let borrowTab = 'borrowed';
 
 function switchBorrowTab(tab) {
   borrowTab = tab;
-  $('tab-active').classList.toggle('active', tab==='active');
+  $('tab-borrowed').classList.toggle('active', tab==='borrowed');
+  $('tab-lent').classList.toggle('active', tab==='lent');
   $('tab-history').classList.toggle('active', tab==='history');
-  $('borrows-active').style.display  = tab==='active'  ? 'block':'none';
+  $('borrows-borrowed').style.display = tab==='borrowed' ? 'block':'none';
+  $('borrows-lent').style.display = tab==='lent' ? 'block':'none';
   $('borrows-history').style.display = tab==='history' ? 'block':'none';
 }
 
 function renderBorrows() {
-  const active  = transactions.filter(tx => tx.borrower===currentUser && ['requested','active','pending_return'].includes(tx.status));
-  const history = transactions.filter(tx => tx.borrower===currentUser && ['returned','late','lost'].includes(tx.status));
-  $('borrows-active').innerHTML  = active.length  ? active.map(borrowCard).join('')  : emptyState('📭','No active borrows.');
-  $('borrows-history').innerHTML = history.length ? history.map(borrowCard).join('') : emptyState('📋','No borrow history yet.');
-}
+  const borrowed = transactions.filter(tx => tx.borrower === currentUser && (tx.status === 'active' || tx.status === 'requested'));
+  const lent = transactions.filter(tx => tx.lender === currentUser && (tx.status === 'active' || tx.status === 'pending_return'));
+  const history = transactions.filter(tx => (tx.borrower === currentUser || tx.lender === currentUser) && (tx.status === 'returned' || tx.status === 'lost'));
 
-function borrowCard(tx) {
-  const lender = USERS[tx.lender];
-  let actionHTML = '';
-
-  if (tx.status==='requested') {
-    actionHTML = `<div style="padding:11px;background:#FFF8E7;border-radius:12px;text-align:center;font-size:13px;color:var(--warning);font-weight:700">
-      ⏳ Waiting for ${lender.name} to approve…</div>`;
-  } else if (tx.status==='active') {
-    actionHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        ${dueChip(tx.dueDate)}<span class="badge b-active">✅ Active</span>
-      </div>
-      <button class="btn btn-outline btn-full" onclick="openReturnModal(${tx.id})">📦 Send Return Request</button>`;
-  } else if (tx.status==='pending_return') {
-    actionHTML = `<div style="padding:11px;background:var(--teal-light);border-radius:12px;text-align:center;font-size:13px;color:var(--teal-dark);font-weight:700">
-      🔄 Waiting for ${lender.name} to confirm return…</div>`;
-  } else if (tx.status==='returned') {
-    actionHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
-      <span class="badge b-returned">✔️ Returned on time</span>
-      ${tx.conditionRating?`<span style="color:#F59E0B;font-size:14px">${'⭐'.repeat(tx.conditionRating)}</span>`:''}
-    </div>`;
-  } else if (tx.status==='late') {
-    actionHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
-      <span class="badge b-late">🔴 Returned Late</span>
-      ${tx.conditionRating?`<span style="color:#F59E0B;font-size:14px">${'⭐'.repeat(tx.conditionRating)}</span>`:''}
-    </div>`;
-  } else if (tx.status==='lost') {
-    actionHTML = `<span class="badge b-lost">❌ Marked as Lost</span>`;
-  }
-
-  return `
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-        <div class="item-emoji">${tx.itemEmoji}</div>
-        <div>
-          <div class="item-name">${tx.itemName}</div>
-          <div class="item-meta">From ${lender.emoji} ${lender.name}</div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="info-row"><span class="info-label">Requested</span><span class="info-value">${fmt(tx.requestedAt)}</span></div>
-      <div class="info-row"><span class="info-label">Due date</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
-      ${tx.borrowerNote?`<div class="info-row"><span class="info-label">Your note</span><span class="info-value">${tx.borrowerNote}</span></div>`:''}
-      ${tx.lenderNotes ?`<div class="info-row"><span class="info-label">Lender note</span><span class="info-value">${tx.lenderNotes}</span></div>`:''}
-      <div style="margin-top:12px">${actionHTML}</div>
-    </div>`;
-}
-
-// ──────────────────────────────────────────────
-//  REQUESTS SCREEN (for lenders)
-// ──────────────────────────────────────────────
-
-function renderRequests() {
-  const pendingReqs = transactions.filter(tx => 
-    tx.lender === currentUser && 
-    (tx.status === 'requested' || tx.status === 'pending_return')
-  );
-
-  if (pendingReqs.length === 0) {
-    $('requests-list').innerHTML = emptyState('📭', 'No pending requests!');
-    return;
-  }
-
-  $('requests-list').innerHTML = pendingReqs.map(tx => {
-    const borrower = USERS[tx.borrower];
-    return `
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-          <div class="item-emoji">${tx.itemEmoji}</div>
-          <div>
-            <div class="item-name">${tx.itemName}</div>
-            <div class="item-meta">From ${borrower.emoji} ${borrower.name}</div>
+  $('borrows-borrowed').innerHTML = borrowed.length
+    ? borrowed.map(tx => `
+        <div class="card" onclick="openTransactionDetails(${tx.id})">
+          <div class="item-row">
+            <div class="item-emoji">${tx.itemEmoji}</div>
+            <div style="flex:1">
+              <div class="item-name">${tx.itemName}</div>
+              <div class="item-meta">from ${USERS[tx.lender].name}</div>
+            </div>
+            <div class="badge b-${tx.status}">${tx.status === 'requested' ? '⏳ Pending' : '✓ Active'}</div>
           </div>
-        </div>
-        <div class="divider"></div>
-        <div class="info-row"><span class="info-label">Condition</span><span class="info-value">${tx.itemCondition}</span></div>
-        <div class="info-row"><span class="info-label">Due date</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
-        ${tx.borrowerNote?`<div class="info-row"><span class="info-label">Note</span><span class="info-value">${tx.borrowerNote}</span></div>`:''}
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn btn-danger btn-sm" style="flex:1" onclick="respondBorrowRequest(${tx.id}, false)">✕ Decline</button>
-          <button class="btn btn-primary btn-sm" style="flex:2" onclick="respondBorrowRequest(${tx.id}, true)">✓ Approve</button>
-        </div>
-      </div>`;
-  }).join('');
+          <div style="margin-top:10px">${dueChip(tx.dueDate)}</div>
+        </div>`).join('')
+    : emptyState('📭', 'No borrowed items');
+
+  $('borrows-lent').innerHTML = lent.length
+    ? lent.map(tx => `
+        <div class="card" onclick="openTransactionDetails(${tx.id})">
+          <div class="item-row">
+            <div class="item-emoji">${tx.itemEmoji}</div>
+            <div style="flex:1">
+              <div class="item-name">${tx.itemName}</div>
+              <div class="item-meta">to ${USERS[tx.borrower].name}</div>
+            </div>
+            <div class="badge b-${tx.status}">${tx.status === 'pending_return' ? '🔄 Return Pending' : '✓ Active'}</div>
+          </div>
+          <div style="margin-top:10px">${dueChip(tx.dueDate)}</div>
+        </div>`).join('')
+    : emptyState('🎁', 'No lent items');
+
+  $('borrows-history').innerHTML = history.length
+    ? history.map(tx => `
+        <div class="card" onclick="openTransactionDetails(${tx.id})">
+          <div class="item-row">
+            <div class="item-emoji">${tx.itemEmoji}</div>
+            <div style="flex:1">
+              <div class="item-name">${tx.itemName}</div>
+              <div class="item-meta">${tx.borrower === currentUser ? 'from' : 'to'} ${tx.borrower === currentUser ? USERS[tx.lender].name : USERS[tx.borrower].name}</div>
+            </div>
+            <div class="badge b-${tx.status}">${tx.status === 'returned' ? '✓ Returned' : '❌ Lost'}</div>
+          </div>
+          <div style="margin-top:10px">Returned ${fmt(tx.returnedAt)}</div>
+        </div>`).join('')
+    : emptyState('📜', 'No history');
 }
 
-function respondBorrowRequest(txId, approve) {
+// ──────────────────────────────────────────────
+//  TRANSACTION DETAILS MODAL
+// ──────────────────────────────────────────────
+
+function openTransactionDetails(txId) {
   const tx = getTx(txId);
   if (!tx) return;
 
-  if (approve) {
-    tx.status = 'active';
-    tx.startDate = TODAY_STR;
-    toast(`✅ Borrow request approved for ${USERS[tx.borrower].name}!`);
-  } else {
-    transactions = transactions.filter(t => t.id !== txId);
-    toast('✕ Borrow request declined');
+  const isOwner = currentUser === tx.borrower;
+  const otherUser = isOwner ? tx.lender : tx.borrower;
+  const otherUserName = USERS[otherUser].name;
+
+  let detailsHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <div class="item-row" style="margin-bottom:14px">
+        <div class="item-emoji" style="font-size:48px;width:60px;height:60px">${tx.itemEmoji}</div>
+        <div style="flex:1">
+          <div class="item-name">${tx.itemName}</div>
+          <div class="item-meta" style="font-size:13px;color:var(--text-sub)">${isOwner ? 'Borrowed from' : 'Lent to'} ${otherUserName}</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="info-row">
+        <span class="info-label">Status</span>
+        <span class="badge b-${tx.status}">${
+          tx.status === 'requested' ? '⏳ Pending Approval' :
+          tx.status === 'active' ? '✓ Active' :
+          tx.status === 'pending_return' ? '🔄 Return Pending' :
+          tx.status === 'returned' ? '✓ Returned' : '❌ Lost'
+        }</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Condition</span>
+        <span class="info-value">${tx.itemCondition}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Due Date</span>
+        <span class="info-value">${fmt(tx.dueDate)}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Requested</span>
+        <span class="info-value">${fmt(tx.requestedAt)}</span>
+      </div>
+      ${tx.startDate ? `<div class="info-row"><span class="info-label">Started</span><span class="info-value">${fmt(tx.startDate)}</span></div>` : ''}
+      ${tx.returnedAt ? `<div class="info-row"><span class="info-label">Returned</span><span class="info-value">${fmt(tx.returnedAt)}</span></div>` : ''}
+      ${tx.borrowerNote ? `<div class="info-row"><span class="info-label">Borrower Note</span><span class="info-value">${tx.borrowerNote}</span></div>` : ''}
+      ${tx.lenderNotes ? `<div class="info-row"><span class="info-label">Lender Note</span><span class="info-value">${tx.lenderNotes}</span></div>` : ''}
+    </div>
+  `;
+
+  // Action buttons based on status and role
+  if (tx.status === 'requested' && !isOwner) {
+    detailsHTML += `
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-danger" style="flex:1" onclick="rejectBorrowRequest(${txId})">✕ Reject</button>
+        <button class="btn btn-success" style="flex:1" onclick="approveBorrowRequest(${txId})">✓ Approve</button>
+      </div>`;
+  } else if (tx.status === 'active' && isOwner) {
+    detailsHTML += `
+      <div style="margin-top:12px">
+        <button class="btn btn-primary btn-full" onclick="openReturnModal(${txId})">🔄 Request Return</button>
+      </div>`;
+  } else if (tx.status === 'pending_return' && !isOwner) {
+    detailsHTML += `
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-danger" style="flex:1" onclick="denyReturn(${txId})">✕ Deny Return</button>
+        <button class="btn btn-success" style="flex:1" onclick="confirmReturn(${txId})">✓ Confirm Return</button>
+      </div>`;
   }
 
+  $('details-title').textContent = tx.itemName + ' 📋';
+  $('modal-details-body').innerHTML = detailsHTML;
+  openModal('modal-details');
+}
+
+function approveBorrowRequest(txId) {
+  const tx = getTx(txId);
+  if (!tx) return;
+  tx.status = 'active';
+  tx.startDate = NOW.toISOString().split('T')[0];
+  toast('✅ Borrow approved!');
+  closeModal('modal-details');
+  renderBorrows();
   renderRequests();
   updateBadges();
 }
 
-// ──────────────────────────────────────────────
-//  RETURN MODAL
-// ──────────────────────────────────────────────
+function rejectBorrowRequest(txId) {
+  const tx = getTx(txId);
+  if (!tx) return;
+  tx.status = 'returned';
+  tx.returnedAt = NOW.toISOString().split('T')[0];
+  toast('✕ Borrow rejected');
+  closeModal('modal-details');
+  renderBorrows();
+  renderRequests();
+  updateBadges();
+}
 
 function openReturnModal(txId) {
   const tx = getTx(txId);
-  const simulatedLate = isLate({ ...tx, returnRequestAt:TODAY_STR });
-
+  if (!tx) return;
+  
   $('modal-return-body').innerHTML = `
-    <div style="background:rgba(0,0,0,0.04);border-radius:14px;padding:14px;margin-bottom:16px">
-      <div class="item-row">
-        <div class="item-emoji">${tx.itemEmoji}</div>
-        <div>
-          <div class="item-name">${tx.itemName}</div>
-          <div class="item-meta">Due: ${fmt(tx.dueDate)}</div>
-          <div style="margin-top:5px">${dueChip(tx.dueDate)}</div>
-        </div>
+    <div class="form-group">
+      <label class="form-label">📋 Current condition</label>
+      <select id="return-condition" class="form-input">
+        <option value="Like New">Like New</option>
+        <option value="Good" selected>Good</option>
+        <option value="Fair">Fair</option>
+        <option value="Used">Used</option>
+        <option value="Damaged">Damaged</option>
+        <option value="Lost">Lost</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">⭐ Condition rating (1-5)</label>
+      <div class="star-row" id="star-rating">
+        <span class="star" onclick="setRating(1)">⭐</span>
+        <span class="star" onclick="setRating(2)">⭐</span>
+        <span class="star" onclick="setRating(3)">⭐</span>
+        <span class="star" onclick="setRating(4)">⭐</span>
+        <span class="star" onclick="setRating(5)">⭐</span>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">📸 Photo of item being returned</label>
-      <div class="photo-box" onclick="fakePhoto(this)">
-        <div class="photo-icon">📷</div>
-        <p>Tap to capture photo of item</p>
-      </div>
+      <label class="form-label">📝 Notes</label>
+      <input type="text" id="return-notes" class="form-input" placeholder="Any damages or notes?" value="">
     </div>
-    ${simulatedLate
-      ? `<div style="padding:12px;background:var(--danger-light);border-radius:12px;font-size:13px;color:var(--danger);font-weight:700;margin-bottom:14px">⚠️ Past the due date — this will be marked as late</div>`
-      : `<div style="padding:12px;background:var(--success-light);border-radius:12px;font-size:13px;color:var(--success);font-weight:700;margin-bottom:14px">✅ Returning on time — great!</div>`
-    }
-    <p style="font-size:13px;color:var(--text-sub);margin-bottom:16px">
-      ${USERS[tx.lender].name} will confirm receipt and rate the condition.
-    </p>
     <div style="display:flex;gap:10px">
-      <button class="btn btn-ghost" style="flex:1;border-radius:25px" onclick="closeModal('modal-return')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="submitReturn(${txId})">📦 Send Return Request</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-return')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="submitReturn(${txId})">📦 Request Return</button>
     </div>`;
+  
+  window.currentReturnRating = 5;
+  updateStarRating();
+  closeModal('modal-details');
   openModal('modal-return');
 }
 
-function fakePhoto(el) {
-  el.innerHTML = `<div class="photo-icon">✅</div><p style="color:var(--success);font-weight:700">Photo captured!</p>`;
-  el.style.borderColor = 'var(--success)';
-  el.style.background  = 'var(--success-light)';
-  el.onclick = null;
+window.currentReturnRating = 5;
+
+function setRating(n) {
+  window.currentReturnRating = n;
+  updateStarRating();
+}
+
+function updateStarRating() {
+  const stars = document.querySelectorAll('.star-row .star');
+  stars.forEach((star, idx) => {
+    if (idx < window.currentReturnRating) {
+      star.classList.add('lit');
+    } else {
+      star.classList.remove('lit');
+    }
+  });
 }
 
 function submitReturn(txId) {
@@ -1255,90 +1330,192 @@ function submitReturn(txId) {
   if (!tx) return;
   
   tx.status = 'pending_return';
-  tx.returnRequestAt = TODAY_STR;
+  tx.returnRequestAt = NOW.toISOString().split('T')[0];
+  tx.conditionRating = window.currentReturnRating;
+  tx.lenderNotes = $('return-notes').value.trim();
+  
   toast('✅ Return request sent!');
   closeModal('modal-return');
+  renderBorrows();
+  renderRequests();
+  updateBadges();
+}
+
+function confirmReturn(txId) {
+  const tx = getTx(txId);
+  if (!tx) return;
+  
+  tx.status = 'returned';
+  tx.returnedAt = NOW.toISOString().split('T')[0];
+  
+  toast('✅ Item confirmed returned!');
+  closeModal('modal-details');
+  renderBorrows();
+  updateBadges();
+}
+
+function denyReturn(txId) {
+  const tx = getTx(txId);
+  if (!tx) return;
+  
+  tx.status = 'active';
+  tx.returnRequestAt = null;
+  tx.conditionRating = null;
+  tx.lenderNotes = '';
+  
+  toast('✕ Return denied');
+  closeModal('modal-details');
   renderBorrows();
   updateBadges();
 }
 
 // ──────────────────────────────────────────────
-//  PROFILE
+//  REQUESTS SCREEN
+// ──────────────────────────────────────────────
+
+function renderRequests() {
+  const pending = transactions.filter(tx =>
+    (tx.lender === currentUser && (tx.status === 'requested' || tx.status === 'pending_return'))
+  );
+
+  $('requests-list').innerHTML = pending.length
+    ? pending.map(tx => {
+        const isBorrowRequest = tx.status === 'requested';
+        const type = isBorrowRequest ? '📦 Borrow Request' : '🔄 Return Request';
+        return `
+          <div class="card" onclick="openTransactionDetails(${tx.id})">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div class="item-name">${type}</div>
+              <div class="badge b-${tx.status}">${isBorrowRequest ? '⏳ Pending Approval' : '🔄 Return Pending'}</div>
+            </div>
+            <div class="item-row">
+              <div class="item-emoji">${tx.itemEmoji}</div>
+              <div style="flex:1">
+                <div style="font-weight:700">${tx.itemName}</div>
+                <div class="item-meta">from ${USERS[tx.borrower].name}</div>
+              </div>
+            </div>
+            ${!isBorrowRequest ? `<div style="margin-top:8px;font-size:12px;color:var(--text-sub)">Condition: ${tx.itemCondition} | Rating: ${'⭐'.repeat(tx.conditionRating)}</div>` : ''}
+          </div>`;
+      }).join('')
+    : emptyState('✨', 'No pending requests!');
+}
+
+// ──────────────────────────────────────────────
+//  PROFILE SCREEN
 // ──────────────────────────────────────────────
 
 function renderProfile() {
   const user = USERS[currentUser];
-  const stats = {
-    activeLoans: transactions.filter(t => t.borrower === currentUser && t.status === 'active').length,
-    loanedOut: transactions.filter(t => t.lender === currentUser && t.status === 'active').length,
-    completed: transactions.filter(t => (t.borrower === currentUser || t.lender === currentUser) && ['returned', 'late'].includes(t.status)).length,
-  };
-
   $('profile-content').innerHTML = `
     <div class="avatar-wrap">
-      <div class="avatar-emoji">${user.emoji}</div>
+      <span class="avatar-emoji">${user.emoji}</span>
       <div class="avatar-name">${user.name}</div>
-      <div class="avatar-sub">${friendships[currentUser].friends.length} friends</div>
+      <div class="avatar-sub">Member since Jun 2026</div>
     </div>
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-number">${stats.activeLoans}</div>
-        <div class="stat-label">Active Borrows</div>
+        <div class="stat-number">${transactions.filter(tx => (tx.borrower === currentUser || tx.lender === currentUser) && tx.status !== 'returned').length}</div>
+        <div class="stat-label">Active Items</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">${stats.loanedOut}</div>
-        <div class="stat-label">Loaned Out</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">${stats.completed}</div>
+        <div class="stat-number">${transactions.filter(tx => tx.status === 'returned').length}</div>
         <div class="stat-label">Completed</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">${friendships[currentUser].friends.length}</div>
-        <div class="stat-label">Friends</div>
-      </div>
     </div>
-    <div class="card">
-      <button class="btn btn-primary btn-full" onclick="navigate('settings')">⚙️ Settings</button>
+    <div class="divider"></div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-primary btn-full" onclick="openNameModal()">✏️ Change Name</button>
     </div>
   `;
 }
 
+function openNameModal() {
+  const user = USERS[currentUser];
+  $('modal-name-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Display Name</label>
+      <input type="text" id="name-input" class="form-input" value="${user.name}" placeholder="Your name">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-name')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="submitNameChange()">✓ Save</button>
+    </div>`;
+  openModal('modal-name');
+}
+
+function submitNameChange() {
+  const newName = $('name-input').value.trim();
+  if (!newName) {
+    toast('❌ Name cannot be empty');
+    return;
+  }
+  USERS[currentUser].name = newName;
+  toast('✅ Name updated!');
+  closeModal('modal-name');
+  renderProfile();
+}
+
 // ──────────────────────────────────────────────
-//  SETTINGS
+//  SETTINGS SCREEN
 // ──────────────────────────────────────────────
 
 function renderSettings() {
+  const themeOptions = [
+    { id:'orange', name:'Orange', colors:'linear-gradient(135deg, #FFAA6B, #FF5C5C)' },
+    { id:'purple', name:'Purple', colors:'linear-gradient(135deg, #A78BFA, #C084FC)' },
+    { id:'teal',   name:'Teal',   colors:'linear-gradient(135deg, #5BA8A0, #4A9490)' },
+  ];
+
   $('settings-content').innerHTML = `
-    <div class="sett-section-label">Account</div>
-    <div class="sett-row" onclick="openChangeNameModal()">
-      <div class="sett-icon">👤</div>
-      <div class="sett-info">
-        <div class="sett-label">Display Name</div>
-        <div class="sett-sub">${USERS[currentUser].name}</div>
-      </div>
-      <div class="sett-chev">›</div>
-    </div>
-    <div class="sett-section-label">Notifications</div>
-    <div class="toggle-row">
-      <div>
-        <div class="toggle-lbl">Borrow Notifications</div>
-        <div class="toggle-sub">Get notified of new borrow requests</div>
-      </div>
-      <div class="tog-track ${toggles.borrowNotifs ? 'on' : ''}" onclick="toggleSetting('borrowNotifs')">
-        <div class="tog-thumb"></div>
+    <div style="margin-bottom:24px">
+      <div class="sett-section-label">📱 Theme</div>
+      <div class="theme-grid">
+        ${themeOptions.map(t => `
+          <div class="theme-opt ${currentTheme === t.id ? 'sel' : ''}" onclick="changeTheme('${t.id}')">
+            <div class="theme-preview" style="background:${t.colors}"></div>
+            <div class="theme-label">${t.name}</div>
+          </div>`).join('')}
       </div>
     </div>
-    <div class="toggle-row">
-      <div>
-        <div class="toggle-lbl">Return Reminders</div>
-        <div class="toggle-sub">Remind me when items are due</div>
+
+    <div>
+      <div class="sett-section-label">🔔 Notifications</div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-lbl">Borrow Notifications</div>
+          <div class="toggle-sub">New borrow requests</div>
+        </div>
+        <div class="tog-track ${toggles.borrowNotifs ? 'on' : ''}" onclick="toggleSetting('borrowNotifs')">
+          <div class="tog-thumb"></div>
+        </div>
       </div>
-      <div class="tog-track ${toggles.returnReminders ? 'on' : ''}" onclick="toggleSetting('returnReminders')">
-        <div class="tog-thumb"></div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-lbl">Return Reminders</div>
+          <div class="toggle-sub">Due date approaching</div>
+        </div>
+        <div class="tog-track ${toggles.returnReminders ? 'on' : ''}" onclick="toggleSetting('returnReminders')">
+          <div class="tog-thumb"></div>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-lbl">Late Alerts</div>
+          <div class="toggle-sub">Items overdue</div>
+        </div>
+        <div class="tog-track ${toggles.lateAlerts ? 'on' : ''}" onclick="toggleSetting('lateAlerts')">
+          <div class="tog-thumb"></div>
+        </div>
       </div>
     </div>
   `;
+}
+
+function changeTheme(theme) {
+  currentTheme = theme;
+  document.querySelectorAll('.theme-opt').forEach(el => el.classList.remove('sel'));
+  event.target.closest('.theme-opt').classList.add('sel');
 }
 
 function toggleSetting(key) {
@@ -1346,36 +1523,10 @@ function toggleSetting(key) {
   renderSettings();
 }
 
-function openChangeNameModal() {
-  $('modal-name-body').innerHTML = `
-    <div class="form-group">
-      <label class="form-label">👤 Display Name</label>
-      <input type="text" id="name-input" class="form-input" value="${USERS[currentUser].name}">
-    </div>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-ghost" style="flex:1;border-radius:25px" onclick="closeModal('modal-name')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="saveName()">Save</button>
-    </div>`;
-  openModal('modal-name');
-}
-
-function saveName() {
-  const newName = $('name-input').value.trim();
-  if (!newName) {
-    toast('Please enter a name');
-    return;
-  }
-  USERS[currentUser].name = newName;
-  toast('✅ Name updated!');
-  closeModal('modal-name');
-  renderSettings();
-  updateUserSwitcher();
-}
-
-// Initialize
-updateUserSwitcher();
-render('friends');
-updateFABVisibility();
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', () => {
+  render('friends');
+});
 </script>
 </body>
 </html>
