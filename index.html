@@ -165,6 +165,21 @@
     .btn-full    { width:100%; }
     .btn-sm      { padding:7px 14px; font-size:13px; }
 
+    /* ── FAB (Floating Action Button) ────────────── */
+    .fab {
+      position:fixed; bottom:28px; right:14px;
+      width:56px; height:56px;
+      border-radius:50%; border:none;
+      background:linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color:white; font-size:24px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; z-index:90;
+      box-shadow:0 4px 16px rgba(91,168,160,0.4);
+      transition:all 0.2s;
+    }
+    .fab:active { transform:scale(0.9); }
+    .fab.hidden { display:none; }
+
     /* ── FORM ────────────────────────────────────── */
     .form-group { margin-bottom:14px; }
     .form-label { font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:.4px; }
@@ -175,6 +190,7 @@
       font-family:inherit; color:var(--text); background:white;
     }
     .form-input:focus { border-color:var(--teal); }
+    .form-input.error { border-color:var(--danger); background:var(--danger-light); }
 
     /* ── INNER TABS ─────────────────────────────── */
     .inner-tabs {
@@ -247,6 +263,8 @@
     .chat-input { padding:12px; border-top:1px solid rgba(0,0,0,0.1); display:flex; gap:8px; }
     .chat-input input { flex:1; padding:8px 12px; border:1px solid rgba(0,0,0,0.15); border-radius:20px; font-size:13px; font-family:inherit; outline:none; }
     .chat-input button { padding:8px 14px; background:var(--teal); color:white; border:none; border-radius:20px; cursor:pointer; font-weight:700; font-size:12px; font-family:inherit; }
+    .chat-actions { display:flex; gap:8px; padding:12px; border-top:1px solid rgba(0,0,0,0.1); }
+    .chat-actions button { flex:1; padding:8px 12px; background:var(--teal); color:white; border:none; border-radius:20px; cursor:pointer; font-weight:700; font-size:12px; font-family:inherit; }
 
     /* ── PHOTO BOX ───────────────────────────────── */
     .photo-box {
@@ -546,6 +564,9 @@
 
 </div>
 
+<!-- ════════ FAB (Floating Action Button) ════════ -->
+<button class="fab hidden" id="fab-borrow" onclick="openBorrowModal()" title="Request to Borrow">📦</button>
+
 <!-- ════════ MODAL: CHAT ════════ -->
 <div class="modal-overlay" id="modal-chat">
   <div class="modal" style="padding:0;display:flex;flex-direction:column">
@@ -558,6 +579,9 @@
       <input type="text" id="chat-input-field" placeholder="Message...">
       <button onclick="sendMessage()">Send</button>
     </div>
+    <div class="chat-actions">
+      <button onclick="requestBorrowFromChat()">📦 Request to Borrow</button>
+    </div>
   </div>
 </div>
 
@@ -565,7 +589,7 @@
 <div class="modal-overlay" id="modal-borrow">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Request to Borrow</div>
+    <div class="modal-title">Request to Borrow 📦</div>
     <div id="modal-borrow-body"></div>
   </div>
 </div>
@@ -665,6 +689,17 @@ const AVATAR_OPTIONS = [
   '🦸','🦹','🧙','🐱','🐶','🦊','🐺','🐻','🐼','🦁',
 ];
 
+// Borrow form state
+let borrowFormState = {
+  itemName: '',
+  itemEmoji: '📦',
+  itemCondition: 'Good',
+  dueDate: '',
+  borrowerNote: '',
+  photoCapture: false,
+  targetFriend: null
+};
+
 // ──────────────────────────────────────────────
 //  HELPERS
 // ──────────────────────────────────────────────
@@ -736,6 +771,15 @@ function emptyState(icon, msg) {
   return `<div class="empty-state"><div class="empty-icon">${icon}</div><p>${msg}</p></div>`;
 }
 
+function updateFABVisibility() {
+  const fab = $('fab-borrow');
+  if (currentScreen === 'borrows' || currentScreen === 'requests') {
+    fab.classList.remove('hidden');
+  } else {
+    fab.classList.add('hidden');
+  }
+}
+
 // ──────────────────────────────────────────────
 //  NAVIGATION
 // ──────────────────────────────────────────────
@@ -749,6 +793,7 @@ function navigate(screen) {
   $('nav-'    + screen).classList.add('active');
   currentScreen = screen;
   render(screen);
+  updateFABVisibility();
 }
 
 function render(screen) {
@@ -764,6 +809,11 @@ function switchUser(uid) {
   currentUser = uid;
   updateUserSwitcher();
   render(currentScreen);
+}
+
+function updateUserSwitcher() {
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
+  $('switcher-' + currentUser).classList.add('active');
 }
 
 // ──────────────────────────────────────────────
@@ -881,7 +931,153 @@ function sendMessage() {
   renderChatMessages(key);
 }
 
+function requestBorrowFromChat() {
+  if (!currentChatFriend) return;
+  borrowFormState.targetFriend = currentChatFriend;
+  closeModal('modal-chat');
+  openBorrowModal();
+}
+
 $('chat-input-field').addEventListener('keydown', e => { if (e.key==='Enter') sendMessage(); });
+
+// ──────────────────────────────────────────────
+//  BORROW REQUEST MODAL
+// ──────────────────────────────────────────────
+
+function openBorrowModal(targetFriend = null) {
+  if (targetFriend) {
+    borrowFormState.targetFriend = targetFriend;
+  }
+  
+  const friendOptions = friendships[currentUser].friends
+    .map(id => `<option value="${id}">${USERS[id].name}</option>`)
+    .join('');
+  
+  if (!friendOptions) {
+    toast('You need to add friends first!');
+    return;
+  }
+
+  $('modal-borrow-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">👥 Borrowing from</label>
+      <select id="borrow-friend" class="form-input" style="width:100%;padding:11px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;font-size:15px;font-family:inherit;color:var(--text);background:white;cursor:pointer;">
+        <option value="">Select a friend...</option>
+        ${friendOptions}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📦 Item name</label>
+      <input type="text" id="borrow-item-name" class="form-input" placeholder="e.g. Calculator, Headphones..." value="${borrowFormState.itemName}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📸 Photo of item</label>
+      <div class="photo-box" onclick="capturePhotoBorrow(this)">
+        <div class="photo-icon">${borrowFormState.photoCapture ? '✅' : '📷'}</div>
+        <p>${borrowFormState.photoCapture ? 'Photo captured!' : 'Tap to capture photo of item'}</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📋 Item condition</label>
+      <select id="borrow-condition" class="form-input" style="width:100%;padding:11px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;font-size:15px;font-family:inherit;color:var(--text);background:white;cursor:pointer;">
+        <option value="Like New">Like New</option>
+        <option value="Good" selected>Good</option>
+        <option value="Fair">Fair</option>
+        <option value="Used">Used</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📅 Return date (required)</label>
+      <input type="date" id="borrow-due-date" class="form-input" value="${borrowFormState.dueDate}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📝 Note (optional)</label>
+      <input type="text" id="borrow-note" class="form-input" placeholder="e.g. Need it for finals week" value="${borrowFormState.borrowerNote}">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;border-radius:25px" onclick="closeBorrowModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="submitBorrowRequest()">📦 Send Request</button>
+    </div>`;
+  
+  if (borrowFormState.targetFriend) {
+    document.getElementById('borrow-friend').value = borrowFormState.targetFriend;
+  }
+  
+  openModal('modal-borrow');
+}
+
+function capturePhotoBorrow(el) {
+  borrowFormState.photoCapture = true;
+  el.innerHTML = `<div class="photo-icon">✅</div><p style="color:var(--success);font-weight:700">Photo captured!</p>`;
+  el.style.borderColor = 'var(--success)';
+  el.style.background  = 'var(--success-light)';
+  el.onclick = null;
+}
+
+function closeBorrowModal() {
+  borrowFormState = { itemName: '', itemEmoji: '📦', itemCondition: 'Good', dueDate: '', borrowerNote: '', photoCapture: false, targetFriend: null };
+  closeModal('modal-borrow');
+}
+
+function submitBorrowRequest() {
+  const friendEl = document.getElementById('borrow-friend');
+  const itemNameEl = document.getElementById('borrow-item-name');
+  const dueDateEl = document.getElementById('borrow-due-date');
+  const conditionEl = document.getElementById('borrow-condition');
+  const noteEl = document.getElementById('borrow-note');
+
+  const friend = friendEl.value;
+  const itemName = itemNameEl.value.trim();
+  const dueDate = dueDateEl.value;
+  const condition = conditionEl.value;
+  const note = noteEl.value.trim();
+
+  // Validation
+  const errors = [];
+  if (!friend) errors.push('Please select a friend');
+  if (!itemName) errors.push('Please enter item name');
+  if (!dueDate) errors.push('Please select a return date');
+  if (!borrowFormState.photoCapture) errors.push('Please capture a photo');
+
+  if (errors.length > 0) {
+    errors.forEach((err, idx) => {
+      setTimeout(() => toast(err), idx * 300);
+    });
+    return;
+  }
+
+  // Create transaction
+  const tx = {
+    id: nextTxId++,
+    itemId: nextTxId,
+    borrower: currentUser,
+    lender: friend,
+    itemName: itemName,
+    itemEmoji: '📦',
+    itemCondition: condition,
+    itemNotes: '',
+    status: 'requested',
+    requestedAt: TODAY_STR,
+    startDate: null,
+    dueDate: dueDate,
+    returnRequestAt: null,
+    returnedAt: null,
+    conditionRating: null,
+    lenderNotes: '',
+    borrowerNote: note
+  };
+
+  transactions.push(tx);
+  toast('✅ Borrow request sent!');
+  closeBorrowModal();
+  
+  if (currentScreen === 'borrows') {
+    renderBorrows();
+  } else if (currentScreen === 'requests') {
+    renderRequests();
+  }
+  updateBadges();
+}
 
 // ──────────────────────────────────────────────
 //  MY BORROWS
@@ -953,6 +1149,61 @@ function borrowCard(tx) {
 }
 
 // ──────────────────────────────────────────────
+//  REQUESTS SCREEN (for lenders)
+// ──────────────────────────────────────────────
+
+function renderRequests() {
+  const pendingReqs = transactions.filter(tx => 
+    tx.lender === currentUser && 
+    (tx.status === 'requested' || tx.status === 'pending_return')
+  );
+
+  if (pendingReqs.length === 0) {
+    $('requests-list').innerHTML = emptyState('📭', 'No pending requests!');
+    return;
+  }
+
+  $('requests-list').innerHTML = pendingReqs.map(tx => {
+    const borrower = USERS[tx.borrower];
+    return `
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div class="item-emoji">${tx.itemEmoji}</div>
+          <div>
+            <div class="item-name">${tx.itemName}</div>
+            <div class="item-meta">From ${borrower.emoji} ${borrower.name}</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="info-row"><span class="info-label">Condition</span><span class="info-value">${tx.itemCondition}</span></div>
+        <div class="info-row"><span class="info-label">Due date</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
+        ${tx.borrowerNote?`<div class="info-row"><span class="info-label">Note</span><span class="info-value">${tx.borrowerNote}</span></div>`:''}
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-danger btn-sm" style="flex:1" onclick="respondBorrowRequest(${tx.id}, false)">✕ Decline</button>
+          <button class="btn btn-primary btn-sm" style="flex:2" onclick="respondBorrowRequest(${tx.id}, true)">✓ Approve</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function respondBorrowRequest(txId, approve) {
+  const tx = getTx(txId);
+  if (!tx) return;
+
+  if (approve) {
+    tx.status = 'active';
+    tx.startDate = TODAY_STR;
+    toast(`✅ Borrow request approved for ${USERS[tx.borrower].name}!`);
+  } else {
+    transactions = transactions.filter(t => t.id !== txId);
+    toast('✕ Borrow request declined');
+  }
+
+  renderRequests();
+  updateBadges();
+}
+
+// ──────────────────────────────────────────────
 //  RETURN MODAL
 // ──────────────────────────────────────────────
 
@@ -979,7 +1230,7 @@ function openReturnModal(txId) {
       </div>
     </div>
     ${simulatedLate
-      ? `<div style="padding:12px;background:var(--danger-light);border-radius:12px;font-size:13px;color:var(--danger);font-weight:700;margin-bottom:14px">⚠️ Past the due date — this will be marked <strong>Late</strong>.</div>`
+      ? `<div style="padding:12px;background:var(--danger-light);border-radius:12px;font-size:13px;color:var(--danger);font-weight:700;margin-bottom:14px">⚠️ Past the due date — this will be marked as late</div>`
       : `<div style="padding:12px;background:var(--success-light);border-radius:12px;font-size:13px;color:var(--success);font-weight:700;margin-bottom:14px">✅ Returning on time — great!</div>`
     }
     <p style="font-size:13px;color:var(--text-sub);margin-bottom:16px">
@@ -1001,125 +1252,14 @@ function fakePhoto(el) {
 
 function submitReturn(txId) {
   const tx = getTx(txId);
+  if (!tx) return;
+  
   tx.status = 'pending_return';
   tx.returnRequestAt = TODAY_STR;
+  toast('✅ Return request sent!');
   closeModal('modal-return');
-  toast('📦 Return request sent!');
   renderBorrows();
   updateBadges();
-}
-
-// ──────────────────────────────────────────────
-//  REQUESTS SCREEN
-// ──────────────────────────────────────────────
-
-let starRating = {};
-
-function renderRequests() {
-  const borrowReqs = transactions.filter(tx => tx.lender===currentUser && tx.status==='requested');
-  const returnReqs = transactions.filter(tx => tx.lender===currentUser && tx.status==='pending_return');
-
-  if (!borrowReqs.length && !returnReqs.length) {
-    $('requests-list').innerHTML = emptyState('🎉','No pending requests!');
-    updateBadges(); return;
-  }
-
-  let html = '';
-
-  if (borrowReqs.length) {
-    html += `<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.7);margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px">Borrow Requests</div>`;
-    html += borrowReqs.map(tx => {
-      const b = USERS[tx.borrower];
-      return `
-        <div class="card">
-          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
-            <div class="item-emoji">${tx.itemEmoji}</div>
-            <div>
-              <div class="item-name">${tx.itemName}</div>
-              <div class="item-meta">${b.emoji} ${b.name}</div>
-            </div>
-          </div>
-          <div class="info-row"><span class="info-label">Condition</span><span class="info-value">${tx.itemCondition}</span></div>
-          <div class="info-row"><span class="info-label">Return by</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
-          ${tx.borrowerNote?`<div class="info-row"><span class="info-label">Note</span><span class="info-value">"${tx.borrowerNote}"</span></div>`:''}
-          <div class="req-actions">
-            <button class="btn btn-danger btn-sm" style="flex:1"  onclick="respondBorrow(${tx.id},false)">✕ Deny</button>
-            <button class="btn btn-success btn-sm" style="flex:2" onclick="respondBorrow(${tx.id},true)">✓ Accept</button>
-          </div>
-        </div>`;
-    }).join('');
-  }
-
-  if (returnReqs.length) {
-    html += `<div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.7);margin:8px 0 10px;text-transform:uppercase;letter-spacing:.8px">Return Confirmations</div>`;
-    html += returnReqs.map(tx => {
-      const b    = USERS[tx.borrower];
-      const late = isLate(tx);
-      return `
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-            <div style="display:flex;gap:12px;align-items:center">
-              <div class="item-emoji">${tx.itemEmoji}</div>
-              <div>
-                <div class="item-name">${tx.itemName}</div>
-                <div class="item-meta">${b.emoji} ${b.name}</div>
-              </div>
-            </div>
-            ${late?`<span class="badge b-late">🔴 Late</span>`:`<span class="badge b-active">✅ On Time</span>`}
-          </div>
-          <div class="info-row"><span class="info-label">Due date</span><span class="info-value">${fmt(tx.dueDate)}</span></div>
-          <div class="info-row"><span class="info-label">Return sent</span><span class="info-value">${fmt(tx.returnRequestAt)}</span></div>
-          <div style="margin-top:12px">
-            <div class="form-label">Rate item condition</div>
-            <div class="star-row" id="stars-${tx.id}">
-              ${[1,2,3,4,5].map(n=>`<span class="star" onclick="setStar(${tx.id},${n})">⭐</span>`).join('')}
-            </div>
-          </div>
-          <div class="form-group">
-            <input class="form-input" id="lnotes-${tx.id}" type="text" placeholder="Notes about condition (optional)">
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn btn-ghost btn-sm" style="flex:1" onclick="denyReturn(${tx.id})">✕ Reject</button>
-            <button class="btn btn-success btn-sm" style="flex:2" onclick="confirmReturn(${tx.id})">✓ Confirm Return</button>
-          </div>
-        </div>`;
-    }).join('');
-  }
-
-  $('requests-list').innerHTML = html;
-  updateBadges();
-}
-
-function setStar(txId, rating) {
-  starRating[txId] = rating;
-  $(`stars-${txId}`).querySelectorAll('.star').forEach((s, i) => s.classList.toggle('lit', i < rating));
-}
-
-function respondBorrow(txId, accept) {
-  const tx = getTx(txId);
-  if (accept) { tx.status = 'active'; tx.startDate = TODAY_STR; toast('✅ Borrow request accepted!'); }
-  else        { transactions = transactions.filter(t => t.id !== txId); toast('✕ Borrow request denied.'); }
-  renderRequests();
-}
-
-function confirmReturn(txId) {
-  const tx     = getTx(txId);
-  const rating = starRating[txId] || 0;
-  if (rating === 0) { toast('⚠️ Please rate the item condition'); return; }
-  tx.conditionRating = rating;
-  tx.lenderNotes     = $(`lnotes-${txId}`).value.trim();
-  tx.status          = isLate(tx) ? 'late' : 'returned';
-  tx.returnedAt      = TODAY_STR;
-  toast('✅ Return confirmed!');
-  renderRequests();
-}
-
-function denyReturn(txId) {
-  const tx = getTx(txId);
-  tx.status = 'active';
-  tx.returnRequestAt = null;
-  toast('📦 Return request rejected');
-  renderRequests();
 }
 
 // ──────────────────────────────────────────────
@@ -1127,50 +1267,41 @@ function denyReturn(txId) {
 // ──────────────────────────────────────────────
 
 function renderProfile() {
-  const userTxs  = transactions.filter(tx => tx.borrower===currentUser || tx.lender===currentUser);
-  const total    = userTxs.length;
-  const returned = userTxs.filter(tx => tx.status==='returned').length;
-  const late     = userTxs.filter(tx => tx.status==='late').length;
-  const lost     = userTxs.filter(tx => tx.status==='lost').length;
-
-  const successPct = total ? Math.round((returned/total)*100) : 0;
-  const latePct    = total ? Math.round((late/total)*100)     : 0;
-  const lostPct    = total ? Math.round((lost/total)*100)     : 0;
+  const user = USERS[currentUser];
+  const stats = {
+    activeLoans: transactions.filter(t => t.borrower === currentUser && t.status === 'active').length,
+    loanedOut: transactions.filter(t => t.lender === currentUser && t.status === 'active').length,
+    completed: transactions.filter(t => (t.borrower === currentUser || t.lender === currentUser) && ['returned', 'late'].includes(t.status)).length,
+  };
 
   $('profile-content').innerHTML = `
     <div class="avatar-wrap">
-      <div class="avatar-emoji">${USERS[currentUser].emoji}</div>
-      <div class="avatar-name">${USERS[currentUser].name}</div>
-      <div class="avatar-sub">@${currentUser}</div>
+      <div class="avatar-emoji">${user.emoji}</div>
+      <div class="avatar-name">${user.name}</div>
+      <div class="avatar-sub">${friendships[currentUser].friends.length} friends</div>
     </div>
-
-    <div class="divider"></div>
-
-    <div class="section-title">Reliability Score</div>
-    <div class="card">
-      <div class="rep-row">
-        <div class="rep-header"><span>Good Transactions</span><span style="color:var(--success)">${successPct}%</span></div>
-        <div class="rep-bar"><div class="rep-fill" style="width:${successPct}%;background:var(--success)"></div></div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">${stats.activeLoans}</div>
+        <div class="stat-label">Active Borrows</div>
       </div>
-      <div class="rep-row">
-        <div class="rep-header"><span>Late Returns</span><span style="color:var(--warning)">${latePct}%</span></div>
-        <div class="rep-bar"><div class="rep-fill" style="width:${latePct}%;background:var(--warning)"></div></div>
+      <div class="stat-card">
+        <div class="stat-number">${stats.loanedOut}</div>
+        <div class="stat-label">Loaned Out</div>
       </div>
-      <div class="rep-row">
-        <div class="rep-header"><span>Lost Items</span><span style="color:var(--danger)">${lostPct}%</span></div>
-        <div class="rep-bar"><div class="rep-fill" style="width:${lostPct}%;background:var(--danger)"></div></div>
+      <div class="stat-card">
+        <div class="stat-number">${stats.completed}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${friendships[currentUser].friends.length}</div>
+        <div class="stat-label">Friends</div>
       </div>
     </div>
-
-    <div class="section-title" style="margin-top:20px">Transaction History</div>
     <div class="card">
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
-        <div class="stat-card"><div class="stat-number">${returned}</div><div class="stat-label">On Time</div></div>
-        <div class="stat-card"><div class="stat-number">${late}</div><div class="stat-label">Late</div></div>
-        <div class="stat-card"><div class="stat-number">${lost}</div><div class="stat-label">Lost</div></div>
-      </div>
-    </div>`;
+      <button class="btn btn-primary btn-full" onclick="navigate('settings')">⚙️ Settings</button>
+    </div>
+  `;
 }
 
 // ──────────────────────────────────────────────
@@ -1178,223 +1309,73 @@ function renderProfile() {
 // ──────────────────────────────────────────────
 
 function renderSettings() {
-  const me        = USERS[currentUser];
-  const fs        = friendships[currentUser] || { friends:[], pendingIncoming:[], pendingOutgoing:[] };
-  const myFriends = fs.friends;
-  const myOut     = fs.pendingOutgoing;
-
-  const discoverable = Object.keys(USERS).filter(uid =>
-    uid !== currentUser &&
-    !myFriends.includes(uid) &&
-    !fs.pendingIncoming.includes(uid)
-  );
-
-  const filtered = friendSearchQ
-    ? discoverable.filter(uid => USERS[uid].name.toLowerCase().includes(friendSearchQ.toLowerCase()))
-    : discoverable;
-
-  const themes = [
-    { key:'orange', label:'Sunrise', icon:'🌅', style:'background:linear-gradient(135deg,#FFAA6B,#FF5C5C)' },
-    { key:'light',  label:'Light',   icon:'☀️',  style:'background:#EEEEF8;border:1px solid #DDD' },
-    { key:'dark',   label:'Dark',    icon:'🌙', style:'background:linear-gradient(135deg,#0D0D1A,#1A1A30)' },
-  ];
-
-  const notifToggles = [
-    { key:'borrowNotifs',    label:'Borrow Requests',  sub:'When someone wants to borrow your item' },
-    { key:'returnReminders', label:'Return Reminders',  sub:'Reminder 1 day before your due date'   },
-    { key:'friendRequests',  label:'Friend Requests',   sub:'When someone sends you a friend request' },
-    { key:'lateAlerts',      label:'Late Alerts',       sub:'Alert when a return is overdue'         },
-  ];
-
   $('settings-content').innerHTML = `
-
-    <div class="sett-section-label">Profile</div>
-    <div class="card">
-      <div class="sett-row" onclick="openNameModal()">
-        <div class="sett-icon">✏️</div>
-        <div class="sett-info">
-          <div class="sett-label">Display Name</div>
-          <div class="sett-sub">${me.name}</div>
-        </div>
-        <div class="sett-chev">›</div>
+    <div class="sett-section-label">Account</div>
+    <div class="sett-row" onclick="openChangeNameModal()">
+      <div class="sett-icon">👤</div>
+      <div class="sett-info">
+        <div class="sett-label">Display Name</div>
+        <div class="sett-sub">${USERS[currentUser].name}</div>
       </div>
+      <div class="sett-chev">›</div>
     </div>
-
-    <div class="sett-section-label">Avatar</div>
-    <div class="card" style="text-align:center">
-      <div style="font-size:60px;margin-bottom:4px">${me.emoji}</div>
-      <div style="font-size:12px;font-weight:700;color:var(--text-sub)">Tap any icon to change</div>
-      <div class="av-grid">
-        ${AVATAR_OPTIONS.map(e => `
-          <div class="av-opt${me.emoji===e?' sel':''}" onclick="setAvatar('${currentUser}','${e}')">${e}</div>
-        `).join('')}
-      </div>
-    </div>
-
-    <div class="sett-section-label">Add Friends</div>
-    <div class="card">
-      <input class="form-input" placeholder="🔍  Search users…"
-        style="margin-bottom:${filtered.length ? '12px' : '0'}"
-        value="${friendSearchQ.replace(/"/g,'&quot;')}"
-        oninput="friendSearchQ=this.value;renderSettings()">
-      ${filtered.map(uid => {
-        const u = USERS[uid];
-        const isPending = myOut.includes(uid);
-        const isFriend  = myFriends.includes(uid);
-        return `
-          <div class="af-row">
-            <div class="af-avatar">${u.emoji}</div>
-            <div style="flex:1">
-              <div class="af-name">${u.name}</div>
-              <div class="af-status">${isFriend ? '✅ Already friends' : isPending ? '⏳ Request sent' : '@'+uid}</div>
-            </div>
-            ${!isPending && !isFriend ? `<button class="btn btn-sm btn-outline" onclick="sendFriendRequest('${uid}')">+ Add</button>` : ''}
-          </div>`;
-      }).join('') || (friendSearchQ ? `<p style="text-align:center;padding:16px;color:var(--text-sub);font-size:14px;font-weight:600">No users found</p>` : '')}
-    </div>
-
-    <div class="sett-section-label">Appearance</div>
-    <div class="card">
-      <div class="theme-grid">
-        ${themes.map(t => `
-          <div class="theme-opt${currentTheme===t.key?' sel':''}" onclick="setTheme('${t.key}')">
-            <div class="theme-preview" style="${t.style}">${t.icon}</div>
-            <div class="theme-label">${t.label}</div>
-          </div>`).join('')}
-      </div>
-    </div>
-
     <div class="sett-section-label">Notifications</div>
-    <div class="card">
-      ${notifToggles.map(t => `
-        <div class="toggle-row">
-          <div>
-            <div class="toggle-lbl">${t.label}</div>
-            <div class="toggle-sub">${t.sub}</div>
-          </div>
-          <div class="tog-track${toggles[t.key]?' on':''}" onclick="toggleSetting('${t.key}')">
-            <div class="tog-thumb"></div>
-          </div>
-        </div>`).join('')}
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-lbl">Borrow Notifications</div>
+        <div class="toggle-sub">Get notified of new borrow requests</div>
+      </div>
+      <div class="tog-track ${toggles.borrowNotifs ? 'on' : ''}" onclick="toggleSetting('borrowNotifs')">
+        <div class="tog-thumb"></div>
+      </div>
     </div>
-
-    <div class="sett-section-label">About</div>
-    <div class="card">
-      <div class="info-row"><span class="info-label">App</span><span class="info-value" style="font-weight:900">Trustr 🤝</span></div>
-      <div class="info-row"><span class="info-label">Version</span><span class="info-value">1.0.0</span></div>
-      <div class="info-row"><span class="info-label">Theme</span><span class="info-value">${themes.find(t=>t.key===currentTheme).label}</span></div>
-      <div class="info-row"><span class="info-label">Friends</span><span class="info-value">${myFriends.length}</span></div>
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-lbl">Return Reminders</div>
+        <div class="toggle-sub">Remind me when items are due</div>
+      </div>
+      <div class="tog-track ${toggles.returnReminders ? 'on' : ''}" onclick="toggleSetting('returnReminders')">
+        <div class="tog-thumb"></div>
+      </div>
     </div>
-
-    <div style="height:12px"></div>
   `;
-}
-
-// ──────────────────────────────────────────────
-//  SETTINGS ACTIONS
-// ──────────────────────────────────────────────
-
-function openNameModal() {
-  $('modal-name-body').innerHTML = `
-    <div class="form-group">
-      <label class="form-label">Your Display Name</label>
-      <input class="form-input" id="name-edit-input" type="text"
-        value="${USERS[currentUser].name}" maxlength="20" placeholder="Enter a name">
-    </div>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-name')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="saveName()">✓ Save</button>
-    </div>`;
-  openModal('modal-name');
-  setTimeout(() => { const i=$('name-edit-input'); if(i){i.focus();i.select();} }, 120);
-}
-
-function saveName() {
-  const val = ($('name-edit-input').value || '').trim();
-  if (!val) { toast('⚠️ Name cannot be empty'); return; }
-  USERS[currentUser].name = val;
-  closeModal('modal-name');
-  updateUserSwitcher();
-  saveSettings();
-  renderSettings();
-  toast('✅ Name updated!');
-}
-
-function setAvatar(uid, emoji) {
-  USERS[uid].emoji = emoji;
-  updateUserSwitcher();
-  saveSettings();
-  renderSettings();
-}
-
-function setTheme(t) {
-  currentTheme = t;
-  document.body.setAttribute('data-theme', t === 'orange' ? '' : t);
-  saveSettings();
-  renderSettings();
 }
 
 function toggleSetting(key) {
   toggles[key] = !toggles[key];
-  saveSettings();
   renderSettings();
 }
 
-function sendFriendRequest(toUid) {
-  if (!friendships[toUid]) friendships[toUid] = { friends:[], pendingIncoming:[], pendingOutgoing:[] };
-  if (!friendships[currentUser].pendingOutgoing.includes(toUid)) {
-    friendships[currentUser].pendingOutgoing.push(toUid);
-    friendships[toUid].pendingIncoming.push(currentUser);
-    toast(`📨 Friend request sent to ${USERS[toUid].name}!`);
+function openChangeNameModal() {
+  $('modal-name-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">👤 Display Name</label>
+      <input type="text" id="name-input" class="form-input" value="${USERS[currentUser].name}">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;border-radius:25px" onclick="closeModal('modal-name')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveName()">Save</button>
+    </div>`;
+  openModal('modal-name');
+}
+
+function saveName() {
+  const newName = $('name-input').value.trim();
+  if (!newName) {
+    toast('Please enter a name');
+    return;
   }
+  USERS[currentUser].name = newName;
+  toast('✅ Name updated!');
+  closeModal('modal-name');
   renderSettings();
+  updateUserSwitcher();
 }
 
-function updateUserSwitcher() {
-  ['alex','jordan'].forEach((uid, i) => {
-    const btn = i===0 ? $('switcher-alex') : $('switcher-jordan');
-    if (btn) {
-      btn.textContent = USERS[uid].emoji + ' ' + USERS[uid].name;
-      btn.classList.toggle('active', uid === currentUser);
-    }
-  });
-}
-
-// ──────────────────────────────────────────────
-//  PERSIST SETTINGS
-// ──────────────────────────────────────────────
-
-function saveSettings() {
-  try {
-    localStorage.setItem('trustr_theme', currentTheme);
-    localStorage.setItem('trustr_toggles', JSON.stringify(toggles));
-    const profiles = {};
-    Object.keys(USERS).forEach(k => { profiles[k] = { name:USERS[k].name, emoji:USERS[k].emoji }; });
-    localStorage.setItem('trustr_profiles', JSON.stringify(profiles));
-  } catch(e) {}
-}
-
-function loadSettings() {
-  try {
-    const t = localStorage.getItem('trustr_theme');
-    if (t) { currentTheme = t; document.body.setAttribute('data-theme', t==='orange'?'':t); }
-    const tg = localStorage.getItem('trustr_toggles');
-    if (tg) toggles = { ...toggles, ...JSON.parse(tg) };
-    const prof = localStorage.getItem('trustr_profiles');
-    if (prof) {
-      const p = JSON.parse(prof);
-      Object.keys(p).forEach(k => { if (USERS[k]) { USERS[k].name=p[k].name; USERS[k].emoji=p[k].emoji; } });
-    }
-  } catch(e) {}
-}
-
-// ──────────────────────────────────────────────
-//  INIT
-// ──────────────────────────────────────────────
-
-loadSettings();
+// Initialize
 updateUserSwitcher();
 render('friends');
+updateFABVisibility();
 </script>
 </body>
 </html>
