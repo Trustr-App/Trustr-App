@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trustr</title>
   <style>
+  <script src="https://unpkg.com/lucide@latest"></script>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
 
     :root {
@@ -1435,6 +1436,8 @@ function sendFriendRequest(toUid) {
     fs.pendingOutgoing.push(toUid);
     friendships[toUid].pendingIncoming.push(currentUser);
     toast(`📨 Friend request sent to ${USERS[toUid].name}!`);
+
+  lucide.createIcons();
   }
   renderSettings();
 }
