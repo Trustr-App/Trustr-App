@@ -4,6 +4,92 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trustr</title>
+
+  <!-- SVG icon library -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+    :root {
+      --grad-top: #FFAA6B;
+      --grad-bot: #FF5C5C;
+      --teal: #5BA8A0;
+      --teal-dark: #4A9490;
+      --teal-light: #E0F2F1;
+      --purple: #3C0060;
+      --purple-mid: #6B0FA0;
+      --danger: #D93030;
+      --danger-light: #FDEAEA;
+      --success: #2E9E6B;
+      --success-light: #E0F5EC;
+      --warning: #C97A00;
+      --warning-light: #FFF3DC;
+      --card: #F0EEEE;
+      --card-border: rgba(0,0,0,0.07);
+      --text: #111111;
+      --text-sub: #555;
+      --hdr-h: 64px;
+      --tab-h: 48px;
+    }
+
+And the important part is that icons now use SVG/Lucide syntax such as:
+
+<i data-lucide="handshake"></i>
+<i data-lucide="users"></i>
+<i data-lucide="package"></i>
+<i data-lucide="inbox"></i>
+<i data-lucide="settings"></i>
+<i data-lucide="camera"></i>
+<i data-lucide="calendar"></i>
+<i data-lucide="clipboard-list"></i>
+
+rather than:
+
+🤝
+👥
+📦
+📬
+⚙️
+📸
+📅
+📋
+
+And the JavaScript initializes them with:
+
+lucide.createIcons();
+
+Use the downloaded file as your index.html.
+
+trustr_final.html
+HTML
+keep all of the original aspects except the icons
+
+Yes — this is what you meant: I kept the original Trustr app intact and changed only the icon implementation.
+
+I started from your original file and did not rewrite or remove the original features, layout, text, colors, forms, data, or functionality.
+
+The only changes are:
+
+Emoji/icon characters → SVG/Lucide icons
+Fixed the Lucide script placement
+Fixed the details-title icon so it actually renders as SVG
+Added icon refreshes where dynamically generated icons need to be redrawn
+Replaced a few Lucide icon names that aren't available with equivalent SVG icons
+Final code
+
+Download the preserved-original version with SVG icons
+
+Use that file as your index.html.
+
+I also verified the JavaScript syntax, and the original source and new file differ only in the icon-related sections.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trustr</title>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
