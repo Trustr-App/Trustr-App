@@ -885,6 +885,127 @@ function computeTransactionScore(tx) {
   const roundedStars = Math.round(rawStars * 10) / 10; // round to 0.1
   return { score100: total, stars: roundedStars, punctuality: p, condition: c, rawStars: rawStars };
 }
+// open the return modal for a transaction id (tx.id must exist)
+function openReturnModal(txId) {
+  const tx = transactions.find(t => t.id === txId);
+  if (!tx) return showToast('Transaction not found');
+
+  const body = document.getElementById('modal-return-body');
+  const today = new Date().toISOString().slice(0,10); // yyyy-mm-dd
+
+  // We preview punctuality assuming the returned date is today (user can edit)
+  // create a temporary copy so punctualityScore can compute
+  const tmp = Object.assign({}, tx, { returnedAt: today });
+  const punctualityPts = punctualityScore(tmp); // 0..50
+  const punctualityLabel = punctualityPts === 50 ? 'On time' :
+                           punctualityPts >= 40 ? 'Slightly late' :
+                           punctualityPts > 0 ? 'Late' : 'Very late / missing';
+
+  // Build a simple condition star selector (integers 0..5)
+  body.innerHTML = `
+    <div class="card">
+      <div style="margin-bottom:10px">
+        <div style="font-weight:800;margin-bottom:6px">Return date</div>
+        <input id="return-date" type="date" class="form-input" value="${today}">
+      </div>
+
+      <div style="margin-bottom:10px">
+        <div style="font-weight:800;margin-bottom:6px">Punctuality (auto)</div>
+        <div id="return-punctuality" style="font-size:14px;color:var(--text-sub)">${punctualityLabel} — ${punctualityPts}/50</div>
+      </div>
+
+      <div style="margin-bottom:6px">
+        <div style="font-weight:800;margin-bottom:8px">Condition (select)</div>
+        <div id="return-condition" class="star-row" aria-label="Condition rating (0 to 5)">
+          ${[1,2,3,4,5].map(n => `<span class="star" data-val="${n}" role="button" title="${n}">${n <= 2 ? '★' : '★'}</span>`).join('')}
+        </div>
+        <div style="font-size:12px;color:var(--text-sub);margin-top:6px">Pick how the item was returned (1 = poor, 5 = same or better)</div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-outline btn-full" onclick="closeModal('modal-return')">Cancel</button>
+        <button class="btn btn-primary btn-full" onclick="submitReturn('${txId}')">Save Return</button>
+      </div>
+    </div>
+  `;
+
+  // star click handlers for the condition selector
+  const stars = body.querySelectorAll('#return-condition .star');
+  stars.forEach(s => {
+    s.addEventListener('click', () => {
+      const v = Number(s.getAttribute('data-val'));
+      // mark
+      stars.forEach(x => x.classList.toggle('lit', Number(x.getAttribute('data-val')) <= v));
+      // update computed/punctuality preview - condition doesn't change punctuality
+      // store selected value on the container so submitReturn can read it
+      body.querySelector('#return-condition').setAttribute('data-selected', v);
+    });
+  });
+
+  // default: select 5 by default (same/better) — matches your rules for no rating = assume best
+  body.querySelector('#return-condition .star[data-val="5"]').click();
+
+  openModal('modal-return');
+}
+
+// submit the return: sets returnedAt, conditionRating, status, computes credit
+function submitReturn(txId) {
+  const tx = transactions.find(t => t.id === txId);
+  if (!tx) return showToast('Transaction not found');
+
+  const body = document.getElementById('modal-return-body');
+  const returnedAt = body.querySelector('#return-date').value;
+  const sel = body.querySelector('#return-condition') && body.querySelector('#return-condition').getAttribute('data-selected');
+  const conditionRating = sel ? Number(sel) : null;
+
+  // apply changes to the transaction
+  tx.returnedAt = returnedAt;
+  tx.conditionRating = (conditionRating == null) ? null : conditionRating;
+  tx.status = 'returned';
+
+  // compute credit and attach it to tx so profile and lists pick it up
+  const credit = computeTransactionScore(tx);
+  tx.credit = credit;
+
+  // Persist change depends on your storage (if you're saving to localStorage or server)
+  // If the app uses local arrays only, we already updated tx in-place.
+  // If you persist transactions to localStorage / server, call that logic here.
+  try {
+    // optional: saveTransactions(); // uncomment if you have a save function
+  } catch (e) {
+    console.warn('saving transactions failed', e);
+  }
+
+  closeModal('modal-return');
+  showToast('Return saved');
+
+  // Refresh UI pieces that depend on transactions
+  refreshListsAndProfile();
+}
+
+// helper to close modal by id
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.remove('open'); // depending on how you open modals; your code uses modal-overlay.open
+  // if your modal implementation uses style.display use that instead:
+  const overlay = document.getElementById(id);
+  if (overlay) overlay.classList.remove('open');
+}
+
+// small helper to open (if needed)
+function openModal(id) {
+  const overlay = document.getElementById(id);
+  if (!overlay) return;
+  overlay.classList.add('open');
+}
+
+// Refresh UI pieces you have in your app (replace with your real refresh calls)
+function refreshListsAndProfile() {
+  // Example: re-render profile and borrow lists. Replace or augment with your actual functions.
+  if (currentUser) renderProfile();
+  renderBorrowLists && renderBorrowLists(); // if you have a function by that name
+  renderRequests && renderRequests();
+}
 
 /**
  * Get transactions relevant to a user (as borrower).
@@ -993,25 +1114,37 @@ function renderProfile(uid) {
   else if (credit.averageStars >= 3.0) statusText = 'Watchful';
   else statusText = 'Needs improvement';
 
-  const html = `
+    const html = `
     <div class="card avatar-wrap">
       <div class="avatar-icon" style="font-size:68px">${icon(user.avatar)}</div>
       <div class="avatar-name">${user.name}</div>
       <div class="avatar-sub">Profile: ${statusText}</div>
-    </div>
 
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-weight:900;font-size:16px">${user.name}'s Credit Score</div>
-        <div>${renderStarsHtml(credit.averageStars, '20px')} <span style="font-weight:800;margin-left:8px">${credit.averageStars.toFixed(1)}/5.0</span></div>
-      </div>
+      <div style="margin-top:12px">${renderStarsHtml(credit.averageStars, '26px')}</div>
+
       <div class="divider"></div>
-      <div class="info-row"><div class="info-label">Total Transactions</div><div class="info-value">${credit.totalTx}</div></div>
-      <div class="info-row"><div class="info-label">% Good transactions (>=4.0)</div><div class="info-value">${credit.goodPct}%</div></div>
-      <div class="info-row"><div class="info-label">% Late transactions</div><div class="info-value">${credit.latePct}%</div></div>
-      <div class="info-row"><div class="info-label">% Lost transactions</div><div class="info-value">${credit.lostPct}%</div></div>
-      <div class="info-row"><div class="info-label">% Items not same/better condition</div><div class="info-value">${credit.notSameOrBetterPct}%</div></div>
+
+      <div class="info-row">
+        <div class="info-label">Transactions</div>
+        <div class="info-value">${credit.totalTx}</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">Good (≥4★)</div>
+        <div class="info-value">${credit.goodPct}%</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">Late</div>
+        <div class="info-value">${credit.latePct}%</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">Lost / Problem</div>
+        <div class="info-value">${credit.lostPct}%</div>
+      </div>
     </div>
+  `;
 
     <div class="card">
       <div style="font-weight:900;margin-bottom:8px">Recent transactions (as borrower)</div>
