@@ -525,15 +525,68 @@ I also verified the JavaScript syntax, and the original source and new file diff
     body[data-theme="light"] .inner-tab.active { color:var(--purple); }
     body[data-theme="light"] .empty-state p { color:#777; }
     body[data-theme="light"] .sett-section-label { color:#AAA; }
-  .item-icon svg, .avatar-icon svg, .friend-avatar svg, .af-avatar svg, .av-opt svg, .av-signup-opt svg, .theme-preview svg, .section-title svg, .btn svg, .test-btn svg, .fab svg, .modal-title svg, .form-label svg, .empty-icon svg { width:1.15em; height:1.15em; stroke-width:2; vertical-align:middle; }
-  .item-icon svg { width:28px; height:28px; }
-  .avatar-icon svg { width:72px; height:72px; }
-  .icon-opt svg { width:25px; height:25px; }
-  .av-grid, .av-signup-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
-  .av-opt, .av-signup-opt { display:flex; align-items:center; justify-content:center; cursor:pointer; }
-  .av-opt svg, .av-signup-opt svg { width:28px; height:28px; }
-  .icon-inline { display:inline-flex; align-items:center; justify-content:center; }
-  .star svg { width:20px; height:20px; }
+    /* ---------- lucide SVG icon visibility / theme contrast ---------- */
+    /* Ensure lucide SVGs inherit color and use stroke=currentColor */
+    svg[data-lucide-icon], i[data-lucide] svg {
+    display: inline-block;
+    vertical-align: middle;
+    color: inherit;            /* important so icons pick up parent color */
+    stroke: currentColor !important;
+    fill: none !important;     /* most lucide icons are stroked */
+    stroke-width: 1.6px;
+    }
+
+    /* Global defaults for light / dark so icons contrast with background */
+    body[data-theme="dark"] svg[data-lucide-icon] {
+    color: #E8E8FF;    /* light/pale icon color on dark background */
+    stroke: #E8E8FF;
+    }
+    body[data-theme="light"] svg[data-lucide-icon] {
+    color: #111111;    /* dark icon color on light background */
+    stroke: #111111;
+    }
+
+    /* Exceptions / specific components where we want different icon color: */
+    .logo-shield svg,
+    .auth-shield svg,
+    .fab svg {
+    color: #fff;
+    stroke: #fff;
+    }
+
+    /* Avatar / small item icons: use teal (or inherit in dark for readability) */
+    .item-icon svg,
+    .friend-avatar svg,
+    .af-avatar svg,
+    .av-opt svg,
+    .av-signup-opt svg,
+    .av-signup-grid svg,
+    .avatar-icon svg {
+    color: var(--teal-dark);
+    stroke: var(--teal-dark);
+    }
+
+    /* In dark theme prefer light icon color in those tiles for contrast */
+    body[data-theme="dark"] .item-icon svg,
+    body[data-theme="dark"] .friend-avatar svg,
+    body[data-theme="dark"] .af-avatar svg,
+    body[data-theme="dark"] .av-opt svg,
+    body[data-theme="dark"] .av-signup-opt svg,
+    body[data-theme="dark"] .avatar-icon svg {
+    color: #E8E8FF;
+    stroke: #E8E8FF;
+    }
+
+    /* Buttons / title icons: use the same color as text by default */
+    .btn svg,
+    .test-btn svg,
+    .section-title svg,
+    .modal-title svg,
+    .icon-opt svg,
+    .icon-inline svg {
+    color: inherit;
+    stroke: currentColor;
+    }
   </style>
 </head>
 <body>
