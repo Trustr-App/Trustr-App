@@ -587,6 +587,30 @@ I also verified the JavaScript syntax, and the original source and new file diff
     color: inherit;
     stroke: currentColor;
     }
+    // Refresh Lucide icons when the theme changes (or whenever data-theme is updated)
+    function refreshIcons() {
+    if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+    }
+
+    // Call once on load (you already do this) — keep it:
+    // document.addEventListener('DOMContentLoaded', () => { refreshIcons(); ... });
+
+    // Also observe the body data-theme attribute and refresh icons when it changes:
+    new MutationObserver(mutations => {
+    for (const m of mutations) {
+    if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+      // allow the CSS to apply first (microtask)
+      Promise.resolve().then(refreshIcons);
+      break;
+    }
+    }
+    }).observe(document.body, { attributes: true });
+    /* Ensure lucide icon child shapes inherit currentColor and are not filled */
+    svg[data-lucide-icon] *,
+    i[data-lucide] svg * {
+    stroke: currentColor !important;
+    fill: none !important;
+    }                                                        
   </style>
 </head>
 <body>
