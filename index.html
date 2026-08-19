@@ -1848,14 +1848,10 @@ function renderRequests() {
 
 function renderProfile() {
   const u = USERS[currentUser];
-  const txs = transactions.filter(tx => tx.borrower===currentUser||tx.lender===currentUser);
-  const returned = txs.filter(t=>t.status==='returned').length;
-  const late     = txs.filter(t=>t.status==='late').length;
-  const lost     = txs.filter(t=>t.status==='lost').length;
-  const total    = txs.length;
-  const sp = total ? Math.round(returned/total*100) : 0;
-  const lp = total ? Math.round(late/total*100) : 0;
-  const lop= total ? Math.round(lost/total*100) : 0;
+  const credit = computeUserCredit(currentUser); // { averageStars, totalTx, goodPct, latePct, lostPct, ... }
+  const avg = Number((credit.averageStars || 0).toFixed(1));
+  const starWidthPct = Math.max(0, Math.min(100, (avg / 5) * 100));
+  const total = credit.totalTx || 0;
 
   $('profile-content').innerHTML = `
     <div class="avatar-wrap">
@@ -1863,19 +1859,32 @@ function renderProfile() {
       <div class="avatar-name">${u.name}</div>
       <div class="avatar-sub">@${currentUser}</div>
     </div>
-    <div class="section-title">Reliability Score</div>
-    <div class="card">
-      <div class="rep-row"><div class="rep-header"><span>Good Transactions</span><span style="color:var(--success)">${sp}%</span></div><div class="rep-bar"><div class="rep-fill" style="width:${sp}%;background:var(--success)"></div></div></div>
-      <div class="rep-row"><div class="rep-header"><span>Late Returns</span><span style="color:var(--warning)">${lp}%</span></div><div class="rep-bar"><div class="rep-fill" style="width:${lp}%;background:var(--warning)"></div></div></div>
-      <div class="rep-row"><div class="rep-header"><span>Lost Items</span><span style="color:var(--danger)">${lop}%</span></div><div class="rep-bar"><div class="rep-fill" style="width:${lop}%;background:var(--danger)"></div></div></div>
+
+    <div class="section-title">Reliability</div>
+
+    <div class="card" style="text-align:center">
+      <div style="font-weight:900;font-size:28px;margin-bottom:6px">
+        ${avg} <span style="font-size:14px;color:var(--text-sub)">/ 5.0</span>
+      </div>
+
+      <div class="star-rating" aria-label="Credit rating ${avg} out of 5" title="${avg} / 5">
+        <div class="stars-outer">★★★★★</div>
+        <div class="stars-inner" style="width:${starWidthPct}%">★★★★★</div>
+      </div>
+
+      <div style="margin-top:10px;color:var(--text-sub);font-weight:700">
+        ${total} transactions &middot; ${credit.goodPct}% good &middot; ${credit.latePct}% late &middot; ${credit.lostPct}% lost
+      </div>
     </div>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
-      <div class="stat-card"><div class="stat-number">${returned}</div><div class="stat-label">On Time</div></div>
-      <div class="stat-card"><div class="stat-number">${late}</div><div class="stat-label">Late</div></div>
-      <div class="stat-card"><div class="stat-number">${lost}</div><div class="stat-label">Lost</div></div>
-    </div>
-    <button class="btn btn-primary btn-full" onclick="openNameModal()"><i data-lucide="pencil"></i> Change Display Name</button>`;
+
+    <div style="height:12px"></div>
+
+    <button class="btn btn-primary btn-full" onclick="openNameModal()"><i data-lucide="pencil"></i> Change Display Name</button>
+  `;
+
+  // If lucide icons are injected dynamically, refresh them so the pencil icon renders:
+  if (window.refreshIcons) refreshIcons();
+  else if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
 }
 
 function openNameModal() {
