@@ -593,6 +593,24 @@ I also verified the JavaScript syntax, and the original source and new file diff
     color: inherit;
     stroke: currentColor;
     }
+    // Refresh Lucide icons when the theme changes (or whenever data-theme is updated)
+    function refreshIcons() {
+    if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+    }
+
+    // Call once on load (you already do this) — keep it:
+    // document.addEventListener('DOMContentLoaded', () => { refreshIcons(); ... });
+
+    // Also observe the body data-theme attribute and refresh icons when it changes:
+    new MutationObserver(mutations => {
+    for (const m of mutations) {
+    if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+      // allow the CSS to apply first (microtask)
+      Promise.resolve().then(refreshIcons);
+      break;
+    }
+    }
+    }).observe(document.body, { attributes: true });
     /* Ensure lucide icon child shapes inherit currentColor and are not filled */
     svg[data-lucide-icon] *,
     i[data-lucide] svg * {
@@ -600,31 +618,6 @@ I also verified the JavaScript syntax, and the original source and new file diff
     fill: none !important;
     }                                                        
   </style>
-  <script>
-  // Ensure lucide icons are created whenever we need them
-  function refreshIcons() {
-    if (window.lucide && typeof lucide.createIcons === 'function') {
-      // createIcons silently skips already-created icons so it's safe to call repeatedly
-      lucide.createIcons();
-    }
-  }
-
-  // Create icons on initial load
-  document.addEventListener('DOMContentLoaded', () => {
-    refreshIcons();
-  });
-
-  // When data-theme attribute changes, refresh icons after styles apply
-  new MutationObserver(mutations => {
-    for (const m of mutations) {
-      if (m.type === 'attributes' && m.attributeName === 'data-theme') {
-        // queue on microtask so CSS has applied
-        Promise.resolve().then(refreshIcons);
-        break;
-      }
-    }
-  }).observe(document.body, { attributes: true });
-</script>
 </head>
 <body>
 
@@ -1107,54 +1100,78 @@ function renderStarsHtml(value, size='18px') {
  */
 function renderProfile(uid) {
   const target = uid || currentUser;
-  const profileEl = document.getElementById('profile-content');
-
-  // Missing user: show an empty state
   if (!target || !USERS[target]) {
-    profileEl.innerHTML = `<div class="card"><div class="empty-state"><p>Select a user to view their profile.</p></div></div>`;
-    if (typeof refreshIcons === 'function') refreshIcons();
-    else if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+    $('profile-content').innerHTML = `<div class="card"><div class="empty-state"><p>Select a user to view their profile.</p></div></div>`;
     return;
   }
+  const user = USERS[target];
+  const credit = computeUserCredit(target);
 
-  const u = USERS[target];
-  const credit = computeUserCredit(target); // { averageStars, totalTx, goodPct, latePct, lostPct, ... }
-  const avg = Number((credit.averageStars || 0).toFixed(1));
-  const starWidthPct = Math.max(0, Math.min(100, (avg / 5) * 100));
-  const total = credit.totalTx || 0;
+  // Profile status text
+  let statusText = 'New';
+  if (credit.totalTx === 0) statusText = 'New';
+  else if (credit.averageStars >= 4.0) statusText = 'Reliable';
+  else if (credit.averageStars >= 3.0) statusText = 'Watchful';
+  else statusText = 'Needs improvement';
 
-  profileEl.innerHTML = `
-    <div class="avatar-wrap">
-      <span class="avatar-icon">${icon(u.avatar)}</span>
-      <div class="avatar-name">${u.name}</div>
-      <div class="avatar-sub">@${target}</div>
+    const html = `
+    <div class="card avatar-wrap">
+      <div class="avatar-icon" style="font-size:68px">${icon(user.avatar)}</div>
+      <div class="avatar-name">${user.name}</div>
+      <div class="avatar-sub">Profile: ${statusText}</div>
+
+      <div style="margin-top:12px">${renderStarsHtml(credit.averageStars, '26px')}</div>
+
+      <div class="divider"></div>
+
+      <div class="info-row">
+        <div class="info-label">Transactions</div>
+        <div class="info-value">${credit.totalTx}</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">Good (≥4★)</div>
+        <div class="info-value">${credit.goodPct}%</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">Late</div>
+        <div class="info-value">${credit.latePct}%</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-label">Lost / Problem</div>
+        <div class="info-value">${credit.lostPct}%</div>
+      </div>
     </div>
-
-    <div class="section-title">Reliability</div>
-
-    <div class="card" style="text-align:center">
-      <div style="font-weight:900;font-size:28px;margin-bottom:6px">
-        ${avg} <span style="font-size:14px;color:var(--text-sub)">/ 5.0</span>
-      </div>
-
-      <div class="star-rating" aria-label="Credit rating ${avg} out of 5" title="${avg} / 5">
-        <div class="stars-outer">★★★★★</div>
-        <div class="stars-inner" style="width:${starWidthPct}%">★★★★★</div>
-      </div>
-
-      <div style="margin-top:10px;color:var(--text-sub);font-weight:700">
-        ${total} transactions &middot; ${credit.goodPct}% good &middot; ${credit.latePct}% late &middot; ${credit.lostPct}% lost
-      </div>
-    </div>
-
-    <div style="height:12px"></div>
-
-    ${ target === currentUser ? `<button class="btn btn-primary btn-full" onclick="openNameModal()"><i data-lucide="pencil"></i> Change Display Name</button>` : '' }
   `;
 
-  // Ensure any lucide icons injected dynamically are rendered
-  if (typeof refreshIcons === 'function') refreshIcons();
-  else if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+    <div class="card">
+      <div style="font-weight:900;margin-bottom:8px">Recent transactions (as borrower)</div>
+      <div id="profile-tx-list">
+        ${credit.txs.slice(0,8).map(tx => {
+          const stars = tx.credit.stars.toFixed(1);
+          const txStatus = tx.status || (tx.returnedAt ? 'returned' : 'active');
+          return `<div style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <div>
+                        <div style="font-weight:800">${tx.itemName}</div>
+                        <div style="font-size:12px;color:var(--text-sub)">${tx.lender} • ${tx.startDate || ''} → ${tx.dueDate || ''}</div>
+                      </div>
+                      <div style="text-align:right">
+                        ${renderStarsHtml(tx.credit.stars, '16px')}
+                        <div style="font-size:12px;color:var(--text-sub)">${txStatus}</div>
+                      </div>
+                    </div>
+                  </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  $('profile-content').innerHTML = html;
+  // ensure lucide icons in newly injected content are rendered
+  refreshIcons();
 }
 
 /**
@@ -1831,10 +1848,14 @@ function renderRequests() {
 
 function renderProfile() {
   const u = USERS[currentUser];
-  const credit = computeUserCredit(currentUser); // { averageStars, totalTx, goodPct, latePct, lostPct, ... }
-  const avg = Number((credit.averageStars || 0).toFixed(1));
-  const starWidthPct = Math.max(0, Math.min(100, (avg / 5) * 100));
-  const total = credit.totalTx || 0;
+  const txs = transactions.filter(tx => tx.borrower===currentUser||tx.lender===currentUser);
+  const returned = txs.filter(t=>t.status==='returned').length;
+  const late     = txs.filter(t=>t.status==='late').length;
+  const lost     = txs.filter(t=>t.status==='lost').length;
+  const total    = txs.length;
+  const sp = total ? Math.round(returned/total*100) : 0;
+  const lp = total ? Math.round(late/total*100) : 0;
+  const lop= total ? Math.round(lost/total*100) : 0;
 
   $('profile-content').innerHTML = `
     <div class="avatar-wrap">
@@ -1842,32 +1863,19 @@ function renderProfile() {
       <div class="avatar-name">${u.name}</div>
       <div class="avatar-sub">@${currentUser}</div>
     </div>
-
-    <div class="section-title">Reliability</div>
-
-    <div class="card" style="text-align:center">
-      <div style="font-weight:900;font-size:28px;margin-bottom:6px">
-        ${avg} <span style="font-size:14px;color:var(--text-sub)">/ 5.0</span>
-      </div>
-
-      <div class="star-rating" aria-label="Credit rating ${avg} out of 5" title="${avg} / 5">
-        <div class="stars-outer">★★★★★</div>
-        <div class="stars-inner" style="width:${starWidthPct}%">★★★★★</div>
-      </div>
-
-      <div style="margin-top:10px;color:var(--text-sub);font-weight:700">
-        ${total} transactions &middot; ${credit.goodPct}% good &middot; ${credit.latePct}% late &middot; ${credit.lostPct}% lost
-      </div>
+    <div class="section-title">Reliability Score</div>
+    <div class="card">
+      <div class="rep-row"><div class="rep-header"><span>Good Transactions</span><span style="color:var(--success)">${sp}%</span></div><div class="rep-bar"><div class="rep-fill" style="width:${sp}%;background:var(--success)"></div></div></div>
+      <div class="rep-row"><div class="rep-header"><span>Late Returns</span><span style="color:var(--warning)">${lp}%</span></div><div class="rep-bar"><div class="rep-fill" style="width:${lp}%;background:var(--warning)"></div></div></div>
+      <div class="rep-row"><div class="rep-header"><span>Lost Items</span><span style="color:var(--danger)">${lop}%</span></div><div class="rep-bar"><div class="rep-fill" style="width:${lop}%;background:var(--danger)"></div></div></div>
     </div>
-
-    <div style="height:12px"></div>
-
-    <button class="btn btn-primary btn-full" onclick="openNameModal()"><i data-lucide="pencil"></i> Change Display Name</button>
-  `;
-
-  // If lucide icons are injected dynamically, refresh them so the pencil icon renders:
-  if (window.refreshIcons) refreshIcons();
-  else if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
+      <div class="stat-card"><div class="stat-number">${returned}</div><div class="stat-label">On Time</div></div>
+      <div class="stat-card"><div class="stat-number">${late}</div><div class="stat-label">Late</div></div>
+      <div class="stat-card"><div class="stat-number">${lost}</div><div class="stat-label">Lost</div></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="openNameModal()"><i data-lucide="pencil"></i> Change Display Name</button>`;
 }
 
 function openNameModal() {
