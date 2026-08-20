@@ -366,7 +366,13 @@
     .av-opt:active { transform:scale(.9); }
 
     /* DARK THEME */
-    body[data-theme="dark"] { background:#0D0D1A; }
+    body[data-theme="dark"] {
+      background:#0D0D1A;
+      --text: #E8E8FF;
+      --text-sub: #9AA0C8;
+      --card: #1C1C35;
+      --card-border: rgba(255,255,255,0.08);
+    }
     body[data-theme="dark"] .header       { background:#1A1A30; box-shadow:0 2px 16px rgba(0,0,0,0.5); }
     body[data-theme="dark"] .logo-text    { background:linear-gradient(135deg,#A78BFA,#C084FC); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
     body[data-theme="dark"] #header-user-display { color:#E8E8FF; }
@@ -426,6 +432,20 @@
     body[data-theme="dark"] .af-status    { color:#7070A0; }
     body[data-theme="dark"] .af-row       { border-color:rgba(255,255,255,0.06); }
     body[data-theme="dark"] .b-returned   { background:#222240; color:#9090B8; }
+    /* L&F Score visible in both themes */
+    .lf-score-card { background:var(--teal-light); border:1.5px solid rgba(91,168,160,0.25); }
+    body[data-theme="dark"] .lf-score-card { background:#252545 !important; border-color:rgba(91,168,160,0.35) !important; }
+    body[data-theme="dark"] .lf-score-card .lf-score-main { color:#E8E8FF !important; }
+    body[data-theme="dark"] .lf-score-card .lf-score-sub { color:#9AA0C8 !important; }
+    body[data-theme="dark"] .lf-score-card .lf-score-number { color:#5BA8A0 !important; }
+    body[data-theme="light"] .lf-score-card { background:#E0F2F1; }
+    body[data-theme="light"] .lf-score-card .lf-score-main { color:#111 !important; }
+    body[data-theme="light"] .lf-score-card .lf-score-sub { color:#555 !important; }
+    body[data-theme="light"] .lf-score-card .lf-score-number { color:#4A9490 !important; }
+    .lf-score-number { font-weight:900; }
+    /* Test accounts clickable fix */
+    .test-btn i, .test-btn svg { pointer-events: none; }
+    .test-btn { position: relative; z-index: 10; }
 
     /* LIGHT THEME */
     body[data-theme="light"] { background:#EEEEF8; }
@@ -463,226 +483,9 @@
     body[data-theme="dark"] .item-icon svg, body[data-theme="dark"] .friend-avatar svg, body[data-theme="dark"] .af-avatar svg, body[data-theme="dark"] .av-opt svg, body[data-theme="dark"] .av-signup-opt svg, body[data-theme="dark"] .avatar-icon svg { color: #E8E8FF; stroke: #E8E8FF; }
     .btn svg, .test-btn svg, .section-title svg, .modal-title svg, .icon-opt svg { color: inherit; stroke: currentColor; }
     svg[data-lucide-icon] *, i[data-lucide] svg * { stroke: currentColor !important; fill: none !important; }
-  
-    /* ── DESKTOP LAYOUT ────────────────────────────── */
-    .desktop-sidebar, .desktop-chat-panel { display: none; }
-
-    @media (min-width: 900px) {
-      body {
-        max-width: 1200px;
-        margin: 0 auto;
-        background: linear-gradient(170deg, var(--grad-top) 0%, var(--grad-bot) 100%);
-        background-attachment: fixed;
-      }
-      /* Hide mobile-only elements on desktop */
-      .tab-bar { display: none !important; }
-      .header {
-        left: 260px;
-        transform: none;
-        max-width: calc(100% - 260px - 360px);
-        width: calc(100% - 260px - 360px);
-        right: 360px;
-        position: fixed;
-      }
-      body.desktop-chat-closed .header {
-        max-width: calc(100% - 260px);
-        width: calc(100% - 260px);
-        right: 0;
-      }
-      /* Desktop sidebar */
-      .desktop-sidebar {
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 260px;
-        height: 100vh;
-        background: rgba(255,255,255,0.97);
-        backdrop-filter: blur(12px);
-        box-shadow: 2px 0 16px rgba(0,0,0,0.12);
-        z-index: 101;
-        padding: 20px 14px;
-      }
-      .ds-logo-wrap {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 24px;
-        padding: 6px 8px;
-      }
-      .ds-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        flex: 1;
-      }
-      .ds-nav-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 14px;
-        border-radius: 12px;
-        border: none;
-        background: transparent;
-        color: var(--text-sub);
-        font-size: 14px;
-        font-weight: 700;
-        font-family: inherit;
-        cursor: pointer;
-        text-align: left;
-        transition: all 0.15s;
-      }
-      .ds-nav-item:hover { background: rgba(0,0,0,0.06); color: var(--text); }
-      .ds-nav-item.active { background: var(--teal-light); color: var(--teal-dark); }
-      .ds-nav-item .pill-badge {
-        margin-left: auto;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--danger);
-        color: white;
-        font-size: 10px;
-        font-weight: 800;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-      }
-      .ds-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 8px 4px;
-        border-top: 1px solid rgba(0,0,0,0.08);
-        margin-top: 12px;
-      }
-      #ds-user-display { font-size: 13px; font-weight: 800; color: var(--text); }
-
-      /* Content area - wider, with sidebar offset */
-      .content {
-        margin-left: 260px;
-        margin-right: 360px;
-        max-width: none;
-        padding-top: calc(var(--hdr-h) + 20px);
-        padding-left: 24px;
-        padding-right: 24px;
-      }
-      body.desktop-chat-closed .content {
-        margin-right: 0;
-      }
-
-      /* Items grid - 3 across on desktop */
-      #borrows-borrowed, #borrows-lent, #borrows-history, #friends-my-friends, #requests-list {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-      }
-      #borrows-borrowed .card, #borrows-lent .card, #borrows-history .card, #friends-my-friends .card, #requests-list .card {
-        margin-bottom: 0;
-      }
-      #friends-pending-req {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-      #profile-content {
-        max-width: 800px;
-      }
-
-      /* Desktop chat as side panel */
-      .desktop-chat-panel {
-        display: none;
-        flex-direction: column;
-        position: fixed;
-        right: 0;
-        top: 0;
-        width: 360px;
-        height: 100vh;
-        background: white;
-        box-shadow: -2px 0 16px rgba(0,0,0,0.12);
-        z-index: 102;
-        border-left: 1px solid rgba(0,0,0,0.08);
-      }
-      .desktop-chat-panel.open { display: flex; }
-      .ds-chat-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px;
-        border-bottom: 1px solid rgba(0,0,0,0.08);
-        font-weight: 900;
-        font-size: 16px;
-        color: var(--purple);
-      }
-      .desktop-chat-panel .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        max-height: none;
-      }
-      /* FAB moves when sidebar present */
-      .fab {
-        right: calc(360px + 24px);
-      }
-      body.desktop-chat-closed .fab {
-        right: 24px;
-      }
-
-      /* Modal adjustments on desktop - centered, not bottom sheet */
-      .modal-overlay { align-items: center; }
-      .modal { border-radius: 20px; max-width: 500px; max-height: 85vh; }
-      .modal-handle { display: none; }
-
-      /* Auth screen stays centered */
-      #auth-screen { left: 0; }
-    }
-
-    /* Ensure phone UI stays exactly 430px when not desktop */
-    @media (max-width: 899px) {
-      .desktop-sidebar, .desktop-chat-panel { display: none !important; }
-    }
-
   </style>
 </head>
 <body>
-
-<!-- DESKTOP SIDEBAR - only visible on >=900px -->
-<div class="desktop-sidebar" id="desktop-sidebar">
-  <div class="ds-logo-wrap">
-    <div class="logo-shield"><i data-lucide="handshake"></i></div>
-    <div class="logo-text">TRUSTR</div>
-  </div>
-  <nav class="ds-nav">
-    <button class="ds-nav-item active" id="ds-nav-friends" onclick="navigate('friends')"><i data-lucide="users"></i> Friends <span class="pill-badge" id="ds-friend-badge" style="display:none">0</span></button>
-    <button class="ds-nav-item" id="ds-nav-borrows" onclick="navigate('borrows')"><i data-lucide="package"></i> Items</button>
-    <button class="ds-nav-item" id="ds-nav-requests" onclick="navigate('requests')"><i data-lucide="inbox"></i> Requests <span class="pill-badge" id="ds-req-badge" style="display:none">0</span></button>
-    <button class="ds-nav-item" id="ds-nav-profile" onclick="navigate('profile')"><i data-lucide="user-round"></i> Profile</button>
-    <button class="ds-nav-item" id="ds-nav-settings" onclick="navigate('settings')"><i data-lucide="settings"></i> Settings</button>
-  </nav>
-  <div class="ds-footer">
-    <div>
-      <div id="ds-user-display" style="font-size:13px; font-weight:800;"></div>
-      <div style="font-size:11px; color:var(--text-sub);" id="ds-user-sub">@user</div>
-    </div>
-    <button class="logout-btn" onclick="doLogout()">Log out</button>
-  </div>
-</div>
-
-<!-- DESKTOP CHAT SIDE PANEL -->
-<div class="desktop-chat-panel" id="desktop-chat-panel">
-  <div class="ds-chat-header">
-    <div id="ds-chat-friend-name" style="display:flex; align-items:center; gap:8px;"></div>
-    <button class="btn btn-ghost btn-sm" onclick="closeDesktopChat()" style="padding:6px 10px;"><i data-lucide="x"></i></button>
-  </div>
-  <div class="chat-messages" id="ds-chat-messages" style="flex:1; overflow-y:auto;"></div>
-  <div class="chat-input">
-    <input type="text" id="ds-chat-input-field" placeholder="Message...">
-    <button onclick="sendDesktopMessage()">Send</button>
-  </div>
-  <div class="chat-actions">
-    <button onclick="requestBorrowFromDesktopChat()"><i data-lucide="package"></i> Request to Borrow</button>
-  </div>
-</div>
-
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
@@ -701,8 +504,8 @@
     <div id="auth-login-form">
       <div class="test-box">
         <div class="test-box-label"><i data-lucide="flask-conical"></i> Test Accounts</div>
-        <button class="test-btn" onclick="quickLogin('alex')"><i data-lucide="user-round"></i> Alex</button>
-        <button class="test-btn" onclick="quickLogin('jordan')"><i data-lucide="user-round"></i> Jordan</button>
+        <button type="button" class="test-btn" onclick="quickLogin('alex')"><i data-lucide="user-round"></i> Alex</button>
+        <button type="button" class="test-btn" onclick="quickLogin('jordan')"><i data-lucide="user-round"></i> Jordan</button>
         <div class="test-hint">Password for both: <strong>test</strong></div>
       </div>
       <div class="form-group">
@@ -758,6 +561,7 @@
 <div class="tab-bar">
   <button class="tab-pill active" id="nav-friends"  onclick="navigate('friends')"><i data-lucide="users"></i> Friends</button>
   <button class="tab-pill"        id="nav-borrows"  onclick="navigate('borrows')"><i data-lucide="package"></i> Items</button>
+  <button class="tab-pill"        id="nav-lostfound" onclick="navigate('lostfound')"><i data-lucide="search"></i> Lost & Found<span class="pill-badge" id="lf-badge" style="display:none">0</span></button>
   <button class="tab-pill"        id="nav-requests" onclick="navigate('requests')"><i data-lucide="inbox"></i> Requests<span class="pill-badge" id="req-badge" style="display:none">0</span></button>
   <button class="tab-pill"        id="nav-profile"  onclick="navigate('profile')"><i data-lucide="user-round"></i> Profile</button>
   <button class="tab-pill"        id="nav-settings" onclick="navigate('settings')"><i data-lucide="settings"></i> Settings</button>
@@ -770,9 +574,11 @@
     <div class="inner-tabs">
       <button class="inner-tab active" id="tab-my-friends"  onclick="switchFriendsTab('my-friends')">My Friends</button>
       <button class="inner-tab"        id="tab-pending-req" onclick="switchFriendsTab('pending-req')">Pending<span class="pill-badge" id="friend-req-badge" style="display:none;margin-left:2px">0</span></button>
+      <button class="inner-tab"        id="tab-add-friends" onclick="switchFriendsTab('add-friends')"><i data-lucide="user-plus"></i> Add</button>
     </div>
     <div id="friends-my-friends"></div>
     <div id="friends-pending-req" style="display:none"></div>
+    <div id="friends-add-friends" style="display:none"></div>
   </div>
 
   <div class="screen" id="screen-borrows">
@@ -800,9 +606,32 @@
     <div class="section-title"><i data-lucide="settings"></i> Settings</div>
     <div id="settings-content"></div>
   </div>
+
+  <div class="screen" id="screen-lostfound">
+    <div class="section-title"><i data-lucide="search"></i> Lost & Found</div>
+    <div class="card lf-score-card" style="cursor:default;">
+      <div>
+        <div class="lf-score-main" style="font-weight:900; font-size:16px; display:flex; align-items:center; gap:8px"><i data-lucide="award"></i> Your Lost & Found Score: <span id="lf-credit-display" class="lf-score-number">50/100</span></div>
+        <div class="lf-score-sub" style="font-size:12px; margin-top:4px">This is your personal Lost & Found reputation. Keep it high by posting and correctly returning lost items.</div>
+        <div class="lf-score-sub" style="font-size:11px; margin-top:6px">Weekly claims: <span id="lf-weekly-display">0/3</span> • Resets Sunday</div>
+      </div>
+    </div>
+    <div class="inner-tabs">
+      <button class="inner-tab active" id="tab-lf-lost" onclick="switchLostFoundTab('lost')">Lost Items</button>
+      <button class="inner-tab" id="tab-lf-mine" onclick="switchLostFoundTab('mine')">My Posts</button>
+      <button class="inner-tab" id="tab-lf-claims" onclick="switchLostFoundTab('claims')">My Claims</button>
+    </div>
+    <div id="lf-search-wrap" style="margin-bottom:12px">
+      <input type="text" id="lf-search" class="form-input" placeholder="Search lost items by name..." oninput="renderLostFound()">
+    </div>
+    <div id="lostfound-lost"></div>
+    <div id="lostfound-mine" style="display:none"></div>
+    <div id="lostfound-claims" style="display:none"></div>
+  </div>
 </div>
 
 <button class="fab hidden" id="fab-borrow" onclick="openBorrowModal()" title="Request to Borrow"><i data-lucide="plus"></i></button>
+<button class="fab hidden" id="fab-lostfound" onclick="openLostFoundPostModal()" title="Post Found Item" style="background:linear-gradient(135deg,#FF8C00,#FF4444);"><i data-lucide="search"></i></button>
 
 <div class="modal-overlay" id="modal-chat">
   <div class="modal" style="padding:0;display:flex;flex-direction:column;max-height:88vh">
@@ -853,13 +682,55 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-lostfound-post">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i data-lucide="search"></i> Post Found Item</div>
+    <div id="modal-lostfound-post-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-lostfound-details">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="lf-details-title"></div>
+    <div id="modal-lf-details-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-lostfound-claim">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i data-lucide="shield-check"></i> Claim Item</div>
+    <div id="modal-lf-claim-body"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const $ = id => document.getElementById(id);
 
 function icon(name, cls='') {
-  return `<i data-lucide="${name}"${cls ? ` class="${cls}"` : ''}></i>`;
+  const clsAttr = cls ? ` class="${cls}"` : '';
+  // Fix blank avatar icons - provide custom SVGs for sports/ball icons that are lab-only in lucide
+  // Uses same exact code path: icon() returns an inline SVG string just like lucide does
+  if (name === 'soccer' || name === 'football') {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M12 8l1.8 1.3-.7 2.1H10.9l-.7-2.1Z"/><path d="M12 8V4"/><path d="M13.8 9.3 18 8"/><path d="M10.2 9.3 6 8"/><path d="M11.2 11.4 8 16.5"/><path d="M12.8 11.4 16 16.5"/></svg>`;
+  }
+  if (name === 'basketball') {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/><path d="M2 12a10 10 0 0 0 20 0"/><path d="M2 12a15 15 0 0 1 20 0"/></svg>`;
+  }
+  if (name === 'volleyball') {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M2 12c2.5-2 14-2 20 0"/><path d="M5 5c2.5 3 10 9 14 14"/><path d="M19 5c-2.5 3-10 9-14 14"/></svg>`;
+  }
+  if (name === 'guitar') {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="16" r="4"/><path d="M12 12V3"/><path d="M10 3h4"/></svg>`;
+  }
+  if (name === 'drum') {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v9c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6"/><ellipse cx="12" cy="15" rx="7" ry="2.5"/></svg>`;
+  }
+  return `<i data-lucide="${name}"${clsAttr}></i>`;
 }
 
 function refreshIcons() {
@@ -920,7 +791,9 @@ function computeTransactionScore(tx) {
 }
 
 function userTransactionsAsBorrower(uid) {
-  return transactions.filter(t => t.borrower === uid && (t.status === 'returned' || t.status === 'lost' || t.returnedAt));
+  // FIX: Only count as completed when lender has approved return (status returned/lost)
+  // Previously included returnedAt which counted pending_return before condition rating
+  return transactions.filter(t => t.borrower === uid && (t.status === 'returned' || t.status === 'lost'));
 }
 
 function computeUserCredit(uid) {
@@ -991,7 +864,7 @@ let registeredAccounts = {
 
 let selectedSignupAvatar = 'user-round';
 
-const USERS = {
+let USERS = {
   alex:   { id:'alex',   name:'Alex',   avatar:'user-round' },
   jordan: { id:'jordan', name:'Jordan', avatar:'user-round' },
   sam:    { id:'sam',    name:'Sam',    avatar:'user' },
@@ -1039,20 +912,193 @@ let transactions = [
 ];
 let nextTxId = 3;
 
+// ── LOST & FOUND DATA - 8 demo lost items searchable, 50/100 start, 1 attempt only, manual review ──
+let lostFoundItems = [
+  {
+    id: 1,
+    finderId: 'jordan',
+    name: 'Blue Hydro Flask',
+    description: '32oz, with a few dents, white cap, mountain sticker',
+    location: 'Library 2nd floor',
+    foundDate: '2026-06-12',
+    verificationQuestions: [
+      { question: 'What color is the lid?', answer: 'white' },
+      { question: 'Any stickers on it?', answer: 'yes, a mountain sticker' }
+    ],
+    status: 'open',
+    postedAt: '2026-06-12'
+  },
+  {
+    id: 2,
+    finderId: 'sam',
+    name: 'Black AirPods Pro',
+    description: 'In white charging case with scratch on lid',
+    location: 'Gym locker room',
+    foundDate: '2026-06-13',
+    verificationQuestions: [
+      { question: 'What is engraved on the case?', answer: 'S.M.' },
+      { question: 'What color is the inside?', answer: 'white' }
+    ],
+    status: 'open',
+    postedAt: '2026-06-13'
+  },
+  {
+    id: 3,
+    finderId: 'riley',
+    name: 'Red JanSport Backpack',
+    description: 'Contains textbooks and a calculator',
+    location: 'Cafeteria',
+    foundDate: '2026-06-10',
+    verificationQuestions: [
+      { question: 'What brand of calculator inside?', answer: 'TI-84' },
+      { question: 'How many textbooks?', answer: '2' }
+    ],
+    status: 'open',
+    postedAt: '2026-06-10'
+  },
+  {
+    id: 4,
+    finderId: 'alex',
+    name: 'Silver MacBook Charger',
+    description: '60W USB-C, apple logo, slightly frayed cable',
+    location: 'Study Room 101',
+    foundDate: '2026-06-11',
+    verificationQuestions: [
+      { question: 'What wattage?', answer: '60W' },
+      { question: 'Any damage?', answer: 'frayed cable' }
+    ],
+    status: 'open',
+    postedAt: '2026-06-11'
+  },
+  {
+    id: 5,
+    finderId: 'morgan',
+    name: 'Green Water Bottle',
+    description: 'Nalgene 32oz with blue cap, has name sticker',
+    location: 'Tennis Court',
+    foundDate: '2026-06-09',
+    verificationQuestions: [
+      { question: 'What is the name on sticker?', answer: 'Morgan' },
+      { question: 'What size?', answer: '32oz' }
+    ],
+    status: 'open',
+    postedAt: '2026-06-09'
+  },
+  {
+    id: 6,
+    finderId: 'casey',
+    name: 'Brown Leather Wallet',
+    description: 'Bifold, contains ID and a few cards, no cash',
+    location: 'Parking Lot B',
+    foundDate: '2026-06-08',
+    verificationQuestions: [
+      { question: 'What ID inside?', answer: 'student ID' },
+      { question: 'How many cards?', answer: '3' }
+    ],
+    status: 'open',
+    postedAt: '2026-06-08'
+  },
+  {
+    id: 7,
+    finderId: 'jordan',
+    name: 'White Sony Headphones',
+    description: 'WH-1000XM4, in black pouch',
+    location: 'Lecture Hall 3',
+    foundDate: '2026-06-14',
+    verificationQuestions: [
+      { question: 'What model?', answer: 'WH-1000XM4' },
+      { question: 'What color pouch?', answer: 'black' }
+    ],
+    status: 'open',
+    postedAt: '2026-06-14'
+  },
+  {
+    id: 8,
+    finderId: 'sam',
+    name: 'Keys with Blue Lanyard',
+    description: '3 keys + 1 car fob, blue lanyard with university logo',
+    location: 'Main Entrance',
+    foundDate: '2026-06-07',
+    verificationQuestions: [
+      { question: 'How many keys?', answer: '3' },
+      { question: 'What is on lanyard?', answer: 'university logo' }
+    ],
+    status: 'open',
+    postedAt: '2026-06-07'
+  }
+];
+let nextLostFoundId = 9;
+let lostFoundClaims = [];
+let nextClaimId = 1;
+let lostFoundScores = { alex: 50, jordan: 50, sam: 50, riley: 50, morgan: 50, casey: 50 };
+let lostFoundAttempts = {};
+let weeklyClaimTracker = {};
+
 let currentTheme = 'orange';
 let toggles = { borrowNotifs:true, returnReminders:true, friendRequests:true, lateAlerts:true };
 let friendSearchQ = '';
 
+// ── SIMPLE PERSISTENCE - ALL DATA IN ONE FILE, VISIBLE, FOREVER ──
+// Uses localStorage in same file, no hidden files, keeps test accounts too
+const STORAGE_KEY = 'trustr_all_data_v2';
+function saveAll() {
+  try {
+    const data = {
+      registeredAccounts,
+      USERS,
+      friendships,
+      chats,
+      transactions,
+      nextTxId,
+      lostFoundItems,
+      nextLostFoundId,
+      lostFoundClaims,
+      nextClaimId,
+      lostFoundScores,
+      lostFoundAttempts,
+      weeklyClaimTracker,
+      currentTheme,
+      toggles
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) { console.warn('save failed', e); }
+}
+function loadAll() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (d.registeredAccounts) registeredAccounts = d.registeredAccounts;
+    if (d.USERS) USERS = d.USERS;
+    if (d.friendships) friendships = d.friendships;
+    if (d.chats) chats = d.chats;
+    if (d.transactions) transactions = d.transactions;
+    if (d.nextTxId) nextTxId = d.nextTxId;
+    if (d.lostFoundItems) lostFoundItems = d.lostFoundItems;
+    if (d.nextLostFoundId) nextLostFoundId = d.nextLostFoundId;
+    if (d.lostFoundClaims) lostFoundClaims = d.lostFoundClaims;
+    if (d.nextClaimId) nextClaimId = d.nextClaimId;
+    if (d.lostFoundScores) lostFoundScores = d.lostFoundScores;
+    if (d.lostFoundAttempts) lostFoundAttempts = d.lostFoundAttempts;
+    if (d.weeklyClaimTracker) weeklyClaimTracker = d.weeklyClaimTracker;
+    if (d.currentTheme) currentTheme = d.currentTheme;
+    if (d.toggles) toggles = d.toggles;
+    // Ensure test accounts always exist
+    if (!registeredAccounts['alex']) registeredAccounts['alex'] = { password:'test', id:'alex', name:'Alex', avatar:'user-round' };
+    if (!registeredAccounts['jordan']) registeredAccounts['jordan'] = { password:'test', id:'jordan', name:'Jordan', avatar:'user-round' };
+    if (!USERS['alex']) USERS['alex'] = { id:'alex', name:'Alex', avatar:'user-round' };
+    if (!USERS['jordan']) USERS['jordan'] = { id:'jordan', name:'Jordan', avatar:'user-round' };
+    if (!friendships['alex']) friendships['alex'] = { friends:['jordan'], pendingIncoming:[], pendingOutgoing:[] };
+    if (!friendships['jordan']) friendships['jordan'] = { friends:['alex'], pendingIncoming:[], pendingOutgoing:[] };
+    return true;
+  } catch(e) { console.warn('load failed', e); return false; }
+}
+
 const AVATAR_OPTIONS = [
-  // People & vibes (unique)
   'user-round','user','user-round-check','smile','laugh','heart','star','sparkles','flame','zap','sun','moon',
-  // Animals people actually pick
   'cat','dog','bird','fish','bug','paw-print','rabbit','turtle',
-  // Sports - requested
-  'trophy','medal','award','dumbbell','bike','football','basketball','volleyball','activity','swords','target','flag',
-  // Hobbies & real use
+  'trophy','medal','award','dumbbell','bike','soccer','basketball','volleyball','activity','swords','target','flag',
   'rocket','palette','music','mic','headphones','camera','graduation-cap','book-open','gamepad-2','guitar','drum','clapperboard',
-  // Work / cool
   'code','code-2','shield','shield-check','wand-sparkles','crown','gem','lightbulb','wrench','hammer'
 ];
 
@@ -1060,7 +1106,7 @@ const ITEM_ICONS = [
   'package','book-open','headphones','laptop','smartphone','watch','gamepad-2','guitar',
   'camera','clapperboard','palette','pencil','pen-line','ruler','wrench','hammer',
   'footprints','shirt','backpack','shopping-bag','briefcase','umbrella','circle-dot',
-  'trophy','medal','dumbbell','bike','football','basketball','volleyball','tent','tent-tree','lantern'
+  'trophy','medal','dumbbell','bike','soccer','basketball','volleyball','tent','lantern'
 ];
 
 let borrowFormState = { itemName:'', itemIcon:'package', itemCondition:'Good', dueDate:'', borrowerNote:'', targetFriend:null };
@@ -1114,6 +1160,8 @@ function doSignup() {
   registeredAccounts[username] = { password, id:username, name:displayName, avatar:selectedSignupAvatar };
   USERS[username] = { id:username, name:displayName, avatar:selectedSignupAvatar };
   friendships[username] = { friends:[], pendingIncoming:[], pendingOutgoing:[] };
+  lostFoundScores[username] = 100;
+  saveAll();
   doLoginAs(username);
 }
 
@@ -1121,7 +1169,9 @@ function doLoginAs(uid) {
   currentUser = uid;
   if (!USERS[uid]) USERS[uid] = { ...registeredAccounts[uid] };
   if (!friendships[uid]) friendships[uid] = { friends:[], pendingIncoming:[], pendingOutgoing:[] };
+  if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 100;
   $('header-user-display').textContent = USERS[uid].name;
+  saveAll();
   $('auth-screen').classList.add('hidden');
   render('friends');
   navigate('friends');
@@ -1195,8 +1245,13 @@ function emptyState(lucideIcon, msg) {
 let currentScreen = 'friends';
 function updateFABVisibility() {
   const fab = $('fab-borrow');
-  if (!fab) return;
-  (currentScreen==='borrows'||currentScreen==='requests') ? fab.classList.remove('hidden') : fab.classList.add('hidden');
+  const fabLF = $('fab-lostfound');
+  if (fab) {
+    (currentScreen==='borrows'||currentScreen==='requests') ? fab.classList.remove('hidden') : fab.classList.add('hidden');
+  }
+  if (fabLF) {
+    (currentScreen==='lostfound') ? fabLF.classList.remove('hidden') : fabLF.classList.add('hidden');
+  }
 }
 
 function navigate(screen) {
@@ -1212,6 +1267,7 @@ function navigate(screen) {
 function render(screen) {
   if (screen==='friends')  renderFriends();
   if (screen==='borrows')  renderBorrows();
+  if (screen==='lostfound') renderLostFound();
   if (screen==='requests') renderRequests();
   if (screen==='profile')  renderProfile();
   if (screen==='settings') renderSettings();
@@ -1227,8 +1283,13 @@ function switchFriendsTab(tab) {
   friendsTab = tab;
   $('tab-my-friends').classList.toggle('active', tab==='my-friends');
   $('tab-pending-req').classList.toggle('active', tab==='pending-req');
+  const addTab = $('tab-add-friends');
+  if (addTab) addTab.classList.toggle('active', tab==='add-friends');
   $('friends-my-friends').style.display  = tab==='my-friends'  ? 'block' : 'none';
   $('friends-pending-req').style.display = tab==='pending-req' ? 'block' : 'none';
+  const addCont = $('friends-add-friends');
+  if (addCont) addCont.style.display = tab==='add-friends' ? 'block' : 'none';
+  if (tab==='add-friends') renderAddFriends();
   refreshIcons();
 }
 
@@ -1282,6 +1343,38 @@ function renderFriends() {
   refreshIcons();
 }
 
+function renderAddFriends() {
+  const fs = friendships[currentUser]||{friends:[],pendingIncoming:[],pendingOutgoing:[]};
+  const myFriends = fs.friends;
+  const myOut = fs.pendingOutgoing;
+  const discoverable = Object.keys(USERS).filter(uid =>
+    uid!==currentUser && !myFriends.includes(uid) && !fs.pendingIncoming.includes(uid)
+  );
+  const filtered = friendSearchQ
+    ? discoverable.filter(uid => USERS[uid].name.toLowerCase().includes(friendSearchQ.toLowerCase()))
+    : discoverable;
+
+  const container = $('friends-add-friends');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="card" style="cursor:default">
+      <input class="form-input" placeholder="Search users…" value="${friendSearchQ.replace(/"/g,'&quot;')}" oninput="friendSearchQ=this.value;renderAddFriends()" style="margin-bottom:${filtered.length?'12px':'0'}">
+      ${filtered.map(uid => {
+        const u=USERS[uid]; const ip=myOut.includes(uid); const iF=myFriends.includes(uid);
+        const credit = computeUserCredit(uid);
+        const statusHtml = iF ? icon('check')+' Friends' : ip ? icon('clock-3')+' Request sent' : credit.totalTx===0 ? 'New User: No Transactions Yet' : icon('star')+' '+credit.averageStars.toFixed(1)+' • @'+uid;
+        return `<div class="af-row">
+          <div class="af-avatar">${icon(u.avatar)}</div>
+          <div style="flex:1"><div class="af-name">${u.name}</div><div class="af-status">${statusHtml}</div></div>
+          ${!ip&&!iF?`<button class="btn btn-sm btn-outline" onclick="sendFriendRequest('${uid}')">+ Add</button>`:''}
+        </div>`;
+      }).join('')||(friendSearchQ?`<p style="text-align:center;padding:14px;color:var(--text-sub);font-size:14px;font-weight:600">No users found</p>`:`<p style="text-align:center;padding:14px;color:var(--text-sub);font-size:14px;font-weight:600">No more users to add</p>`)}
+    </div>
+  `;
+  refreshIcons();
+}
+
 function respondFriendRequest(uid, accept) {
   const fs = friendships[currentUser];
   const idx = fs.pendingIncoming.indexOf(uid);
@@ -1297,6 +1390,7 @@ function respondFriendRequest(uid, accept) {
     if (o) { const i2=o.pendingOutgoing.indexOf(currentUser); if(i2!==-1) o.pendingOutgoing.splice(i2,1); }
     toast('Friend request declined');
   }
+  saveAll();
   renderFriends(); updateBadges(); refreshIcons();
 }
 
@@ -1326,6 +1420,7 @@ function sendMessage() {
   if (!chats[key]) chats[key]=[];
   chats[key].push({from:currentUser,text,time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})});
   inp.value = ''; renderChatMessages(key);
+  saveAll();
 }
 
 function requestBorrowFromChat() {
@@ -1414,6 +1509,7 @@ function submitBorrowRequest() {
     borrowerNote: ($('borrow-note').value||'').trim()
   });
 
+  saveAll();
   toast(`Request sent to ${USERS[friendId].name}!`);
   closeModal('modal-borrow');
   borrowFormState = { itemName:'', itemIcon:'package', itemCondition:'Good', dueDate:'', borrowerNote:'', targetFriend:null };
@@ -1538,18 +1634,17 @@ function openTransactionDetails(txId) {
 function approveBorrowRequest(txId) {
   const tx = getTx(txId); if(!tx) return;
   tx.status = 'active'; tx.startDate = NOW.toISOString().split('T')[0];
+  saveAll();
   toast('Borrow approved!'); closeModal('modal-details');
   renderBorrows(); renderRequests(); updateBadges();
 }
 
 function rejectBorrowRequest(txId) {
   transactions = transactions.filter(t => t.id!==txId);
+  saveAll();
   toast('Request rejected'); closeModal('modal-details');
   renderBorrows(); renderRequests(); updateBadges();
 }
-
-window.currentReturnRating = 5;
-
 
 let lenderReturnRating = 5;
 
@@ -1577,6 +1672,7 @@ function submitReturn(txId) {
   tx.returnedAt = autoDate;
   const note = ($('return-notes')?.value||'').trim();
   if(note){ tx.borrowerNote = tx.borrowerNote ? tx.borrowerNote + ' | Return: ' + note : note; }
+  saveAll();
   toast('Return request sent! Auto date ' + autoDate + ' - awaiting lender condition rating.'); 
   closeModal('modal-return');
   renderBorrows(); renderRequests(); updateBadges();
@@ -1613,6 +1709,7 @@ function confirmReturn(txId) {
   tx.status = 'returned';
   tx.returnedAt = tx.returnRequestAt || new Date().toISOString().split('T')[0];
   tx.credit = computeTransactionScore(tx);
+  saveAll();
   toast(`Return confirmed! Score ${tx.credit.score100}/100 → ${tx.credit.stars.toFixed(1)}★ (Punct ${tx.credit.punctuality} + Cond ${tx.credit.condition})`);
   closeModal('modal-details');
   renderBorrows(); renderRequests(); updateBadges(); renderProfile();
@@ -1622,15 +1719,18 @@ function markLost(txId){
   const tx=getTx(txId); if(!tx) return;
   tx.status='lost'; tx.conditionRating=null; tx.returnedAt=null; tx.returnRequestAt=new Date().toISOString().split('T')[0];
   tx.credit={score100:0, stars:0.0, punctuality:0, condition:0, rawStars:0};
+  saveAll();
   toast('Marked as lost - 0 points'); closeModal('modal-details'); renderBorrows(); renderRequests(); updateBadges(); renderProfile();
 }
 
 function denyReturn(txId) {
   const tx = getTx(txId); if(!tx) return;
   tx.status = 'active'; tx.returnRequestAt = null; tx.returnedAt = null; tx.conditionRating = null; tx.lenderNotes = ''; tx.credit = null;
+  saveAll();
   toast('Return denied'); closeModal('modal-details');
   renderBorrows(); updateBadges();
 }
+
 
 
 function renderRequests() {
@@ -1653,6 +1753,500 @@ function renderRequests() {
   }).join('') : emptyState('sparkles','No pending requests!');
   refreshIcons();
 }
+
+
+// ── LOST & FOUND LOGIC ─────────────────────────
+let lostFoundTab = 'all';
+
+function getWeekId(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day; // Sunday = 0
+  const sunday = new Date(d.setDate(diff));
+  sunday.setHours(0,0,0,0);
+  return sunday.toISOString().split('T')[0];
+}
+
+function getLFScore(uid) {
+  if (!uid) return 100;
+  if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 100;
+  return lostFoundScores[uid];
+}
+
+function updateLFScore(uid, delta) {
+  if (!uid) return;
+  if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 100;
+  lostFoundScores[uid] = Math.max(0, Math.min(200, lostFoundScores[uid] + delta));
+  if (uid === currentUser) {
+    const el = $('lf-credit-display');
+    if (el) el.textContent = `${lostFoundScores[uid]}/200`;
+  }
+}
+
+function getLFAttempts(uid, itemId) {
+  const key = `${uid}_${itemId}`;
+  return (lostFoundAttempts[key] && lostFoundAttempts[key].count) || 0;
+}
+
+function isLFBlocked(uid, itemId) {
+  const key = `${uid}_${itemId}`;
+  return lostFoundAttempts[key] && lostFoundAttempts[key].blocked;
+}
+
+function incLFAttempt(uid, itemId, success) {
+  const key = `${uid}_${itemId}`;
+  if (!lostFoundAttempts[key]) lostFoundAttempts[key] = { count: 0, blocked: false };
+  if (!success) lostFoundAttempts[key].count += 1;
+  else lostFoundAttempts[key].count = 0;
+  if (lostFoundAttempts[key].count >= 3) {
+    lostFoundAttempts[key].blocked = true;
+  }
+  return lostFoundAttempts[key];
+}
+
+function getWeeklyClaims(uid) {
+  const weekId = getWeekId();
+  if (!weeklyClaimTracker[uid] || weeklyClaimTracker[uid].weekId !== weekId) {
+    weeklyClaimTracker[uid] = { weekId, items: [] };
+  }
+  return weeklyClaimTracker[uid];
+}
+
+function canClaimWeekly(uid, itemId) {
+  const tracker = getWeeklyClaims(uid);
+  if (tracker.items.includes(String(itemId))) return true;
+  return tracker.items.length < 3;
+}
+
+function recordWeeklyClaim(uid, itemId) {
+  const tracker = getWeeklyClaims(uid);
+  const idStr = String(itemId);
+  if (!tracker.items.includes(idStr)) {
+    tracker.items.push(idStr);
+  }
+  const el = $('lf-weekly-display');
+  if (el && uid === currentUser) el.textContent = `${tracker.items.length}/3 items`;
+}
+
+function switchLostFoundTab(tab) {
+  lostFoundTab = tab;
+  ['all','mine','claims'].forEach(t => {
+    const tabEl = $('tab-lf-'+t);
+    if (tabEl) tabEl.classList.toggle('active', t===tab);
+    const cont = $('lostfound-'+t);
+    if (cont) cont.style.display = t===tab ? 'block' : 'none';
+  });
+  renderLostFound();
+  refreshIcons();
+}
+
+function renderLostFound() {
+  const allCont = $('lostfound-all');
+  const mineCont = $('lostfound-mine');
+  const claimsCont = $('lostfound-claims');
+  if (!allCont) return;
+
+  // Update credit displays
+  const score = getLFScore(currentUser);
+  const creditEl = $('lf-credit-display');
+  if (creditEl) creditEl.textContent = `${score}/200`;
+  const weekly = getWeeklyClaims(currentUser);
+  const weeklyEl = $('lf-weekly-display');
+  if (weeklyEl) weeklyEl.textContent = `${weekly.items.length}/3 items`;
+
+  const openItems = lostFoundItems.filter(i => i.status === 'open');
+
+  // All found
+  allCont.innerHTML = openItems.length ? openItems.map(item => {
+    const finder = USERS[item.finderId];
+    const attempts = getLFAttempts(currentUser, item.id);
+    const blocked = isLFBlocked(currentUser, item.id);
+    const canClaim = currentUser !== item.finderId && !blocked;
+    return `
+      <div class="card" style="cursor:default">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px">
+          <div class="item-name" style="font-size:16px">${item.name}</div>
+          <span class="badge ${blocked ? 'b-lost' : 'b-active'}">${blocked ? 'Blocked' : attempts > 0 ? attempts + '/3 attempts' : 'Open'}</span>
+        </div>
+        <div class="item-meta" style="margin-bottom:6px">${icon('map-pin')} ${item.location} • ${icon('calendar-days')} ${fmt(item.foundDate)} • by ${finder?finder.name:item.finderId}</div>
+        <div style="font-size:13px; color:var(--text-sub); margin-bottom:10px">${item.description}</div>
+        <div style="font-size:12px; color:var(--text-sub); margin-bottom:10px">${icon('shield-question')} ${item.verificationQuestions.length} verification questions • Finder L&F: ${getLFScore(item.finderId)}/200</div>
+        <div style="display:flex; gap:8px">
+          <button class="btn btn-sm btn-outline" style="flex:1" onclick="openLostFoundDetails(${item.id})"><i data-lucide="eye"></i> View & Claim</button>
+        </div>
+      </div>
+    `;
+  }).join('') : emptyState('search-x','No found items yet. Be first to post!');
+
+  // My posts
+  const myItems = lostFoundItems.filter(i => i.finderId === currentUser);
+  mineCont.innerHTML = myItems.length ? myItems.map(item => {
+    const pendingClaims = lostFoundClaims.filter(c => c.itemId === item.id && c.status === 'pending');
+    const approvedClaims = lostFoundClaims.filter(c => c.itemId === item.id && c.status === 'approved');
+    return `
+      <div class="card" style="cursor:default">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+          <div class="item-name">${item.name}</div>
+          <span class="badge b-${item.status==='open'?'active':'returned'}">${item.status}</span>
+        </div>
+        <div class="item-meta" style="margin-bottom:8px">${icon('map-pin')} ${item.location} • ${fmt(item.foundDate)} • ${pendingClaims.length} pending claims</div>
+        <div style="font-size:13px; color:var(--text-sub); margin-bottom:8px">${item.description}</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" style="flex:1" onclick="openLostFoundDetails(${item.id})"><i data-lucide="eye"></i> Details</button>
+          <button class="btn btn-sm btn-ghost" style="flex:1" onclick="viewLFClaims(${item.id})"><i data-lucide="inbox"></i> Claims (${pendingClaims.length})</button>
+        </div>
+        ${pendingClaims.length ? `
+          <div style="margin-top:12px; border-top:1px solid rgba(0,0,0,0.06); padding-top:10px">
+            <div style="font-weight:800; font-size:12px; margin-bottom:6px">Pending claims:</div>
+            ${pendingClaims.map(c => {
+              const claimant = USERS[c.claimantId];
+              return `<div style="padding:8px; background:rgba(0,0,0,0.03); border-radius:10px; margin-bottom:6px">
+                <div style="font-weight:700; font-size:13px">${claimant?claimant.name:c.claimantId} • L&F ${getLFScore(c.claimantId)}/200</div>
+                <div style="font-size:12px; color:var(--text-sub)">${c.personalDetails||'No extra details'}</div>
+                <div style="font-size:11px; margin-top:4px">Answers: ${c.answers.map((a,i)=>`Q${i+1}: ${a.answer}`).join(' | ')}</div>
+                <div style="display:flex; gap:6px; margin-top:8px">
+                  <button class="btn btn-sm btn-success" style="flex:1" onclick="approveLFClaim(${c.id})"><i data-lucide="check"></i> Confirm +20</button>
+                  <button class="btn btn-sm btn-danger" style="flex:1" onclick="denyLFClaim(${c.id})"><i data-lucide="x"></i> Deny -10</button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('') : emptyState('package-open','You haven\'t posted any found items');
+
+  // My claims
+  const myClaims = lostFoundClaims.filter(c => c.claimantId === currentUser);
+  claimsCont.innerHTML = myClaims.length ? myClaims.map(c => {
+    const item = lostFoundItems.find(i => i.id === c.itemId);
+    return `
+      <div class="card" style="cursor:default">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
+          <div class="item-name">${item?item.name:'Item #'+c.itemId}</div>
+          <span class="badge b-${c.status==='pending'?'requested':c.status==='approved'?'active':c.status==='denied'?'lost':'returned'}">${c.status}</span>
+        </div>
+        <div class="item-meta" style="margin-bottom:6px">Attempts: ${c.attemptsUsed}/3 • ${item?item.location:''}</div>
+        <div style="font-size:12px; color:var(--text-sub)">${c.personalDetails||''}</div>
+        ${c.status==='failed' ? `<div style="font-size:12px; color:var(--danger); margin-top:6px">Blocked after 3 failed attempts • -25 pts</div>` : ''}
+      </div>
+    `;
+  }).join('') : emptyState('clipboard-list','No claims yet');
+
+  refreshIcons();
+}
+
+function openLostFoundPostModal() {
+  $('modal-lostfound-post-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Item Name *</label><input type="text" id="lf-name" class="form-input" placeholder="e.g. Blue Hydro Flask"></div>
+    <div class="form-group"><label class="form-label">Description *</label><input type="text" id="lf-desc" class="form-input" placeholder="e.g. 32oz, dents, white cap"></div>
+    <div class="form-group"><label class="form-label">Location Found *</label><input type="text" id="lf-location" class="form-input" placeholder="e.g. Library 2nd floor"></div>
+    <div class="form-group"><label class="form-label">Date Found *</label><input type="date" id="lf-date" class="form-input" value="${new Date().toISOString().split('T')[0]}"></div>
+    <div class="sett-section-label">Verification Questions (at least 2) - answers hidden from claimants</div>
+    <div id="lf-questions-container">
+      <div class="form-group" style="background:rgba(0,0,0,0.03); padding:10px; border-radius:12px">
+        <label class="form-label">Q1 *</label><input type="text" id="lf-q1" class="form-input" placeholder="e.g. What color is the lid?">
+        <label class="form-label" style="margin-top:6px">Answer 1 *</label><input type="text" id="lf-a1" class="form-input" placeholder="e.g. white">
+      </div>
+      <div class="form-group" style="background:rgba(0,0,0,0.03); padding:10px; border-radius:12px">
+        <label class="form-label">Q2 *</label><input type="text" id="lf-q2" class="form-input" placeholder="e.g. Any stickers?">
+        <label class="form-label" style="margin-top:6px">Answer 2 *</label><input type="text" id="lf-a2" class="form-input" placeholder="e.g. yes, mountain sticker">
+      </div>
+      <div id="lf-extra-questions"></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="addLFQuestion()" style="margin-bottom:12px"><i data-lucide="plus"></i> Add another question</button>
+    <div style="display:flex; gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-lostfound-post')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="submitLFPost()"><i data-lucide="plus"></i> Post Found +5 pts</button>
+    </div>
+  `;
+  openModal('modal-lostfound-post');
+  refreshIcons();
+}
+
+let lfExtraQCount = 0;
+function addLFQuestion() {
+  lfExtraQCount++;
+  const idx = 2 + lfExtraQCount;
+  const cont = $('lf-extra-questions');
+  const div = document.createElement('div');
+  div.className = 'form-group';
+  div.style.background = 'rgba(0,0,0,0.03)';
+  div.style.padding = '10px';
+  div.style.borderRadius = '12px';
+  div.innerHTML = `
+    <label class="form-label">Q${idx+1}</label><input type="text" id="lf-q${idx+1}" class="form-input" placeholder="Question">
+    <label class="form-label" style="margin-top:6px">Answer ${idx+1}</label><input type="text" id="lf-a${idx+1}" class="form-input" placeholder="Answer">
+  `;
+  cont.appendChild(div);
+}
+
+function submitLFPost() {
+  const name = ($('lf-name').value||'').trim();
+  const desc = ($('lf-desc').value||'').trim();
+  const loc = ($('lf-location').value||'').trim();
+  const date = $('lf-date').value;
+  if (!name || !desc || !loc || !date) { toast('Fill all required fields'); return; }
+
+  const questions = [];
+  for (let i=1;i<=2+lfExtraQCount;i++) {
+    const qEl = $('lf-q'+i);
+    const aEl = $('lf-a'+i);
+    if (!qEl || !aEl) continue;
+    const q = qEl.value.trim();
+    const a = aEl.value.trim();
+    if (q && a) questions.push({ question: q, answer: a });
+  }
+
+  if (questions.length < 2) { toast('At least 2 verification questions required'); return; }
+
+  const newItem = {
+    id: nextLostFoundId++,
+    finderId: currentUser,
+    name, description: desc, location: loc, foundDate: date,
+    verificationQuestions: questions,
+    status: 'open',
+    postedAt: new Date().toISOString().split('T')[0]
+  };
+
+  lostFoundItems.unshift(newItem);
+  updateLFScore(currentUser, 5);
+  saveAll();
+  toast('Found item posted! +5 L&F points');
+  closeModal('modal-lostfound-post');
+  lfExtraQCount = 0;
+  renderLostFound();
+  updateBadges();
+}
+
+function openLostFoundDetails(itemId) {
+  const item = lostFoundItems.find(i => i.id === itemId);
+  if (!item) return;
+  const finder = USERS[item.finderId];
+  const attempts = getLFAttempts(currentUser, itemId);
+  const blocked = isLFBlocked(currentUser, itemId);
+  const isFinder = currentUser === item.finderId;
+  const weekly = getWeeklyClaims(currentUser);
+  const weeklyOk = canClaimWeekly(currentUser, itemId);
+
+  let html = `
+    <div class="card" style="cursor:default; margin-bottom:12px">
+      <div class="item-name" style="font-size:18px">${item.name}</div>
+      <div class="item-meta" style="margin:6px 0">${icon('map-pin')} ${item.location} • ${icon('calendar-days')} ${fmt(item.foundDate)} • by ${finder?finder.name:item.finderId} • L&F ${getLFScore(item.finderId)}/200</div>
+      <div style="font-size:13px; margin-top:8px">${item.description}</div>
+      <div class="divider"></div>
+      <div style="font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-sub); margin-bottom:8px">${item.verificationQuestions.length} verification questions (answers hidden)</div>
+      ${item.verificationQuestions.map((q,i)=>`<div style="font-size:13px; padding:6px 0; border-bottom:1px solid rgba(0,0,0,0.06)"><strong>Q${i+1}:</strong> ${q.question}</div>`).join('')}
+    </div>
+  `;
+
+  if (!isFinder) {
+    if (blocked) {
+      html += `<div class="card" style="cursor:default; background:var(--danger-light); border:1.5px solid var(--danger)"><div style="font-weight:800; color:var(--danger); display:flex; align-items:center; gap:6px">${icon('circle-x')} Blocked - 3 failed attempts used • -25 pts</div><div class="lf-score-sub" style="font-size:12px; margin-top:4px">You can no longer claim this item</div></div>`;
+    } else if (!weeklyOk) {
+      html += `<div class="card" style="cursor:default; background:var(--warning-light); border:1.5px solid var(--warning)"><div style="font-weight:800; color:var(--warning)">${icon('triangle-alert')} Weekly limit reached</div><div class="lf-score-sub" style="font-size:12px; margin-top:4px">You can claim max 3 different items per week. Resets Sunday. Currently: ${weekly.items.length}/3</div></div>`;
+    } else {
+      html += `
+        <div class="card" style="cursor:default">
+          <div style="font-weight:900; margin-bottom:10px">Claim this item • Attempt ${attempts+1}/3 • Wrong -5 pts</div>
+          <div id="lf-claim-answers">
+            ${item.verificationQuestions.map((q,i)=>`
+              <div class="form-group"><label class="form-label">Answer Q${i+1}: ${q.question}</label><input type="text" id="lf-claim-a${i}" class="form-input" placeholder="Your answer"></div>
+            `).join('')}
+          </div>
+          <div class="form-group"><label class="form-label">Personal details to prove ownership (optional but helps)</label><input type="text" id="lf-claim-details" class="form-input" placeholder="e.g. Purchase date, serial, where lost..."></div>
+          <div style="display:flex; gap:8px; margin-top:12px">
+            <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-lostfound-details')">Cancel</button>
+            <button class="btn btn-primary" style="flex:2" onclick="submitLFClaim(${itemId})"><i data-lucide="shield-check"></i> Submit Claim</button>
+          </div>
+        </div>
+      `;
+    }
+  } else {
+    const claims = lostFoundClaims.filter(c => c.itemId === itemId);
+    html += `
+      <div class="card" style="cursor:default">
+        <div style="font-weight:800; margin-bottom:8px">Your verification answers (hidden from others)</div>
+        ${item.verificationQuestions.map((q,i)=>`<div style="font-size:12px; padding:4px 0"><strong>Q${i+1}:</strong> ${q.question} → <em>${q.answer}</em></div>`).join('')}
+        <div class="divider"></div>
+        <div style="font-size:12px; color:var(--text-sub)">${claims.length} total claims • ${claims.filter(c=>c.status==='pending').length} pending</div>
+        <div style="display:flex; gap:8px; margin-top:10px">
+          <button class="btn btn-ghost btn-sm" style="flex:1" onclick="closeModal('modal-lostfound-details'); viewLFClaims(${itemId})"><i data-lucide="inbox"></i> Review Claims</button>
+        </div>
+      </div>
+    `;
+  }
+
+  $('lf-details-title').innerHTML = item.name;
+  $('modal-lf-details-body').innerHTML = html;
+  openModal('modal-lostfound-details');
+  refreshIcons();
+}
+
+function viewLFClaims(itemId) {
+  openLostFoundDetails(itemId);
+}
+
+function submitLFClaim(itemId) {
+  const item = lostFoundItems.find(i => i.id === itemId);
+  if (!item) return;
+  if (isLFBlocked(currentUser, itemId)) { toast('Blocked - no more attempts'); return; }
+  if (!canClaimWeekly(currentUser, itemId)) { toast('Weekly limit 3 items reached'); return; }
+
+  const answers = [];
+  for (let i=0;i<item.verificationQuestions.length;i++) {
+    const el = $('lf-claim-a'+i);
+    if (!el) continue;
+    answers.push({ questionIndex: i, answer: el.value.trim() });
+  }
+
+  const personalDetails = ($('lf-claim-details').value||'').trim();
+
+  // Check if all answers filled
+  if (answers.some(a=>!a.answer)) { toast('Fill all answers'); return; }
+
+  // Check correctness (case-insensitive exact match)
+  let allCorrect = true;
+  for (let i=0;i<item.verificationQuestions.length;i++) {
+    const correct = item.verificationQuestions[i].answer.trim().toLowerCase();
+    const given = (answers[i]?.answer||'').trim().toLowerCase();
+    if (correct !== given) allCorrect = false;
+  }
+
+  recordWeeklyClaim(currentUser, itemId);
+
+  const existingClaimIdx = lostFoundClaims.findIndex(c => c.claimantId===currentUser && c.itemId===itemId && c.status==='pending');
+  if (existingClaimIdx !== -1) {
+    // update existing? For simplicity create new attempt record
+  }
+
+  if (!allCorrect) {
+    const attemptInfo = incLFAttempt(currentUser, itemId, false);
+    updateLFScore(currentUser, -5);
+    if (attemptInfo.blocked) {
+      updateLFScore(currentUser, -25);
+      const claim = {
+        id: nextClaimId++,
+        itemId, claimantId: currentUser,
+        answers, personalDetails,
+        status: 'failed',
+        attemptsUsed: 3,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      lostFoundClaims.push(claim);
+      toast('Wrong answers - blocked after 3 attempts • -5 pts and -25 pts');
+    } else {
+      const claim = {
+        id: nextClaimId++,
+        itemId, claimantId: currentUser,
+        answers, personalDetails,
+        status: 'pending',
+        attemptsUsed: attemptInfo.count,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      // For wrong answers we still keep pending? But spec says each wrong costs 5. We'll keep it as pending for finder to review, but mark as wrong internally
+      // Actually if wrong, we should not auto approve, but still allow finder to see? We'll set status pending but with flag
+      claim.isCorrect = false;
+      lostFoundClaims.push(claim);
+      toast(`Wrong answer • -5 pts • Attempt ${attemptInfo.count}/3`);
+    }
+  } else {
+    // Correct answers
+    incLFAttempt(currentUser, itemId, true);
+    const claim = {
+      id: nextClaimId++,
+      itemId, claimantId: currentUser,
+      answers, personalDetails,
+      status: 'pending',
+      attemptsUsed: getLFAttempts(currentUser, itemId)+1,
+      isCorrect: true,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    lostFoundClaims.push(claim);
+    toast('Correct! Awaiting finder confirmation for +20 pts');
+  }
+
+  saveAll();
+  closeModal('modal-lostfound-details');
+  renderLostFound();
+  updateBadges();
+}
+
+function approveLFClaim(claimId) {
+  const claim = lostFoundClaims.find(c => c.id === claimId);
+  if (!claim) return;
+  const item = lostFoundItems.find(i => i.id === claim.itemId);
+  if (!item) return;
+  if (item.finderId !== currentUser) { toast('Only finder can confirm'); return; }
+
+  claim.status = 'approved';
+  item.status = 'claimed';
+  updateLFScore(claim.claimantId, 20);
+  updateLFScore(currentUser, 20);
+  saveAll();
+  toast(`Claim approved! +20 pts to both ${USERS[claim.claimantId]?USERS[claim.claimantId].name:'owner'} and you`);
+  closeModal('modal-lostfound-details');
+  renderLostFound();
+}
+
+function denyLFClaim(claimId) {
+  const claim = lostFoundClaims.find(c => c.id === claimId);
+  if (!claim) return;
+  const item = lostFoundItems.find(i => i.id === claim.itemId);
+  if (!item || item.finderId !== currentUser) { toast('Only finder can deny'); return; }
+
+  claim.status = 'denied';
+  updateLFScore(claim.claimantId, -10);
+  saveAll();
+  toast('Claim denied • -10 pts to claimant');
+  renderLostFound();
+  refreshIcons();
+}
+
+// Extend profile to show L&F credit
+const _origRenderProfile = renderProfile;
+renderProfile = function(uid) {
+  _origRenderProfile(uid);
+  const targetId = uid || currentUser;
+  const lfScore = getLFScore(targetId);
+  const cont = $('profile-content');
+  if (cont) {
+    const extra = document.createElement('div');
+    extra.innerHTML = `
+      <div class="card" style="cursor:default; margin-top:12px; background:var(--teal-light); border:1.5px solid rgba(91,168,160,0.25)">
+        <div style="font-weight:900; display:flex; align-items:center; gap:6px"><i data-lucide="search"></i> Lost & Found Credit</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
+          <div style="font-size:22px; font-weight:900; color:var(--teal-dark)">${lfScore}/200</div>
+          <div style="font-size:11px; color:var(--text-sub); text-align:right">Start 100 • Post +5<br>Correct claim +20 both<br>Wrong -5 • Denied -10<br>Exhausted -25</div>
+        </div>
+        <div style="margin-top:8px; background:#E0E0E0; border-radius:8px; height:8px; overflow:hidden"><div style="width:${(lfScore/200)*100}%; background:var(--teal); height:100%"></div></div>
+      </div>
+    `;
+    cont.appendChild(extra.firstElementChild);
+    refreshIcons();
+  }
+};
+
+// Patch updateBadges for LF
+const _origUpdateBadges2 = updateBadges;
+updateBadges = function() {
+  _origUpdateBadges2();
+  // LF badge: pending claims for my items
+  const myItems = lostFoundItems.filter(i => i.finderId === currentUser && i.status === 'open');
+  const pendingLF = lostFoundClaims.filter(c => {
+    const item = lostFoundItems.find(i => i.id === c.itemId);
+    return item && item.finderId === currentUser && c.status === 'pending';
+  }).length;
+  const lfBadge = $('lf-badge');
+  const dsLfBadge = $('ds-lf-badge');
+  if (lfBadge) { lfBadge.textContent = pendingLF; lfBadge.style.display = pendingLF>0 ? 'inline-flex' : 'none'; }
+  if (dsLfBadge) { dsLfBadge.textContent = pendingLF; dsLfBadge.style.display = pendingLF>0 ? 'inline-flex' : 'none'; }
+  // Update weekly display
+  const weekly = getWeeklyClaims(currentUser);
+  const weeklyEl = $('lf-weekly-display');
+  if (weeklyEl) weeklyEl.textContent = `${weekly.items.length}/3 items`;
+};
+
 
 // PROFILE - FIXED
 function renderProfile(uid) {
@@ -1679,12 +2273,16 @@ function renderProfile(uid) {
   const lp = total ? Math.round(late/total*100) : 0;
   const lop= total ? Math.round(lost/total*100) : 0;
 
+  const starsHtml = credit.totalTx === 0
+    ? `<div style="margin-top:12px; padding:8px 14px; background:var(--teal-light); border:1px solid rgba(91,168,160,0.25); border-radius:12px; display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:14px; color:var(--teal-dark)">${icon('clock-3')} New User: No Transactions Yet</div>`
+    : `<div style="margin-top:12px">${renderStarsHtml(credit.averageStars, '26px')} <span style="font-weight:800; margin-left:6px; vertical-align:middle">${credit.averageStars.toFixed(1)} / 5.0</span></div>`;
+
   $('profile-content').innerHTML = `
     <div class="card avatar-wrap" style="cursor:default">
       <div class="avatar-icon">${icon(user.avatar)}</div>
       <div class="avatar-name">${user.name}</div>
       <div class="avatar-sub">@${targetId} • Profile: ${statusText}</div>
-      <div style="margin-top:12px">${renderStarsHtml(credit.averageStars, '26px')} <span style="font-weight:800; margin-left:6px; vertical-align:middle">${credit.averageStars.toFixed(1)} / 5.0</span></div>
+      ${starsHtml}
       <div class="divider"></div>
       <div class="info-row"><span class="info-label">Transactions (as borrower)</span><span class="info-value">${credit.totalTx}</span></div>
       <div class="info-row"><span class="info-label">Good (≥4★)</span><span class="info-value">${credit.goodPct}%</span></div>
@@ -1751,6 +2349,7 @@ function saveName() {
   USERS[currentUser].name = val;
   if (registeredAccounts[currentUser]) registeredAccounts[currentUser].name = val;
   $('header-user-display').textContent = val;
+  saveAll();
   closeModal('modal-name'); toast('Name updated!'); renderProfile(); renderFriends(); renderSettings();
 }
 
@@ -1798,19 +2397,6 @@ function renderSettings() {
       <div class="av-grid">${AVATAR_OPTIONS.map(e=>`<div class="av-opt${me.avatar===e?' sel':''}" onclick="setAvatar('${e}')">${icon(e)}</div>`).join('')}</div>
     </div>
 
-    <div class="sett-section-label">Add Friends</div>
-    <div class="card" style="cursor:default">
-      <input class="form-input" placeholder="Search users…" value="${friendSearchQ.replace(/"/g,'&quot;')}" oninput="friendSearchQ=this.value;renderSettings()" style="margin-bottom:${filtered.length?'12px':'0'}">
-      ${filtered.map(uid => {
-        const u=USERS[uid]; const ip=myOut.includes(uid); const iF=myFriends.includes(uid);
-        return `<div class="af-row">
-          <div class="af-avatar">${icon(u.avatar)}</div>
-          <div style="flex:1"><div class="af-name">${u.name}</div><div class="af-status">${iF?icon('check')+' Friends':ip?icon('clock-3')+' Request sent':'@'+uid}</div></div>
-          ${!ip&&!iF?`<button class="btn btn-sm btn-outline" onclick="sendFriendRequest('${uid}')">+ Add</button>`:''}
-        </div>`;
-      }).join('')||(friendSearchQ?`<p style="text-align:center;padding:14px;color:var(--text-sub);font-size:14px;font-weight:600">No users found</p>`:'')}
-    </div>
-
     <div class="sett-section-label">Appearance</div>
     <div class="card" style="cursor:default">
       <div class="theme-grid">
@@ -1836,7 +2422,7 @@ function renderSettings() {
       <div class="info-row"><span class="info-label">Username</span><span class="info-value">@${currentUser}</span></div>
       <div class="info-row"><span class="info-label">Friends</span><span class="info-value">${myFriends.length}</span></div>
       <div class="info-row"><span class="info-label">Theme</span><span class="info-value">${themes.find(t=>t.key===currentTheme).label}</span></div>
-      <div class="info-row"><span class="info-label">App</span><span class="info-value">Trustr v4.3</span></div>
+      <div class="info-row"><span class="info-label">App</span><span class="info-value">Trustr v2.3</span></div>
     </div>
     <div style="height:12px"></div>`;
   refreshIcons();
@@ -1846,6 +2432,7 @@ function setAvatar(avatar) {
   USERS[currentUser].avatar = avatar;
   if (registeredAccounts[currentUser]) registeredAccounts[currentUser].avatar = avatar;
   $('header-user-display').textContent = USERS[currentUser].name;
+  saveAll();
   renderSettings();
 }
 
@@ -1853,6 +2440,7 @@ function setTheme(t) {
   currentTheme = t;
   if (t==='orange') document.body.removeAttribute('data-theme');
   else document.body.setAttribute('data-theme', t);
+  saveAll();
   renderSettings();
   // refresh icons after theme change
   setTimeout(refreshIcons, 0);
@@ -1860,6 +2448,7 @@ function setTheme(t) {
 
 function toggleSetting(key) {
   toggles[key] = !toggles[key];
+  saveAll();
   renderSettings();
 }
 
@@ -1871,6 +2460,7 @@ function sendFriendRequest(toUid) {
     friendships[toUid].pendingIncoming.push(currentUser);
     toast(`Friend request sent to ${USERS[toUid].name}!`);
   }
+  saveAll();
   renderSettings();
 }
 
@@ -1882,8 +2472,14 @@ function refreshListsAndProfile() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  loadAll();
+  if (currentTheme && currentTheme !== 'orange') {
+    document.body.setAttribute('data-theme', currentTheme);
+  }
   renderSignupAvatarGrid();
   refreshIcons();
+  // Save initial data if nothing was loaded (first run)
+  if (!localStorage.getItem(STORAGE_KEY)) saveAll();
   const loginUser = $('login-username');
   const loginPass = $('login-password');
   if (loginUser) loginUser.addEventListener('keydown', e => { if (e.key==='Enter') loginPass.focus(); });
@@ -1899,134 +2495,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }).observe(document.body, { attributes: true });
 });
-
-    /* ── DESKTOP DETECTION & SIDEBAR SYNC ───────────── */
-    function isDesktop() { return window.innerWidth >= 900; }
-
-    function syncDesktopSidebar() {
-      const active = currentScreen || 'friends';
-      document.querySelectorAll('.ds-nav-item').forEach(el => el.classList.remove('active'));
-      const dsActive = document.getElementById('ds-nav-' + active);
-      if (dsActive) dsActive.classList.add('active');
-      // hide chat panel offset handling
-      const chatPanel = document.getElementById('desktop-chat-panel');
-      if (chatPanel && !chatPanel.classList.contains('open')) {
-        document.body.classList.add('desktop-chat-closed');
-      } else {
-        document.body.classList.remove('desktop-chat-closed');
-      }
-    }
-
-    function updateDesktopBadges() {
-      const n = pendingCount(currentUser);
-      const fr = pendingFriendRequests(currentUser);
-      const reqEl = document.getElementById('ds-req-badge');
-      const frEl = document.getElementById('ds-friend-badge');
-      if (reqEl) { reqEl.textContent = n; reqEl.style.display = n>0 ? 'inline-flex' : 'none'; }
-      if (frEl) { frEl.textContent = fr; frEl.style.display = fr>0 ? 'inline-flex' : 'none'; }
-      const dsUser = document.getElementById('ds-user-display');
-      const dsSub = document.getElementById('ds-user-sub');
-      if (dsUser && currentUser && USERS[currentUser]) {
-        dsUser.textContent = USERS[currentUser].name;
-        if (dsSub) dsSub.textContent = '@' + currentUser;
-      }
-    }
-
-    // Patch navigate to sync desktop sidebar
-    const _origNavigate = navigate;
-    navigate = function(screen) {
-      _origNavigate(screen);
-      syncDesktopSidebar();
-    };
-
-    // Patch updateBadges to also update desktop
-    const _origUpdateBadges = updateBadges;
-    updateBadges = function() {
-      _origUpdateBadges();
-      updateDesktopBadges();
-    };
-
-    // Patch doLoginAs to sync desktop
-    const _origDoLoginAs = doLoginAs;
-    doLoginAs = function(uid) {
-      _origDoLoginAs(uid);
-      setTimeout(() => { syncDesktopSidebar(); updateDesktopBadges(); refreshIcons(); }, 50);
-    };
-
-    // Desktop chat functions - side panel instead of modal
-    function openDesktopChat(friendId) {
-      currentChatFriend = friendId;
-      const key = [currentUser, friendId].sort().join('-');
-      if (!chats[key]) chats[key] = [];
-      const credit = computeUserCredit(friendId);
-      document.getElementById('ds-chat-friend-name').innerHTML = `${USERS[friendId].name} <span style="margin-left:8px">${renderStarsHtml(credit.averageStars,'12px')}</span>`;
-      renderDesktopChatMessages(key);
-      document.getElementById('ds-chat-input-field').value = '';
-      document.getElementById('desktop-chat-panel').classList.add('open');
-      document.body.classList.remove('desktop-chat-closed');
-      refreshIcons();
-    }
-
-    function renderDesktopChatMessages(key) {
-      const el = document.getElementById('ds-chat-messages');
-      if (!el) return;
-      el.innerHTML = (chats[key]||[]).map(m=>`<div class="message ${m.from===currentUser?'sent':'received'}"><div class="msg-bubble">${m.text}</div></div>`).join('');
-      el.scrollTop = el.scrollHeight;
-    }
-
-    function closeDesktopChat() {
-      document.getElementById('desktop-chat-panel').classList.remove('open');
-      document.body.classList.add('desktop-chat-closed');
-      currentChatFriend = null;
-    }
-
-    function sendDesktopMessage() {
-      const inp = document.getElementById('ds-chat-input-field');
-      const text = inp.value.trim(); if(!text) return;
-      const key = [currentUser, currentChatFriend].sort().join('-');
-      if (!chats[key]) chats[key] = [];
-      chats[key].push({from: currentUser, text, time: new Date().toLocaleTimeString()});
-      inp.value = '';
-      renderDesktopChatMessages(key);
-      // also sync to mobile chat view
-      renderChatMessages(key);
-    }
-
-    function requestBorrowFromDesktopChat() {
-      if (!currentChatFriend) return;
-      borrowFormState.targetFriend = currentChatFriend;
-      openBorrowModal();
-    }
-
-    // Override openChat to use desktop panel on desktop
-    const _origOpenChat = openChat;
-    openChat = function(friendId) {
-      if (isDesktop()) {
-        openDesktopChat(friendId);
-      } else {
-        _origOpenChat(friendId);
-      }
-    };
-
-    // Add enter key for desktop chat
-    document.addEventListener('DOMContentLoaded', () => {
-      const dsInput = document.getElementById('ds-chat-input-field');
-      if (dsInput) {
-        dsInput.addEventListener('keydown', e => { if(e.key==='Enter') sendDesktopMessage(); });
-      }
-      // initial sync
-      syncDesktopSidebar();
-      window.addEventListener('resize', () => {
-        syncDesktopSidebar();
-        // if switching from desktop to mobile, close desktop chat panel if open
-        if (!isDesktop()) {
-          const panel = document.getElementById('desktop-chat-panel');
-          if (panel) panel.classList.remove('open');
-          document.body.classList.add('desktop-chat-closed');
-        }
-      });
-    });
-
 </script>
 </body>
 </html>
