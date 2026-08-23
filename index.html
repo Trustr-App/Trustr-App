@@ -1,1307 +1,2937 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trustr</title>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-
-    :root {
-      --grad-top:    #FFAA6B;
-      --grad-bot:    #FF5C5C;
-      --teal:        #5BA8A0;
-      --teal-dark:   #4A9490;
-      --teal-light:  #E0F2F1;
-      --purple:      #3C0060;
-      --purple-mid:  #6B0FA0;
-      --danger:      #D93030;
-      --danger-light:#FDEAEA;
-      --success:     #2E9E6B;
-      --success-light:#E0F5EC;
-      --warning:     #C97A00;
-      --warning-light:#FFF3DC;
-      --card:        #F0EEEE;
-      --card-border: rgba(0,0,0,0.07);
-      --text:        #111111;
-      --text-sub:    #555;
-      --hdr-h:       64px;
-      --tab-h:       48px;
-    }
-
-    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(170deg, var(--grad-top) 0%, var(--grad-bot) 100%);
-      background-attachment: fixed;
-      color: var(--text);
-      max-width: 430px;
-      margin: 0 auto;
-      min-height: 100vh;
-    }
-
-    /* ── AUTH SCREEN ─────────────────────────────── */
-    #auth-screen {
-      position: fixed; inset: 0;
-      background: linear-gradient(170deg, var(--grad-top) 0%, var(--grad-bot) 100%);
-      z-index: 999;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 24px 16px; overflow-y: auto;
-    }
-    #auth-screen.hidden { display: none; }
-    .auth-card {
-      background: white; border-radius: 24px;
-      padding: 28px 22px; width: 100%; max-width: 390px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    }
-    .auth-logo { text-align: center; margin-bottom: 22px; }
-    .auth-shield {
-      width: 64px; height: 64px;
-      background: linear-gradient(135deg, #FF8C00, #FF4444);
-      border-radius: 18px; display: flex; align-items: center;
-      justify-content: center; margin: 0 auto 12px;
-      box-shadow: 0 4px 16px rgba(255,100,0,0.35);
-    }
-    .auth-logo-text {
-      font-size: 26px; font-weight: 900; letter-spacing: 1px;
-      background: linear-gradient(135deg, var(--purple), var(--purple-mid));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .auth-tabs {
-      display: flex; background: #F0F0F0; border-radius: 12px;
-      padding: 3px; margin-bottom: 20px;
-    }
-    .auth-tab {
-      flex: 1; padding: 9px; text-align: center; border: none;
-      background: transparent; border-radius: 9px;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-      transition: all 0.2s; font-family: inherit; color: #888;
-    }
-    .auth-tab.active { background: white; color: var(--purple); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
-    .test-box {
-      background: rgba(91,168,160,0.08); border: 1.5px solid rgba(91,168,160,0.25);
-      border-radius: 12px; padding: 12px; margin-bottom: 16px;
-    }
-    .test-box-label { font-size:11px; font-weight:800; color:var(--teal); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .test-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 6px 12px; border-radius: 20px; border: none;
-      background: rgba(91,168,160,0.15); color: var(--teal-dark);
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      margin: 3px; font-family: inherit; transition: all 0.15s;
-    }
-    .test-btn:active { opacity: 0.7; transform: scale(0.95); }
-    .test-hint { font-size: 11px; color: var(--text-sub); margin-top: 7px; }
-    .av-signup-grid { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
-    .av-signup-opt {
-      width: 42px; height: 42px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      border: 2.5px solid transparent; cursor: pointer;
-      background: rgba(0,0,0,0.04); transition: all .15s;
-    }
-    .av-signup-opt.sel { border-color: var(--teal); background: var(--teal-light); }
-
-    /* ── HEADER ─────────────────────────────────── */
-    .header {
-      position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 430px; height: var(--hdr-h);
-      background: rgba(255,255,255,0.97);
-      backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 14px; z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-    }
-    .logo-wrap { display:flex; align-items:center; gap:8px; }
-    .logo-shield {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, #FF8C00, #FF4444);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 6px rgba(255,100,0,0.35);
-    }
-    .logo-text {
-      font-size: 20px; font-weight: 900; letter-spacing: 1px;
-      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-mid) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-right { display:flex; align-items:center; gap:8px; }
-    #header-user-display { font-size:13px; font-weight:800; color:var(--text); }
-    .logout-btn {
-      padding: 5px 11px; border-radius: 14px; border: none;
-      background: #F0F0F0; color: #777; font-size: 12px;
-      font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s;
-    }
-    .logout-btn:active { opacity: .7; }
-
-    /* ── TAB BAR ─────────────────────────────────── */
-    .tab-bar {
-      position: fixed; top: var(--hdr-h); left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 430px; height: var(--tab-h);
-      background: rgba(200,190,190,0.55); backdrop-filter: blur(6px);
-      display: flex; align-items: center;
-      padding: 6px 10px; gap: 6px; z-index: 99; overflow-x: auto; scrollbar-width: none;
-    }
-    .tab-bar::-webkit-scrollbar { display:none; }
-    .tab-pill {
-      flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: none;
-      background: rgba(255,255,255,0.3); color: rgba(255,255,255,0.9);
-      font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit;
-      display:inline-flex; align-items:center; gap:6px;
-    }
-    .tab-pill.active { background: rgba(255,255,255,0.95); color: var(--purple); }
-    .tab-pill .pill-badge {
-      display:inline-flex; align-items:center; justify-content:center;
-      background: var(--danger); color:white; font-size:10px; font-weight:800;
-      width:16px; height:16px; border-radius:50%; margin-left:4px; vertical-align:middle;
-    }
-
-    /* ── CONTENT ─────────────────────────────────── */
-    .content {
-      padding-top: calc(var(--hdr-h) + var(--tab-h) + 16px);
-      padding-bottom: 28px; padding-left: 14px; padding-right: 14px; min-height: 100vh;
-    }
-    .screen { display:none; }
-    .screen.active { display:block; }
-    .section-title {
-      font-size: 19px; font-weight: 900; color: var(--purple); margin-bottom: 14px;
-      text-shadow: 0 1px 2px rgba(255,255,255,0.4);
-      display:flex; align-items:center; gap:8px;
-    }
-    .card {
-      background: var(--card); border-radius: 16px; padding: 14px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.13); margin-bottom: 12px;
-      border: 1px solid var(--card-border); cursor: pointer; transition: all 0.15s;
-    }
-    .card:active { transform: scale(0.98); opacity: 0.9; }
-
-    /* ── STATUS BADGES ───────────────────────────── */
-    .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
-    .b-requested      { background:var(--warning-light); color:var(--warning); }
-    .b-active         { background:var(--success-light); color:var(--success); }
-    .b-pending_return { background:var(--teal-light);    color:var(--teal-dark); }
-    .b-returned       { background:#EBEBEB;              color:#555; }
-    .b-late           { background:var(--danger-light);  color:var(--danger); }
-    .b-lost           { background:#1F2937;              color:white; }
-
-    /* ── BUTTONS ─────────────────────────────────── */
-    .btn {
-      padding: 11px 16px; border-radius: 25px; border: none;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-      transition: all 0.15s; display:inline-flex; align-items:center;
-      justify-content:center; gap:6px; font-family:inherit;
-    }
-    .btn:active { transform:scale(0.96); opacity:0.9; }
-    .btn-primary { background:var(--teal);   color:white; }
-    .btn-success { background:var(--teal);   color:white; }
-    .btn-danger  { background:var(--danger); color:white; }
-    .btn-outline { background:transparent; color:var(--teal); border:2px solid var(--teal); }
-    .btn-ghost   { background:rgba(255,255,255,0.6); color:var(--text); }
-    .btn-full    { width:100%; }
-    .btn-sm      { padding:7px 14px; font-size:13px; }
-
-    /* ── FAB ─────────────────────────────────────── */
-    .fab {
-      position:fixed; bottom:28px; right:calc(50% - 215px + 14px);
-      width:56px; height:56px; border-radius:50%; border:none;
-      background:linear-gradient(135deg, var(--teal), var(--teal-dark));
-      color:white;
-      display:flex; align-items:center; justify-content:center;
-      cursor:pointer; z-index:90;
-      box-shadow:0 4px 16px rgba(91,168,160,0.4); transition:all 0.2s;
-    }
-    .fab:active { transform:scale(0.9); }
-    .fab.hidden { display:none; }
-
-    /* ── FORM ────────────────────────────────────── */
-    .form-group { margin-bottom:14px; }
-    .form-label { font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:.4px; }
-    .form-input {
-      width:100%; padding:11px 14px; border:1.5px solid rgba(0,0,0,0.12); border-radius:12px;
-      font-size:15px; outline:none; transition:border-color 0.2s; font-family:inherit; color:var(--text); background:white;
-    }
-    .form-input:focus { border-color:var(--teal); }
-    .form-select {
-      width:100%; padding:11px 14px; border:1.5px solid rgba(0,0,0,0.12); border-radius:12px;
-      font-size:15px; outline:none; font-family:inherit; color:var(--text); background:white;
-      appearance:none; cursor:pointer;
-    }
-
-    /* ── INNER TABS ─────────────────────────────── */
-    .inner-tabs { display:flex; gap:0; margin-bottom:16px; background:rgba(0,0,0,0.12); border-radius:14px; padding:3px; }
-    .inner-tab {
-      flex:1; padding:8px; text-align:center; border:none; background:transparent; border-radius:11px;
-      font-size:13px; font-weight:700; color:rgba(255,255,255,0.7); cursor:pointer; transition:all 0.2s; font-family:inherit;
-    }
-    .inner-tab.active { background:white; color:var(--purple); box-shadow:0 1px 4px rgba(0,0,0,0.15); }
-
-    /* ── INFO ROWS ───────────────────────────────── */
-    .info-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; font-size:13px; border-bottom:1px solid rgba(0,0,0,0.06); }
-    .info-row:last-child { border-bottom:none; }
-    .info-label { color:var(--text-sub); }
-    .info-value { font-weight:700; text-align:right; max-width:60%; }
-    .divider { height:1px; background:rgba(0,0,0,0.08); margin:12px 0; }
-    .empty-state { text-align:center; padding:48px 24px; }
-    .empty-icon { display:flex; justify-content:center; margin-bottom:12px; }
-    .empty-state p { font-size:15px; font-weight:600; color:rgba(255,255,255,0.85); }
-
-    /* ── ITEM ROW ────────────────────────────────── */
-    .item-row { display:flex; align-items:center; gap:12px; }
-    .item-icon {
-      width:50px; height:50px; background:rgba(91,168,160,0.15);
-      border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    }
-    .item-name { font-size:15px; font-weight:800; margin-bottom:2px; color:var(--text); }
-    .item-meta { font-size:12px; color:var(--text-sub); margin-top:1px; }
-
-    /* ── STATS ───────────────────────────────────── */
-    .stats-grid  { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-    .stat-card   { border-radius:14px; padding:14px; text-align:center; background:var(--card); box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-    .stat-number { font-size:28px; font-weight:900; color:var(--purple); }
-    .stat-label  { font-size:11px; color:var(--text-sub); margin-top:3px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; }
-
-    /* ── DUE CHIP ────────────────────────────────── */
-    .due-chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:3px 9px; border-radius:10px; }
-    .due-ok   { background:var(--success-light); color:var(--success); }
-    .due-soon { background:var(--warning-light);  color:var(--warning); }
-    .due-over { background:var(--danger-light);   color:var(--danger); }
-
-    /* ── FRIEND ROW ──────────────────────────────── */
-    .friend-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.07); }
-    .friend-row:last-child { border-bottom:none; }
-    .friend-avatar { width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:rgba(91,168,160,0.15); border-radius:12px; }
-    .friend-info { flex:1; }
-    .friend-name { font-weight:800; font-size:14px; color:var(--text); }
-    .friend-status { font-size:12px; color:var(--text-sub); margin-top:2px; display:flex; align-items:center; gap:4px; }
-
-    /* ── CHAT ────────────────────────────────────── */
-    .chat-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:8px; }
-    .message { display:flex; gap:8px; margin-bottom:8px; }
-    .message.sent { justify-content:flex-end; }
-    .message.sent .msg-bubble { background:var(--teal); color:white; }
-    .message.received .msg-bubble { background:#EBEBEB; color:var(--text); }
-    .msg-bubble { max-width:75%; padding:10px 14px; border-radius:12px; font-size:13px; word-wrap:break-word; line-height:1.4; }
-    .chat-input { padding:12px; border-top:1px solid rgba(0,0,0,0.1); display:flex; gap:8px; }
-    .chat-input input { flex:1; padding:8px 12px; border:1px solid rgba(0,0,0,0.15); border-radius:20px; font-size:13px; font-family:inherit; outline:none; }
-    .chat-input button { padding:8px 14px; background:var(--teal); color:white; border:none; border-radius:20px; cursor:pointer; font-weight:700; font-size:12px; font-family:inherit; }
-    .chat-actions { display:flex; gap:8px; padding:12px; border-top:1px solid rgba(0,0,0,0.1); }
-    .chat-actions button { flex:1; padding:8px 12px; background:var(--teal); color:white; border:none; border-radius:20px; cursor:pointer; font-weight:700; font-size:12px; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
-
-    /* ── EMOJI PICKER ────────────────────────────── */
-    .icon-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:14px; }
-    .icon-opt {
-      width:48px; height:48px; border-radius:12px;
-      display:flex; align-items:center; justify-content:center;
-      border:3px solid transparent; cursor:pointer; background:rgba(0,0,0,0.05); transition:all .15s;
-    }
-    .icon-opt.sel { border-color:var(--teal); background:var(--teal-light); }
-    .icon-opt:active { transform:scale(.9); }
-
-    /* ── STARS ───────────────────────────────────── */
-    .star-row { display:flex; gap:5px; margin:6px 0 12px; }
-    .star { cursor:pointer; opacity:0.25; transition:opacity 0.15s, transform 0.1s; user-select:none; display:inline-flex; }
-    .star.lit { opacity:1; }
-    .star:active { transform:scale(1.2); }
-
-    .star-rating { position:relative; display:inline-block; line-height:1; font-size:20px; }
-    .stars-outer { color:#E3E3E3; display:block; }
-    .stars-inner { position:absolute; top:0; left:0; overflow:hidden; white-space:nowrap; color:#FFB400; width:0%; pointer-events:none; }
-    .star-rating[aria-label] { vertical-align:middle; }
-
-    /* ── REP BAR ─────────────────────────────────── */
-    .rep-row { margin-bottom:12px; }
-    .rep-header { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:5px; }
-    .rep-bar  { background:#E0E0E0; border-radius:8px; height:9px; overflow:hidden; }
-    .rep-fill { height:100%; border-radius:8px; transition:width 0.6s ease; }
-
-    /* ── MODAL ───────────────────────────────────── */
-    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:flex-end; justify-content:center; }
-    .modal-overlay.open { display:flex; }
-    .modal { background:white; border-radius:24px 24px 0 0; padding:8px 18px 28px; width:100%; max-width:430px; max-height:88vh; overflow-y:auto; }
-    .modal-handle { width:40px; height:4px; background:#DDD; border-radius:2px; margin:12px auto 18px; }
-    .modal-title  { font-size:19px; font-weight:900; color:var(--purple); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-
-    /* ── TOAST ───────────────────────────────────── */
-    .toast {
-      position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px);
-      background:#1F2937; color:white; padding:11px 20px; border-radius:25px;
-      font-size:14px; font-weight:700; z-index:1000; opacity:0; transition:all 0.28s;
-      white-space:nowrap; pointer-events:none;
-    }
-    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-    /* ── PROFILE ─────────────────────────────────── */
-    .avatar-wrap { text-align:center; padding:24px 16px 18px; }
-    .avatar-icon { display:flex; justify-content:center; margin-bottom:8px; }
-    .avatar-name  { font-size:22px; font-weight:900; color:var(--purple); }
-    .avatar-sub   { color:var(--text-sub); font-size:13px; font-weight:600; margin-top:4px; }
-
-    /* ── SETTINGS ────────────────────────────────── */
-    .sett-section-label { font-size:11px; font-weight:800; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:.8px; margin:16px 0 6px; padding:0 2px; }
-    .theme-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .theme-opt { border:3px solid transparent; border-radius:14px; cursor:pointer; padding:10px 6px; text-align:center; transition:all .2s; background:rgba(0,0,0,0.04); }
-    .theme-opt.sel { border-color:var(--teal); }
-    .theme-preview { height:44px; border-radius:9px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; }
-    .theme-label { font-size:11px; font-weight:800; color:var(--text-sub); }
-    .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:13px 2px; }
-    .toggle-row + .toggle-row { border-top:1px solid rgba(0,0,0,0.06); }
-    .toggle-lbl { font-size:15px; font-weight:700; color:var(--text); }
-    .toggle-sub { font-size:12px; color:var(--text-sub); margin-top:1px; }
-    .tog-track { width:44px; height:24px; border-radius:12px; background:#D0D0D0; position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
-    .tog-track.on { background:var(--teal); }
-    .tog-thumb { position:absolute; width:20px; height:20px; background:white; border-radius:50%; top:2px; left:2px; transition:left .2s; box-shadow:0 1px 4px rgba(0,0,0,.25); }
-    .tog-track.on .tog-thumb { left:22px; }
-
-    .af-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid rgba(0,0,0,0.07); }
-    .af-row:last-child { border-bottom:none; }
-    .af-avatar { width:42px; height:42px; flex-shrink:0; border-radius:11px; background:rgba(91,168,160,0.15); display:flex; align-items:center; justify-content:center; }
-    .af-name   { font-weight:800; font-size:14px; color:var(--text); }
-    .af-status { font-size:12px; color:var(--text-sub); margin-top:2px; display:flex; align-items:center; gap:4px; }
-    .av-grid { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:14px; }
-    .av-opt { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; border:3px solid transparent; cursor:pointer; background:rgba(0,0,0,0.05); transition:all .15s; }
-    .av-opt.sel { border-color:var(--teal); background:var(--teal-light); }
-    .av-opt:active { transform:scale(.9); }
-
-    /* DARK THEME */
-    body[data-theme="dark"] {
-      background:#0D0D1A;
-      --text: #E8E8FF;
-      --text-sub: #9AA0C8;
-      --card: #1C1C35;
-      --card-border: rgba(255,255,255,0.08);
-    }
-    body[data-theme="dark"] .header       { background:#1A1A30; box-shadow:0 2px 16px rgba(0,0,0,0.5); }
-    body[data-theme="dark"] .logo-text    { background:linear-gradient(135deg,#A78BFA,#C084FC); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    body[data-theme="dark"] #header-user-display { color:#E8E8FF; }
-    body[data-theme="dark"] .logout-btn   { background:#252545; color:#9090B8; }
-    body[data-theme="dark"] .tab-bar      { background:#111124; }
-    body[data-theme="dark"] .tab-pill     { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
-    body[data-theme="dark"] .tab-pill.active { background:rgba(255,255,255,0.15); color:#fff; }
-    body[data-theme="dark"] .card         { background:#1C1C35; border-color:rgba(255,255,255,0.06); }
-    body[data-theme="dark"] .section-title { color:#A78BFA; text-shadow:none; }
-    body[data-theme="dark"] .inner-tabs   { background:rgba(255,255,255,0.06); }
-    body[data-theme="dark"] .inner-tab    { color:rgba(255,255,255,0.4); }
-    body[data-theme="dark"] .inner-tab.active { background:rgba(255,255,255,0.1); color:#fff; }
-    body[data-theme="dark"] .form-input   { background:#252545; color:#E8E8FF; border-color:rgba(255,255,255,0.12); }
-    body[data-theme="dark"] .form-select  { background:#252545; color:#E8E8FF; border-color:rgba(255,255,255,0.12); }
-    body[data-theme="dark"] .item-name    { color:#E8E8FF; }
-    body[data-theme="dark"] .item-meta    { color:#7070A0; }
-    body[data-theme="dark"] .info-row     { border-color:rgba(255,255,255,0.06); }
-    body[data-theme="dark"] .info-label   { color:#7070A0; }
-    body[data-theme="dark"] .info-value   { color:#BEBEFF; }
-    body[data-theme="dark"] .divider      { background:rgba(255,255,255,0.07); }
-    body[data-theme="dark"] .empty-state p { color:rgba(255,255,255,0.45); }
-    body[data-theme="dark"] .avatar-name  { color:#A78BFA; }
-    body[data-theme="dark"] .avatar-sub   { color:#7070A0; }
-    body[data-theme="dark"] .stat-card    { background:#252545; }
-    body[data-theme="dark"] .stat-number  { color:#A78BFA; }
-    body[data-theme="dark"] .stat-label   { color:#7070A0; }
-    body[data-theme="dark"] .rep-bar      { background:#252545; }
-    body[data-theme="dark"] .rep-header span:first-child { color:#9090B8; }
-    body[data-theme="dark"] .btn-ghost    { background:rgba(255,255,255,0.08); color:#E8E8FF; }
-    body[data-theme="dark"] .btn-outline  { border-color:var(--teal); color:var(--teal); }
-    body[data-theme="dark"] .modal        { background:#1A1A30; }
-    body[data-theme="dark"] .modal-handle { background:#333355; }
-    body[data-theme="dark"] .modal-title  { color:#A78BFA; }
-    body[data-theme="dark"] .form-label   { color:#7070A0; }
-    body[data-theme="dark"] .friend-avatar { background:rgba(91,168,160,0.1); }
-    body[data-theme="dark"] .friend-name  { color:#E8E8FF; }
-    body[data-theme="dark"] .friend-status { color:#7070A0 !important; }
-    body[data-theme="dark"] .friend-row   { border-color:rgba(255,255,255,0.06); }
-    body[data-theme="dark"] .chat-messages { background:#1A1A30; }
-    body[data-theme="dark"] .message.received .msg-bubble { background:#252545; color:#E8E8FF; }
-    body[data-theme="dark"] .chat-input   { border-color:rgba(255,255,255,0.07); background:#1A1A30; }
-    body[data-theme="dark"] .chat-input input { background:#252545; color:#E8E8FF; border-color:rgba(255,255,255,0.12); }
-    body[data-theme="dark"] .item-icon   { background:rgba(91,168,160,0.1); }
-    body[data-theme="dark"] .sett-section-label { color:rgba(255,255,255,0.3); }
-    body[data-theme="dark"] .toggle-row + .toggle-row { border-color:rgba(255,255,255,0.06); }
-    body[data-theme="dark"] .toggle-lbl   { color:#E8E8FF; }
-    body[data-theme="dark"] .toggle-sub   { color:#7070A0; }
-    body[data-theme="dark"] .tog-track    { background:#333355; }
-    body[data-theme="dark"] .theme-opt    { background:rgba(255,255,255,0.04); }
-    body[data-theme="dark"] .theme-label  { color:#7070A0; }
-    body[data-theme="dark"] .icon-opt    { background:rgba(255,255,255,0.05); }
-    body[data-theme="dark"] .icon-opt.sel { background:rgba(91,168,160,0.2); }
-    body[data-theme="dark"] .av-opt       { background:rgba(255,255,255,0.05); }
-    body[data-theme="dark"] .av-opt.sel   { background:rgba(91,168,160,0.2); }
-    body[data-theme="dark"] .af-avatar    { background:rgba(91,168,160,0.1); }
-    body[data-theme="dark"] .af-name      { color:#E8E8FF; }
-    body[data-theme="dark"] .af-status    { color:#7070A0; }
-    body[data-theme="dark"] .af-row       { border-color:rgba(255,255,255,0.06); }
-    body[data-theme="dark"] .b-returned   { background:#222240; color:#9090B8; }
-    /* L&F Score visible in both themes */
-    .lf-score-card { background:var(--teal-light); border:1.5px solid rgba(91,168,160,0.25); }
-    body[data-theme="dark"] .lf-score-card { background:#252545 !important; border-color:rgba(91,168,160,0.35) !important; }
-    body[data-theme="dark"] .lf-score-card .lf-score-main { color:#E8E8FF !important; }
-    body[data-theme="dark"] .lf-score-card .lf-score-sub { color:#9AA0C8 !important; }
-    body[data-theme="dark"] .lf-score-card .lf-score-number { color:#5BA8A0 !important; }
-    body[data-theme="light"] .lf-score-card { background:#E0F2F1; }
-    body[data-theme="light"] .lf-score-card .lf-score-main { color:#111 !important; }
-    body[data-theme="light"] .lf-score-card .lf-score-sub { color:#555 !important; }
-    body[data-theme="light"] .lf-score-card .lf-score-number { color:#4A9490 !important; }
-    .lf-score-number { font-weight:900; }
-    /* Test accounts clickable fix */
-    .test-btn i, .test-btn svg { pointer-events: none; }
-    .test-btn { position: relative; z-index: 10; }
-
-    /* LIGHT THEME */
-    body[data-theme="light"] { background:#EEEEF8; }
-    body[data-theme="light"] .header      { background:white; box-shadow:0 1px 8px rgba(0,0,0,0.08); }
-    body[data-theme="light"] .logo-text   { background:linear-gradient(135deg, var(--purple), var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    body[data-theme="light"] .tab-bar     { background:white; border-bottom:1px solid #E0E0EC; backdrop-filter:none; }
-    body[data-theme="light"] .tab-pill    { background:#F0F0F8; color:#888; }
-    body[data-theme="light"] .tab-pill.active { background:var(--teal); color:white; }
-    body[data-theme="light"] .card        { background:white; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
-    body[data-theme="light"] .section-title { color:#333; text-shadow:none; }
-    body[data-theme="light"] .inner-tabs  { background:rgba(0,0,0,0.06); }
-    body[data-theme="light"] .inner-tab   { color:#888; }
-    body[data-theme="light"] .inner-tab.active { color:var(--purple); }
-    body[data-theme="light"] .empty-state p { color:#777; }
-    body[data-theme="light"] .sett-section-label { color:#AAA; }
-
-    /* lucide SVG icon visibility */
-    svg.lucide, i[data-lucide] svg {
-      display: inline-block;
-      vertical-align: middle;
-      width: 1em; height: 1em;
-      stroke-width: 2px;
-    }
-    svg[data-lucide-icon], i[data-lucide] svg {
-      display: inline-block;
-      vertical-align: middle;
-      color: inherit;
-      stroke: currentColor !important;
-      fill: none !important;
-    }
-    body[data-theme="dark"] svg[data-lucide-icon] { color: #E8E8FF; stroke: #E8E8FF; }
-    body[data-theme="light"] svg[data-lucide-icon] { color: #111111; stroke: #111111; }
-    .logo-shield svg, .auth-shield svg, .fab svg { color: #fff; stroke: #fff; }
-    .item-icon svg, .friend-avatar svg, .af-avatar svg, .av-opt svg, .av-signup-opt svg, .avatar-icon svg { color: var(--teal-dark); stroke: var(--teal-dark); }
-    body[data-theme="dark"] .item-icon svg, body[data-theme="dark"] .friend-avatar svg, body[data-theme="dark"] .af-avatar svg, body[data-theme="dark"] .av-opt svg, body[data-theme="dark"] .av-signup-opt svg, body[data-theme="dark"] .avatar-icon svg { color: #E8E8FF; stroke: #E8E8FF; }
-    .btn svg, .test-btn svg, .section-title svg, .modal-title svg, .icon-opt svg { color: inherit; stroke: currentColor; }
-    svg[data-lucide-icon] *, i[data-lucide] svg * { stroke: currentColor !important; fill: none !important; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trustr</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+         :root {
+            --grad-top: #FFAA6B;
+            --grad-bot: #FF5C5C;
+            --teal: #5BA8A0;
+            --teal-dark: #4A9490;
+            --teal-light: #E0F2F1;
+            --purple: #3C0060;
+            --purple-mid: #6B0FA0;
+            --danger: #D93030;
+            --danger-light: #FDEAEA;
+            --success: #2E9E6B;
+            --success-light: #E0F5EC;
+            --warning: #C97A00;
+            --warning-light: #FFF3DC;
+            --card: #F0EEEE;
+            --card-border: rgba(0, 0, 0, 0.07);
+            --text: #111111;
+            --text-sub: #555;
+            --hdr-h: 64px;
+            --tab-h: 48px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(170deg, var(--grad-top) 0%, var(--grad-bot) 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        /* ── AUTH SCREEN ─────────────────────────────── */
+        
+        #auth-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(170deg, var(--grad-top) 0%, var(--grad-bot) 100%);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            overflow-y: auto;
+        }
+        
+        #auth-screen.hidden {
+            display: none;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 22px;
+            width: 100%;
+            max-width: 390px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+        }
+        
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+        
+        .auth-shield {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #FF8C00, #FF4444);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            box-shadow: 0 4px 16px rgba(255, 100, 0, 0.35);
+        }
+        
+        .auth-logo-text {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-mid));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            background: #F0F0F0;
+            border-radius: 12px;
+            padding: 3px;
+            margin-bottom: 20px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 9px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            color: #888;
+        }
+        
+        .auth-tab.active {
+            background: white;
+            color: var(--purple);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        }
+        
+        .test-box {
+            background: rgba(91, 168, 160, 0.08);
+            border: 1.5px solid rgba(91, 168, 160, 0.25);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .test-box-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--teal);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .test-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: none;
+            background: rgba(91, 168, 160, 0.15);
+            color: var(--teal-dark);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 3px;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        
+        .test-btn:active {
+            opacity: 0.7;
+            transform: scale(0.95);
+        }
+        
+        .test-hint {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 7px;
+        }
+        
+        .av-signup-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        
+        .av-signup-opt {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2.5px solid transparent;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.04);
+            transition: all .15s;
+        }
+        
+        .av-signup-opt.sel {
+            border-color: var(--teal);
+            background: var(--teal-light);
+        }
+        /* ── HEADER ─────────────────────────────────── */
+        
+        .header {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            height: var(--hdr-h);
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+        }
+        
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-shield {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #FF8C00, #FF4444);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(255, 100, 0, 0.35);
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--purple) 0%, var(--purple-mid) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #header-user-display {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text);
+        }
+        
+        .logout-btn {
+            padding: 5px 11px;
+            border-radius: 14px;
+            border: none;
+            background: #F0F0F0;
+            color: #777;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all .15s;
+        }
+        
+        .logout-btn:active {
+            opacity: .7;
+        }
+        /* ── TAB BAR ─────────────────────────────────── */
+        
+        .tab-bar {
+            position: fixed;
+            top: var(--hdr-h);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            height: var(--tab-h);
+            background: rgba(200, 190, 190, 0.55);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            padding: 6px 10px;
+            gap: 6px;
+            z-index: 99;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .tab-bar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab-pill {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: none;
+            background: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .tab-pill.active {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--purple);
+        }
+        
+        .tab-pill .pill-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+        /* ── CONTENT ─────────────────────────────────── */
+        
+        .content {
+            padding-top: calc(var(--hdr-h) + var(--tab-h) + 16px);
+            padding-bottom: 28px;
+            padding-left: 14px;
+            padding-right: 14px;
+            min-height: 100vh;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .section-title {
+            font-size: 19px;
+            font-weight: 900;
+            color: var(--purple);
+            margin-bottom: 14px;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.13);
+            margin-bottom: 12px;
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+        /* ── STATUS BADGES ───────────────────────────── */
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .b-requested {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        
+        .b-active {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        
+        .b-pending_return {
+            background: var(--teal-light);
+            color: var(--teal-dark);
+        }
+        
+        .b-returned {
+            background: #EBEBEB;
+            color: #555;
+        }
+        
+        .b-late {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+        
+        .b-lost {
+            background: #1F2937;
+            color: white;
+        }
+        /* ── BUTTONS ─────────────────────────────────── */
+        
+        .btn {
+            padding: 11px 16px;
+            border-radius: 25px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+        
+        .btn:active {
+            transform: scale(0.96);
+            opacity: 0.9;
+        }
+        
+        .btn-primary {
+            background: var(--teal);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--teal);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--teal);
+            border: 2px solid var(--teal);
+        }
+        
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text);
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        .btn-sm {
+            padding: 7px 14px;
+            font-size: 13px;
+        }
+        /* ── FAB ─────────────────────────────────────── */
+        
+        .fab {
+            position: fixed;
+            bottom: 28px;
+            right: calc(50% - 215px + 14px);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 90;
+            box-shadow: 0 4px 16px rgba(91, 168, 160, 0.4);
+            transition: all 0.2s;
+        }
+        
+        .fab:active {
+            transform: scale(0.9);
+        }
+        
+        .fab.hidden {
+            display: none;
+        }
+        /* ── FORM ────────────────────────────────────── */
+        
+        .form-group {
+            margin-bottom: 14px;
+        }
+        
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+            color: var(--text);
+            background: white;
+        }
+        
+        .form-input:focus {
+            border-color: var(--teal);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            font-family: inherit;
+            color: var(--text);
+            background: white;
+            appearance: none;
+            cursor: pointer;
+        }
+        /* ── INNER TABS ─────────────────────────────── */
+        
+        .inner-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 16px;
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 14px;
+            padding: 3px;
+        }
+        
+        .inner-tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            border-radius: 11px;
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .inner-tab.active {
+            background: white;
+            color: var(--purple);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        /* ── INFO ROWS ───────────────────────────────── */
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: var(--text-sub);
+        }
+        
+        .info-value {
+            font-weight: 700;
+            text-align: right;
+            max-width: 60%;
+        }
+        
+        .divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.08);
+            margin: 12px 0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+        }
+        
+        .empty-icon {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        
+        .empty-state p {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        /* ── ITEM ROW ────────────────────────────────── */
+        
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .item-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(91, 168, 160, 0.15);
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .item-name {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 2px;
+            color: var(--text);
+        }
+        
+        .item-meta {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 1px;
+        }
+        /* ── STATS ───────────────────────────────────── */
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        
+        .stat-card {
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            background: var(--card);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--purple);
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+        /* ── DUE CHIP ────────────────────────────────── */
+        
+        .due-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 10px;
+        }
+        
+        .due-ok {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        
+        .due-soon {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        
+        .due-over {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+        /* ── FRIEND ROW ──────────────────────────────── */
+        
+        .friend-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+        }
+        
+        .friend-row:last-child {
+            border-bottom: none;
+        }
+        
+        .friend-avatar {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(91, 168, 160, 0.15);
+            border-radius: 12px;
+        }
+        
+        .friend-info {
+            flex: 1;
+        }
+        
+        .friend-name {
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text);
+        }
+        
+        .friend-status {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        /* ── CHAT ────────────────────────────────────── */
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .message.sent {
+            justify-content: flex-end;
+        }
+        
+        .message.sent .msg-bubble {
+            background: var(--teal);
+            color: white;
+        }
+        
+        .message.received .msg-bubble {
+            background: #EBEBEB;
+            color: var(--text);
+        }
+        
+        .msg-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        
+        .chat-input {
+            padding: 12px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+        }
+        
+        .chat-input button {
+            padding: 8px 14px;
+            background: var(--teal);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            font-family: inherit;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .chat-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--teal);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        /* ── EMOJI PICKER ────────────────────────────── */
+        
+        .icon-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 14px;
+        }
+        
+        .icon-opt {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid transparent;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.05);
+            transition: all .15s;
+        }
+        
+        .icon-opt.sel {
+            border-color: var(--teal);
+            background: var(--teal-light);
+        }
+        
+        .icon-opt:active {
+            transform: scale(.9);
+        }
+        /* ── STARS ───────────────────────────────────── */
+        
+        .star-row {
+            display: flex;
+            gap: 5px;
+            margin: 6px 0 12px;
+        }
+        
+        .star {
+            cursor: pointer;
+            opacity: 0.25;
+            transition: opacity 0.15s, transform 0.1s;
+            user-select: none;
+            display: inline-flex;
+        }
+        
+        .star.lit {
+            opacity: 1;
+        }
+        
+        .star:active {
+            transform: scale(1.2);
+        }
+        
+        .star-rating {
+            position: relative;
+            display: inline-block;
+            line-height: 1;
+            font-size: 20px;
+        }
+        
+        .stars-outer {
+            color: #E3E3E3;
+            display: block;
+        }
+        
+        .stars-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            color: #FFB400;
+            width: 0%;
+            pointer-events: none;
+        }
+        
+        .star-rating[aria-label] {
+            vertical-align: middle;
+        }
+        /* ── REP BAR ─────────────────────────────────── */
+        
+        .rep-row {
+            margin-bottom: 12px;
+        }
+        
+        .rep-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .rep-bar {
+            background: #E0E0E0;
+            border-radius: 8px;
+            height: 9px;
+            overflow: hidden;
+        }
+        
+        .rep-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.6s ease;
+        }
+        /* ── MODAL ───────────────────────────────────── */
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        .modal-overlay.open {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 8px 18px 28px;
+            width: 100%;
+            max-width: 430px;
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+        
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: #DDD;
+            border-radius: 2px;
+            margin: 12px auto 18px;
+        }
+        
+        .modal-title {
+            font-size: 19px;
+            font-weight: 900;
+            color: var(--purple);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        /* ── TOAST ───────────────────────────────────── */
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(12px);
+            background: #1F2937;
+            color: white;
+            padding: 11px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.28s;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        /* ── PROFILE ─────────────────────────────────── */
+        
+        .avatar-wrap {
+            text-align: center;
+            padding: 24px 16px 18px;
+        }
+        
+        .avatar-icon {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        
+        .avatar-name {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--purple);
+        }
+        
+        .avatar-sub {
+            color: var(--text-sub);
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        /* ── SETTINGS ────────────────────────────────── */
+        
+        .sett-section-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.55);
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            margin: 16px 0 6px;
+            padding: 0 2px;
+        }
+        
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .theme-opt {
+            border: 3px solid transparent;
+            border-radius: 14px;
+            cursor: pointer;
+            padding: 10px 6px;
+            text-align: center;
+            transition: all .2s;
+            background: rgba(0, 0, 0, 0.04);
+        }
+        
+        .theme-opt.sel {
+            border-color: var(--teal);
+        }
+        
+        .theme-preview {
+            height: 44px;
+            border-radius: 9px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-sub);
+        }
+        
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 2px;
+        }
+        
+        .toggle-row+.toggle-row {
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        
+        .toggle-lbl {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        .toggle-sub {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 1px;
+        }
+        
+        .tog-track {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: #D0D0D0;
+            position: relative;
+            cursor: pointer;
+            transition: background .2s;
+            flex-shrink: 0;
+        }
+        
+        .tog-track.on {
+            background: var(--teal);
+        }
+        
+        .tog-thumb {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left .2s;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+        }
+        
+        .tog-track.on .tog-thumb {
+            left: 22px;
+        }
+        
+        .af-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+        }
+        
+        .af-row:last-child {
+            border-bottom: none;
+        }
+        
+        .af-avatar {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            border-radius: 11px;
+            background: rgba(91, 168, 160, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .af-name {
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text);
+        }
+        
+        .af-status {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .av-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 14px;
+        }
+        
+        .av-opt {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid transparent;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.05);
+            transition: all .15s;
+        }
+        
+        .av-opt.sel {
+            border-color: var(--teal);
+            background: var(--teal-light);
+        }
+        
+        .av-opt:active {
+            transform: scale(.9);
+        }
+        /* DARK THEME */
+        
+        body[data-theme="dark"] {
+            background: #0D0D1A;
+            --text: #E8E8FF;
+            --text-sub: #9AA0C8;
+            --card: #1C1C35;
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
+        
+        body[data-theme="dark"] .header {
+            background: #1A1A30;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+        }
+        
+        body[data-theme="dark"] .logo-text {
+            background: linear-gradient(135deg, #A78BFA, #C084FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body[data-theme="dark"] #header-user-display {
+            color: #E8E8FF;
+        }
+        
+        body[data-theme="dark"] .logout-btn {
+            background: #252545;
+            color: #9090B8;
+        }
+        
+        body[data-theme="dark"] .tab-bar {
+            background: #111124;
+        }
+        
+        body[data-theme="dark"] .tab-pill {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        body[data-theme="dark"] .tab-pill.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+        
+        body[data-theme="dark"] .card {
+            background: #1C1C35;
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+        
+        body[data-theme="dark"] .section-title {
+            color: #A78BFA;
+            text-shadow: none;
+        }
+        
+        body[data-theme="dark"] .inner-tabs {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        
+        body[data-theme="dark"] .inner-tab {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        body[data-theme="dark"] .inner-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        body[data-theme="dark"] .form-input {
+            background: #252545;
+            color: #E8E8FF;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        
+        body[data-theme="dark"] .form-select {
+            background: #252545;
+            color: #E8E8FF;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        
+        body[data-theme="dark"] .item-name {
+            color: #E8E8FF;
+        }
+        
+        body[data-theme="dark"] .item-meta {
+            color: #7070A0;
+        }
+        
+        body[data-theme="dark"] .info-row {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+        
+        body[data-theme="dark"] .info-label {
+            color: #7070A0;
+        }
+        
+        body[data-theme="dark"] .info-value {
+            color: #BEBEFF;
+        }
+        
+        body[data-theme="dark"] .divider {
+            background: rgba(255, 255, 255, 0.07);
+        }
+        
+        body[data-theme="dark"] .empty-state p {
+            color: rgba(255, 255, 255, 0.45);
+        }
+        
+        body[data-theme="dark"] .avatar-name {
+            color: #A78BFA;
+        }
+        
+        body[data-theme="dark"] .avatar-sub {
+            color: #7070A0;
+        }
+        
+        body[data-theme="dark"] .stat-card {
+            background: #252545;
+        }
+        
+        body[data-theme="dark"] .stat-number {
+            color: #A78BFA;
+        }
+        
+        body[data-theme="dark"] .stat-label {
+            color: #7070A0;
+        }
+        
+        body[data-theme="dark"] .rep-bar {
+            background: #252545;
+        }
+        
+        body[data-theme="dark"] .rep-header span:first-child {
+            color: #9090B8;
+        }
+        
+        body[data-theme="dark"] .btn-ghost {
+            background: rgba(255, 255, 255, 0.08);
+            color: #E8E8FF;
+        }
+        
+        body[data-theme="dark"] .btn-outline {
+            border-color: var(--teal);
+            color: var(--teal);
+        }
+        
+        body[data-theme="dark"] .modal {
+            background: #1A1A30;
+        }
+        
+        body[data-theme="dark"] .modal-handle {
+            background: #333355;
+        }
+        
+        body[data-theme="dark"] .modal-title {
+            color: #A78BFA;
+        }
+        
+        body[data-theme="dark"] .form-label {
+            color: #7070A0;
+        }
+        
+        body[data-theme="dark"] .friend-avatar {
+            background: rgba(91, 168, 160, 0.1);
+        }
+        
+        body[data-theme="dark"] .friend-name {
+            color: #E8E8FF;
+        }
+        
+        body[data-theme="dark"] .friend-status {
+            color: #7070A0 !important;
+        }
+        
+        body[data-theme="dark"] .friend-row {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+        
+        body[data-theme="dark"] .chat-messages {
+            background: #1A1A30;
+        }
+        
+        body[data-theme="dark"] .message.received .msg-bubble {
+            background: #252545;
+            color: #E8E8FF;
+        }
+        
+        body[data-theme="dark"] .chat-input {
+            border-color: rgba(255, 255, 255, 0.07);
+            background: #1A1A30;
+        }
+        
+        body[data-theme="dark"] .chat-input input {
+            background: #252545;
+            color: #E8E8FF;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        
+        body[data-theme="dark"] .item-icon {
+            background: rgba(91, 168, 160, 0.1);
+        }
+        
+        body[data-theme="dark"] .sett-section-label {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        body[data-theme="dark"] .toggle-row+.toggle-row {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+        
+        body[data-theme="dark"] .toggle-lbl {
+            color: #E8E8FF;
+        }
+        
+        body[data-theme="dark"] .toggle-sub {
+            color: #7070A0;
+        }
+        
+        body[data-theme="dark"] .tog-track {
+            background: #333355;
+        }
+        
+        body[data-theme="dark"] .theme-opt {
+            background: rgba(255, 255, 255, 0.04);
+        }
+        
+        body[data-theme="dark"] .theme-label {
+            color: #7070A0;
+        }
+        
+        body[data-theme="dark"] .icon-opt {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        body[data-theme="dark"] .icon-opt.sel {
+            background: rgba(91, 168, 160, 0.2);
+        }
+        
+        body[data-theme="dark"] .av-opt {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        body[data-theme="dark"] .av-opt.sel {
+            background: rgba(91, 168, 160, 0.2);
+        }
+        
+        body[data-theme="dark"] .af-avatar {
+            background: rgba(91, 168, 160, 0.1);
+        }
+        
+        body[data-theme="dark"] .af-name {
+            color: #E8E8FF;
+        }
+        
+        body[data-theme="dark"] .af-status {
+            color: #7070A0;
+        }
+        
+        body[data-theme="dark"] .af-row {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+        
+        body[data-theme="dark"] .b-returned {
+            background: #222240;
+            color: #9090B8;
+        }
+        /* L&F Score visible in both themes */
+        
+        .lf-score-card {
+            background: var(--teal-light);
+            border: 1.5px solid rgba(91, 168, 160, 0.25);
+        }
+        
+        body[data-theme="dark"] .lf-score-card {
+            background: #252545 !important;
+            border-color: rgba(91, 168, 160, 0.35) !important;
+        }
+        
+        body[data-theme="dark"] .lf-score-card .lf-score-main {
+            color: #E8E8FF !important;
+        }
+        
+        body[data-theme="dark"] .lf-score-card .lf-score-sub {
+            color: #9AA0C8 !important;
+        }
+        
+        body[data-theme="dark"] .lf-score-card .lf-score-number {
+            color: #5BA8A0 !important;
+        }
+        
+        body[data-theme="light"] .lf-score-card {
+            background: #E0F2F1;
+        }
+        
+        body[data-theme="light"] .lf-score-card .lf-score-main {
+            color: #111 !important;
+        }
+        
+        body[data-theme="light"] .lf-score-card .lf-score-sub {
+            color: #555 !important;
+        }
+        
+        body[data-theme="light"] .lf-score-card .lf-score-number {
+            color: #4A9490 !important;
+        }
+        
+        .lf-score-number {
+            font-weight: 900;
+        }
+        /* Test accounts clickable fix */
+        
+        .test-btn i,
+        .test-btn svg {
+            pointer-events: none;
+        }
+        
+        .test-btn {
+            position: relative;
+            z-index: 10;
+        }
+        /* LIGHT THEME */
+        
+        body[data-theme="light"] {
+            background: #EEEEF8;
+        }
+        
+        body[data-theme="light"] .header {
+            background: white;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        body[data-theme="light"] .logo-text {
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body[data-theme="light"] .tab-bar {
+            background: white;
+            border-bottom: 1px solid #E0E0EC;
+            backdrop-filter: none;
+        }
+        
+        body[data-theme="light"] .tab-pill {
+            background: #F0F0F8;
+            color: #888;
+        }
+        
+        body[data-theme="light"] .tab-pill.active {
+            background: var(--teal);
+            color: white;
+        }
+        
+        body[data-theme="light"] .card {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        }
+        
+        body[data-theme="light"] .section-title {
+            color: #333;
+            text-shadow: none;
+        }
+        
+        body[data-theme="light"] .inner-tabs {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        
+        body[data-theme="light"] .inner-tab {
+            color: #888;
+        }
+        
+        body[data-theme="light"] .inner-tab.active {
+            color: var(--purple);
+        }
+        
+        body[data-theme="light"] .empty-state p {
+            color: #777;
+        }
+        
+        body[data-theme="light"] .sett-section-label {
+            color: #AAA;
+        }
+        /* lucide SVG icon visibility */
+        
+        svg.lucide,
+        i[data-lucide] svg {
+            display: inline-block;
+            vertical-align: middle;
+            width: 1em;
+            height: 1em;
+            stroke-width: 2px;
+        }
+        
+        svg[data-lucide-icon],
+        i[data-lucide] svg {
+            display: inline-block;
+            vertical-align: middle;
+            color: inherit;
+            stroke: currentColor !important;
+            fill: none !important;
+        }
+        
+        body[data-theme="dark"] svg[data-lucide-icon] {
+            color: #E8E8FF;
+            stroke: #E8E8FF;
+        }
+        
+        body[data-theme="light"] svg[data-lucide-icon] {
+            color: #111111;
+            stroke: #111111;
+        }
+        
+        .logo-shield svg,
+        .auth-shield svg,
+        .fab svg {
+            color: #fff;
+            stroke: #fff;
+        }
+        
+        .item-icon svg,
+        .friend-avatar svg,
+        .af-avatar svg,
+        .av-opt svg,
+        .av-signup-opt svg,
+        .avatar-icon svg {
+            color: var(--teal-dark);
+            stroke: var(--teal-dark);
+        }
+        
+        body[data-theme="dark"] .item-icon svg,
+        body[data-theme="dark"] .friend-avatar svg,
+        body[data-theme="dark"] .af-avatar svg,
+        body[data-theme="dark"] .av-opt svg,
+        body[data-theme="dark"] .av-signup-opt svg,
+        body[data-theme="dark"] .avatar-icon svg {
+            color: #E8E8FF;
+            stroke: #E8E8FF;
+        }
+        
+        .btn svg,
+        .test-btn svg,
+        .section-title svg,
+        .modal-title svg,
+        .icon-opt svg {
+            color: inherit;
+            stroke: currentColor;
+        }
+        
+        svg[data-lucide-icon] *,
+        i[data-lucide] svg * {
+            stroke: currentColor !important;
+            fill: none !important;
+        }
+        /* ── DESKTOP LAYOUT ─────────────────────────── */
+        
+        @media (min-width: 900px) {
+            body {
+                max-width: 100%;
+                background: linear-gradient(170deg, var(--grad-top) 0%, var(--grad-bot) 100%);
+                background-attachment: fixed;
+            }
+            .tab-bar {
+                display: none !important;
+            }
+            .header {
+                left: 260px;
+                transform: none;
+                max-width: calc(100% - 260px);
+                width: calc(100% - 260px);
+            }
+            .content {
+                margin-left: 260px;
+                max-width: none;
+                padding-top: calc(var(--hdr-h) + 20px);
+                padding-left: 32px;
+                padding-right: 32px;
+            }
+            .desktop-sidebar {
+                display: flex !important;
+                flex-direction: column;
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 260px;
+                height: 100vh;
+                background: rgba(255, 255, 255, 0.97);
+                backdrop-filter: blur(12px);
+                box-shadow: 2px 0 16px rgba(0, 0, 0, 0.12);
+                z-index: 101;
+                padding: 20px 14px;
+            }
+            .ds-logo-wrap {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 24px;
+                padding: 6px 8px;
+            }
+            .ds-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                flex: 1;
+            }
+            .ds-nav-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 14px;
+                border-radius: 12px;
+                border: none;
+                background: transparent;
+                color: var(--text-sub);
+                font-size: 14px;
+                font-weight: 700;
+                font-family: inherit;
+                cursor: pointer;
+                text-align: left;
+                transition: all 0.15s;
+                position: relative;
+            }
+            .ds-nav-item:hover {
+                background: rgba(0, 0, 0, 0.06);
+                color: var(--text);
+            }
+            .ds-nav-item.active {
+                background: var(--teal-light);
+                color: var(--teal-dark);
+            }
+            .ds-nav-item .pill-badge {
+                margin-left: auto;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--danger);
+                color: white;
+                font-size: 10px;
+                font-weight: 800;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+            }
+            .ds-footer {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 8px 4px;
+                border-top: 1px solid rgba(0, 0, 0, 0.08);
+                margin-top: 12px;
+            }
+            #ds-user-display {
+                font-size: 13px;
+                font-weight: 800;
+                color: var(--text);
+            }
+            .fab {
+                right: 32px;
+            }
+            #borrows-borrowed,
+            #borrows-lent,
+            #borrows-history,
+            #friends-my-friends,
+            #requests-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 12px;
+            }
+            #borrows-borrowed .card,
+            #borrows-lent .card,
+            #borrows-history .card,
+            #friends-my-friends .card,
+            #requests-list .card {
+                margin-bottom: 0;
+            }
+            #friends-pending-req {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 12px;
+            }
+            .modal-overlay {
+                align-items: center;
+            }
+            .modal {
+                border-radius: 20px;
+                max-width: 520px;
+                max-height: 85vh;
+            }
+            .modal-handle {
+                display: none;
+            }
+            #auth-screen {
+                left: 0;
+            }
+            body[data-theme="dark"] .desktop-sidebar {
+                background: #1A1A30;
+                box-shadow: 2px 0 16px rgba(0, 0, 0, 0.5);
+            }
+            body[data-theme="dark"] .ds-nav-item {
+                color: #7070A0;
+            }
+            body[data-theme="dark"] .ds-nav-item:hover {
+                background: rgba(255, 255, 255, 0.06);
+                color: #E8E8FF;
+            }
+            body[data-theme="dark"] .ds-nav-item.active {
+                background: rgba(91, 168, 160, 0.15);
+                color: var(--teal);
+            }
+            body[data-theme="dark"] .ds-footer {
+                border-color: rgba(255, 255, 255, 0.08);
+            }
+            body[data-theme="dark"] #ds-user-display {
+                color: #E8E8FF;
+            }
+            body[data-theme="light"] .desktop-sidebar {
+                background: white;
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+            }
+        }
+        
+        @media (max-width: 899px) {
+            .desktop-sidebar {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- AUTH SCREEN -->
-<div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-shield"><i data-lucide="handshake"></i></div>
-      <div class="auth-logo-text">TRUSTR</div>
-      <div style="font-size:13px;color:var(--text-sub);margin-top:4px;font-weight:600">Borrow with trust</div>
+    <!-- DESKTOP SIDEBAR -->
+    <div class="desktop-sidebar" id="desktop-sidebar" style="display:none">
+        <div class="ds-logo-wrap">
+            <div class="logo-shield"><i data-lucide="handshake"></i></div>
+            <div class="logo-text">TRUSTR</div>
+        </div>
+        <nav class="ds-nav">
+            <button class="ds-nav-item active" id="ds-nav-friends" onclick="navigate('friends')"><i data-lucide="users"></i> Friends <span class="pill-badge" id="ds-friend-badge" style="display:none">0</span></button>
+            <button class="ds-nav-item" id="ds-nav-borrows" onclick="navigate('borrows')"><i data-lucide="package"></i> Items</button>
+            <button class="ds-nav-item" id="ds-nav-requests" onclick="navigate('requests')"><i data-lucide="inbox"></i> Requests <span class="pill-badge" id="ds-req-badge" style="display:none">0</span></button>
+            <button class="ds-nav-item" id="ds-nav-profile" onclick="navigate('profile')"><i data-lucide="user-round"></i> Profile</button>
+            <button class="ds-nav-item" id="ds-nav-settings" onclick="navigate('settings')"><i data-lucide="settings"></i> Settings</button>
+            <button class="ds-nav-item" id="ds-nav-lostfound" onclick="navigate('lostfound')"><i data-lucide="search"></i> Lost &amp; Found <span class="pill-badge" id="ds-lf-badge" style="display:none">0</span></button>
+        </nav>
+        <div class="ds-footer">
+            <div>
+                <div id="ds-user-display" style="font-size:13px;font-weight:800;"></div>
+                <div style="font-size:11px;color:var(--text-sub)" id="ds-user-sub">@user</div>
+            </div>
+            <button class="logout-btn" onclick="doLogout()">Log out</button>
+        </div>
     </div>
 
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="auth-tab-login"  onclick="switchAuthTab('login')">Log In</button>
-      <button class="auth-tab"        id="auth-tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+    <!-- AUTH SCREEN -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="auth-shield"><i data-lucide="handshake"></i></div>
+                <div class="auth-logo-text">TRUSTR</div>
+                <div style="font-size:13px;color:var(--text-sub);margin-top:4px;font-weight:600">Borrow with trust</div>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Log In</button>
+                <button class="auth-tab" id="auth-tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+
+            <div id="auth-login-form">
+                <div class="test-box">
+                    <div class="test-box-label"><i data-lucide="flask-conical"></i> Test Accounts</div>
+                    <button type="button" class="test-btn" onclick="quickLogin('alex')"><i data-lucide="user-round"></i> Alex</button>
+                    <button type="button" class="test-btn" onclick="quickLogin('jordan')"><i data-lucide="user-round"></i> Jordan</button>
+                    <div class="test-hint">Password for both: <strong>test</strong></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="login-username" class="form-input" placeholder="Enter username" autocomplete="off" autocapitalize="none">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Enter password">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="doLogin()">Log In →</button>
+            </div>
+
+            <div id="auth-signup-form" style="display:none">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="signup-username" class="form-input" placeholder="e.g. milan123" autocomplete="off" autocapitalize="none">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Display Name</label>
+                    <input type="text" id="signup-displayname" class="form-input" placeholder="e.g. Milan">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="signup-password" class="form-input" placeholder="Min 3 characters">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" id="signup-confirm" class="form-input" placeholder="Same password again">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pick an Avatar</label>
+                    <div class="av-signup-grid" id="signup-avatar-grid"></div>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="doSignup()">Create Account →</button>
+            </div>
+        </div>
     </div>
 
-    <div id="auth-login-form">
-      <div class="test-box">
-        <div class="test-box-label"><i data-lucide="flask-conical"></i> Test Accounts</div>
-        <button type="button" class="test-btn" onclick="quickLogin('alex')"><i data-lucide="user-round"></i> Alex</button>
-        <button type="button" class="test-btn" onclick="quickLogin('jordan')"><i data-lucide="user-round"></i> Jordan</button>
-        <div class="test-hint">Password for both: <strong>test</strong></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Username</label>
-        <input type="text" id="login-username" class="form-input" placeholder="Enter username" autocomplete="off" autocapitalize="none">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input type="password" id="login-password" class="form-input" placeholder="Enter password">
-      </div>
-      <button class="btn btn-primary btn-full" onclick="doLogin()">Log In →</button>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo-wrap">
+            <div class="logo-shield"><i data-lucide="handshake"></i></div>
+            <div class="logo-text">TRUSTR</div>
+        </div>
+        <div class="header-right">
+            <span id="header-user-display"></span>
+            <button class="logout-btn" onclick="doLogout()">Log out</button>
+        </div>
     </div>
 
-    <div id="auth-signup-form" style="display:none">
-      <div class="form-group">
-        <label class="form-label">Username</label>
-        <input type="text" id="signup-username" class="form-input" placeholder="e.g. milan123" autocomplete="off" autocapitalize="none">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Display Name</label>
-        <input type="text" id="signup-displayname" class="form-input" placeholder="e.g. Milan">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input type="password" id="signup-password" class="form-input" placeholder="Min 3 characters">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Confirm Password</label>
-        <input type="password" id="signup-confirm" class="form-input" placeholder="Same password again">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Pick an Avatar</label>
-        <div class="av-signup-grid" id="signup-avatar-grid"></div>
-      </div>
-      <button class="btn btn-primary btn-full" onclick="doSignup()">Create Account →</button>
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+        <button class="tab-pill active" id="nav-friends" onclick="navigate('friends')"><i data-lucide="users"></i> Friends</button>
+        <button class="tab-pill" id="nav-borrows" onclick="navigate('borrows')"><i data-lucide="package"></i> Items</button>
+        <button class="tab-pill" id="nav-lostfound" onclick="navigate('lostfound')"><i data-lucide="search"></i> Lost & Found<span class="pill-badge" id="lf-badge" style="display:none">0</span></button>
+        <button class="tab-pill" id="nav-requests" onclick="navigate('requests')"><i data-lucide="inbox"></i> Requests<span class="pill-badge" id="req-badge" style="display:none">0</span></button>
+        <button class="tab-pill" id="nav-profile" onclick="navigate('profile')"><i data-lucide="user-round"></i> Profile</button>
+        <button class="tab-pill" id="nav-settings" onclick="navigate('settings')"><i data-lucide="settings"></i> Settings</button>
     </div>
-  </div>
-</div>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="logo-wrap">
-    <div class="logo-shield"><i data-lucide="handshake"></i></div>
-    <div class="logo-text">TRUSTR</div>
-  </div>
-  <div class="header-right">
-    <span id="header-user-display"></span>
-    <button class="logout-btn" onclick="doLogout()">Log out</button>
-  </div>
-</div>
+    <!-- CONTENT -->
+    <div class="content">
+        <div class="screen active" id="screen-friends">
+            <div class="section-title"><i data-lucide="users"></i> Friends</div>
+            <div class="inner-tabs">
+                <button class="inner-tab active" id="tab-my-friends" onclick="switchFriendsTab('my-friends')">My Friends</button>
+                <button class="inner-tab" id="tab-pending-req" onclick="switchFriendsTab('pending-req')">Pending<span class="pill-badge" id="friend-req-badge" style="display:none;margin-left:2px">0</span></button>
+                <button class="inner-tab" id="tab-add-friends" onclick="switchFriendsTab('add-friends')"><i data-lucide="user-plus"></i> Add</button>
+            </div>
+            <div id="friends-my-friends"></div>
+            <div id="friends-pending-req" style="display:none"></div>
+            <div id="friends-add-friends" style="display:none"></div>
+        </div>
 
-<!-- TAB BAR -->
-<div class="tab-bar">
-  <button class="tab-pill active" id="nav-friends"  onclick="navigate('friends')"><i data-lucide="users"></i> Friends</button>
-  <button class="tab-pill"        id="nav-borrows"  onclick="navigate('borrows')"><i data-lucide="package"></i> Items</button>
-  <button class="tab-pill"        id="nav-lostfound" onclick="navigate('lostfound')"><i data-lucide="search"></i> Lost & Found<span class="pill-badge" id="lf-badge" style="display:none">0</span></button>
-  <button class="tab-pill"        id="nav-requests" onclick="navigate('requests')"><i data-lucide="inbox"></i> Requests<span class="pill-badge" id="req-badge" style="display:none">0</span></button>
-  <button class="tab-pill"        id="nav-profile"  onclick="navigate('profile')"><i data-lucide="user-round"></i> Profile</button>
-  <button class="tab-pill"        id="nav-settings" onclick="navigate('settings')"><i data-lucide="settings"></i> Settings</button>
-</div>
+        <div class="screen" id="screen-borrows">
+            <div class="section-title"><i data-lucide="package"></i> Items</div>
+            <div class="inner-tabs">
+                <button class="inner-tab active" id="tab-borrowed" onclick="switchBorrowTab('borrowed')">Borrowed</button>
+                <button class="inner-tab" id="tab-lent" onclick="switchBorrowTab('lent')">Lent</button>
+                <button class="inner-tab" id="tab-history" onclick="switchBorrowTab('history')">History</button>
+            </div>
+            <div id="borrows-borrowed"></div>
+            <div id="borrows-lent" style="display:none"></div>
+            <div id="borrows-history" style="display:none"></div>
+        </div>
 
-<!-- CONTENT -->
-<div class="content">
-  <div class="screen active" id="screen-friends">
-    <div class="section-title"><i data-lucide="users"></i> Friends</div>
-    <div class="inner-tabs">
-      <button class="inner-tab active" id="tab-my-friends"  onclick="switchFriendsTab('my-friends')">My Friends</button>
-      <button class="inner-tab"        id="tab-pending-req" onclick="switchFriendsTab('pending-req')">Pending<span class="pill-badge" id="friend-req-badge" style="display:none;margin-left:2px">0</span></button>
-      <button class="inner-tab"        id="tab-add-friends" onclick="switchFriendsTab('add-friends')"><i data-lucide="user-plus"></i> Add</button>
+        <div class="screen" id="screen-requests">
+            <div class="section-title"><i data-lucide="inbox"></i> Requests</div>
+            <div id="requests-list"></div>
+        </div>
+
+        <div class="screen" id="screen-profile">
+            <div id="profile-content"></div>
+        </div>
+
+        <div class="screen" id="screen-settings">
+            <div class="section-title"><i data-lucide="settings"></i> Settings</div>
+            <div id="settings-content"></div>
+        </div>
+
+        <div class="screen" id="screen-lostfound">
+            <div class="section-title"><i data-lucide="search"></i> Lost & Found</div>
+            <div class="card lf-score-card" style="cursor:default;">
+                <div>
+                    <div class="lf-score-main" style="font-weight:900; font-size:16px; display:flex; align-items:center; gap:8px"><i data-lucide="award"></i> Your Lost & Found Score: <span id="lf-credit-display" class="lf-score-number">50/100</span></div>
+                    <div class="lf-score-sub" style="font-size:12px; margin-top:4px">This is your personal Lost & Found reputation. Keep it high by posting and correctly returning lost items.</div>
+                    <div class="lf-score-sub" style="font-size:11px; margin-top:6px">Weekly claims: <span id="lf-weekly-display">0/3</span> • Resets Sunday</div>
+                </div>
+            </div>
+            <div class="inner-tabs">
+                <button class="inner-tab active" id="tab-lf-lost" onclick="switchLostFoundTab('lost')">Lost Items</button>
+                <button class="inner-tab" id="tab-lf-mine" onclick="switchLostFoundTab('mine')">My Posts</button>
+                <button class="inner-tab" id="tab-lf-claims" onclick="switchLostFoundTab('claims')">My Claims</button>
+            </div>
+            <div id="lf-search-wrap" style="margin-bottom:12px">
+                <input type="text" id="lf-search" class="form-input" placeholder="Search lost items by name..." oninput="renderLostFound()">
+            </div>
+            <div id="lostfound-lost"></div>
+            <div id="lostfound-mine" style="display:none"></div>
+            <div id="lostfound-claims" style="display:none"></div>
+        </div>
     </div>
-    <div id="friends-my-friends"></div>
-    <div id="friends-pending-req" style="display:none"></div>
-    <div id="friends-add-friends" style="display:none"></div>
-  </div>
 
-  <div class="screen" id="screen-borrows">
-    <div class="section-title"><i data-lucide="package"></i> Items</div>
-    <div class="inner-tabs">
-      <button class="inner-tab active" id="tab-borrowed" onclick="switchBorrowTab('borrowed')">Borrowed</button>
-      <button class="inner-tab"        id="tab-lent"     onclick="switchBorrowTab('lent')">Lent</button>
-      <button class="inner-tab"        id="tab-history"  onclick="switchBorrowTab('history')">History</button>
+    <button class="fab hidden" id="fab-borrow" onclick="openBorrowModal()" title="Request to Borrow"><i data-lucide="plus"></i></button>
+    <button class="fab hidden" id="fab-lostfound" onclick="openLostFoundPostModal()" title="Post Found Item" style="background:linear-gradient(135deg,#FF8C00,#FF4444);"><i data-lucide="search"></i></button>
+
+    <div class="modal-overlay" id="modal-chat">
+        <div class="modal" style="padding:0;display:flex;flex-direction:column;max-height:88vh">
+            <div style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,0.1)">
+                <div class="modal-handle"></div>
+                <div class="modal-title" id="chat-friend-name" style="margin-bottom:0"></div>
+            </div>
+            <div class="chat-messages" id="chat-messages" style="max-height:50vh;overflow-y:auto"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-input-field" placeholder="Message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+            <div class="chat-actions">
+                <button onclick="requestBorrowFromChat()"><i data-lucide="package"></i> Request to Borrow</button>
+            </div>
+        </div>
     </div>
-    <div id="borrows-borrowed"></div>
-    <div id="borrows-lent"    style="display:none"></div>
-    <div id="borrows-history" style="display:none"></div>
-  </div>
 
-  <div class="screen" id="screen-requests">
-    <div class="section-title"><i data-lucide="inbox"></i> Requests</div>
-    <div id="requests-list"></div>
-  </div>
-
-  <div class="screen" id="screen-profile">
-    <div id="profile-content"></div>
-  </div>
-
-  <div class="screen" id="screen-settings">
-    <div class="section-title"><i data-lucide="settings"></i> Settings</div>
-    <div id="settings-content"></div>
-  </div>
-
-  <div class="screen" id="screen-lostfound">
-    <div class="section-title"><i data-lucide="search"></i> Lost & Found</div>
-    <div class="card lf-score-card" style="cursor:default;">
-      <div>
-        <div class="lf-score-main" style="font-weight:900; font-size:16px; display:flex; align-items:center; gap:8px"><i data-lucide="award"></i> Your Lost & Found Score: <span id="lf-credit-display" class="lf-score-number">50/100</span></div>
-        <div class="lf-score-sub" style="font-size:12px; margin-top:4px">This is your personal Lost & Found reputation. Keep it high by posting and correctly returning lost items.</div>
-        <div class="lf-score-sub" style="font-size:11px; margin-top:6px">Weekly claims: <span id="lf-weekly-display">0/3</span> • Resets Sunday</div>
-      </div>
+    <div class="modal-overlay" id="modal-borrow">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i data-lucide="package"></i> Request to Borrow</div>
+            <div id="modal-borrow-body"></div>
+        </div>
     </div>
-    <div class="inner-tabs">
-      <button class="inner-tab active" id="tab-lf-lost" onclick="switchLostFoundTab('lost')">Lost Items</button>
-      <button class="inner-tab" id="tab-lf-mine" onclick="switchLostFoundTab('mine')">My Posts</button>
-      <button class="inner-tab" id="tab-lf-claims" onclick="switchLostFoundTab('claims')">My Claims</button>
+
+    <div class="modal-overlay" id="modal-return">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i data-lucide="rotate-ccw"></i> Request Return</div>
+            <div id="modal-return-body"></div>
+        </div>
     </div>
-    <div id="lf-search-wrap" style="margin-bottom:12px">
-      <input type="text" id="lf-search" class="form-input" placeholder="Search lost items by name..." oninput="renderLostFound()">
+
+    <div class="modal-overlay" id="modal-name">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i data-lucide="pencil"></i> Change Display Name</div>
+            <div id="modal-name-body"></div>
+        </div>
     </div>
-    <div id="lostfound-lost"></div>
-    <div id="lostfound-mine" style="display:none"></div>
-    <div id="lostfound-claims" style="display:none"></div>
-  </div>
-</div>
 
-<button class="fab hidden" id="fab-borrow" onclick="openBorrowModal()" title="Request to Borrow"><i data-lucide="plus"></i></button>
-<button class="fab hidden" id="fab-lostfound" onclick="openLostFoundPostModal()" title="Post Found Item" style="background:linear-gradient(135deg,#FF8C00,#FF4444);"><i data-lucide="search"></i></button>
-
-<div class="modal-overlay" id="modal-chat">
-  <div class="modal" style="padding:0;display:flex;flex-direction:column;max-height:88vh">
-    <div style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,0.1)">
-      <div class="modal-handle"></div>
-      <div class="modal-title" id="chat-friend-name" style="margin-bottom:0"></div>
+    <div class="modal-overlay" id="modal-details">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title" id="details-title"></div>
+            <div id="modal-details-body"></div>
+        </div>
     </div>
-    <div class="chat-messages" id="chat-messages" style="max-height:50vh;overflow-y:auto"></div>
-    <div class="chat-input">
-      <input type="text" id="chat-input-field" placeholder="Message...">
-      <button onclick="sendMessage()">Send</button>
+
+    <div class="modal-overlay" id="modal-lostfound-post">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i data-lucide="search"></i> Post Found Item</div>
+            <div id="modal-lostfound-post-body"></div>
+        </div>
     </div>
-    <div class="chat-actions">
-      <button onclick="requestBorrowFromChat()"><i data-lucide="package"></i> Request to Borrow</button>
+
+    <div class="modal-overlay" id="modal-lostfound-details">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title" id="lf-details-title"></div>
+            <div id="modal-lf-details-body"></div>
+        </div>
     </div>
-  </div>
-</div>
 
-<div class="modal-overlay" id="modal-borrow">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i data-lucide="package"></i> Request to Borrow</div>
-    <div id="modal-borrow-body"></div>
-  </div>
-</div>
+    <div class="modal-overlay" id="modal-lostfound-claim">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i data-lucide="shield-check"></i> Claim Item</div>
+            <div id="modal-lf-claim-body"></div>
+        </div>
+    </div>
 
-<div class="modal-overlay" id="modal-return">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i data-lucide="rotate-ccw"></i> Request Return</div>
-    <div id="modal-return-body"></div>
-  </div>
-</div>
+    <div class="toast" id="toast"></div>
 
-<div class="modal-overlay" id="modal-name">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i data-lucide="pencil"></i> Change Display Name</div>
-    <div id="modal-name-body"></div>
-  </div>
-</div>
+    <script>
+        const $ = id => document.getElementById(id);
 
-<div class="modal-overlay" id="modal-details">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="details-title"></div>
-    <div id="modal-details-body"></div>
-  </div>
-</div>
+        function icon(name, cls = '') {
+            const clsAttr = cls ? ` class="${cls}"` : '';
+            // Fix blank avatar icons - provide custom SVGs for sports/ball icons that are lab-only in lucide
+            // Uses same exact code path: icon() returns an inline SVG string just like lucide does
+            if (name === 'soccer' || name === 'football') {
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M12 8l1.8 1.3-.7 2.1H10.9l-.7-2.1Z"/><path d="M12 8V4"/><path d="M13.8 9.3 18 8"/><path d="M10.2 9.3 6 8"/><path d="M11.2 11.4 8 16.5"/><path d="M12.8 11.4 16 16.5"/></svg>`;
+            }
+            if (name === 'basketball') {
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/><path d="M2 12a10 10 0 0 0 20 0"/><path d="M2 12a15 15 0 0 1 20 0"/></svg>`;
+            }
+            if (name === 'volleyball') {
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M2 12c2.5-2 14-2 20 0"/><path d="M5 5c2.5 3 10 9 14 14"/><path d="M19 5c-2.5 3-10 9-14 14"/></svg>`;
+            }
+            if (name === 'guitar') {
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="16" r="4"/><path d="M12 12V3"/><path d="M10 3h4"/></svg>`;
+            }
+            if (name === 'drum') {
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v9c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6"/><ellipse cx="12" cy="15" rx="7" ry="2.5"/></svg>`;
+            }
+            return `<i data-lucide="${name}"${clsAttr}></i>`;
+        }
 
-<div class="modal-overlay" id="modal-lostfound-post">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i data-lucide="search"></i> Post Found Item</div>
-    <div id="modal-lostfound-post-body"></div>
-  </div>
-</div>
+        function refreshIcons() {
+            if (window.lucide && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        }
 
-<div class="modal-overlay" id="modal-lostfound-details">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="lf-details-title"></div>
-    <div id="modal-lf-details-body"></div>
-  </div>
-</div>
+        function parseDateLocal(d) {
+            if (!d) return null;
+            if (d instanceof Date) return d;
+            const parts = d.split && d.split('-');
+            if (parts && parts.length >= 3) {
+                return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+            }
+            const dt = new Date(d);
+            return isNaN(dt) ? null : dt;
+        }
 
-<div class="modal-overlay" id="modal-lostfound-claim">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i data-lucide="shield-check"></i> Claim Item</div>
-    <div id="modal-lf-claim-body"></div>
-  </div>
-</div>
+        function daysLate(tx) {
+            const returned = parseDateLocal(tx.returnedAt || tx.returnRequestAt);
+            const due = parseDateLocal(tx.dueDate);
+            if (!returned || !due) return null;
+            const msPerDay = 1000 * 60 * 60 * 24;
+            const diff = Math.floor((returned - due) / msPerDay);
+            return diff > 0 ? diff : 0;
+        }
 
-<div class="toast" id="toast"></div>
+        function punctualityScore(tx) {
+            if (tx.status === 'lost') return 0;
+            const late = daysLate(tx);
+            if (late === null) return 0;
+            if (late === 0) return 50;
+            if (late === 1) return 40;
+            if (late >= 2 && late <= 3) return 30;
+            if (late >= 4 && late <= 7) return 15;
+            return 0;
+        }
 
-<script>
-const $ = id => document.getElementById(id);
+        function conditionScore(tx) {
+            const r = tx.conditionRating;
+            if (tx.status === 'lost') return 0;
+            if (r == null) return tx.status === 'returned' ? 50 : 0;
+            if (r >= 5) return 50;
+            if (r === 4) return 40;
+            if (r === 3) return 25;
+            if (r === 2 || r === 1) return 10;
+            return 0;
+        }
 
-function icon(name, cls='') {
-  const clsAttr = cls ? ` class="${cls}"` : '';
-  // Fix blank avatar icons - provide custom SVGs for sports/ball icons that are lab-only in lucide
-  // Uses same exact code path: icon() returns an inline SVG string just like lucide does
-  if (name === 'soccer' || name === 'football') {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M12 8l1.8 1.3-.7 2.1H10.9l-.7-2.1Z"/><path d="M12 8V4"/><path d="M13.8 9.3 18 8"/><path d="M10.2 9.3 6 8"/><path d="M11.2 11.4 8 16.5"/><path d="M12.8 11.4 16 16.5"/></svg>`;
-  }
-  if (name === 'basketball') {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/><path d="M2 12a10 10 0 0 0 20 0"/><path d="M2 12a15 15 0 0 1 20 0"/></svg>`;
-  }
-  if (name === 'volleyball') {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="12" r="10"/><path d="M2 12c2.5-2 14-2 20 0"/><path d="M5 5c2.5 3 10 9 14 14"/><path d="M19 5c-2.5 3-10 9-14 14"/></svg>`;
-  }
-  if (name === 'guitar') {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><circle cx="12" cy="16" r="4"/><path d="M12 12V3"/><path d="M10 3h4"/></svg>`;
-  }
-  if (name === 'drum') {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${clsAttr}><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v9c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6"/><ellipse cx="12" cy="15" rx="7" ry="2.5"/></svg>`;
-  }
-  return `<i data-lucide="${name}"${clsAttr}></i>`;
-}
+        function computeTransactionScore(tx) {
+            const p = punctualityScore(tx);
+            const c = conditionScore(tx);
+            const total = (p || 0) + (c || 0);
+            const rawStars = total / 20;
+            const roundedStars = Math.round(rawStars * 10) / 10;
+            return {
+                score100: total,
+                stars: roundedStars,
+                punctuality: p,
+                condition: c,
+                rawStars
+            };
+        }
 
-function refreshIcons() {
-  if (window.lucide && typeof lucide.createIcons === 'function') {
-    lucide.createIcons();
-  }
-}
+        function userTransactionsAsBorrower(uid) {
+            // FIX: Only count as completed when lender has approved return (status returned/lost)
+            // Previously included returnedAt which counted pending_return before condition rating
+            return transactions.filter(t => t.borrower === uid && (t.status === 'returned' || t.status === 'lost'));
+        }
 
-function parseDateLocal(d) {
-  if (!d) return null;
-  if (d instanceof Date) return d;
-  const parts = d.split && d.split('-');
-  if (parts && parts.length >= 3) {
-    return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-  }
-  const dt = new Date(d);
-  return isNaN(dt) ? null : dt;
-}
+        function computeUserCredit(uid) {
+            const txs = userTransactionsAsBorrower(uid);
+            const total = txs.length;
+            if (total === 0) {
+                return {
+                    averageStars: 0.0,
+                    totalTx: 0,
+                    goodPct: 0,
+                    latePct: 0,
+                    lostPct: 0,
+                    notSameOrBetterPct: 0,
+                    details: {
+                        total: 0,
+                        good: 0,
+                        late: 0,
+                        lost: 0,
+                        worseCondition: 0
+                    },
+                    txs: []
+                };
+            }
+            let sumStars = 0;
+            let goodCount = 0;
+            let lateCount = 0;
+            let lostCount = 0;
+            let worseCondCount = 0;
+            const txDetails = txs.map(tx => {
+                const s = tx.credit ? tx.credit : computeTransactionScore(tx);
+                sumStars += s.stars;
+                const isGood = s.stars >= 4.0;
+                if (isGood) goodCount++;
+                if ((s.punctuality || 0) < 50) lateCount++;
+                if (s.condition === 0 || tx.status === 'lost') lostCount++;
+                if (tx.conditionRating == null) {
+                    if (tx.status === 'lost') worseCondCount++;
+                } else {
+                    if (tx.conditionRating < 5) worseCondCount++;
+                }
+                return Object.assign({}, tx, {
+                    credit: s
+                });
+            });
+            const avg = Math.round((sumStars / total) * 10) / 10;
+            const goodPct = Math.round((goodCount / total) * 100);
+            const latePct = Math.round((lateCount / total) * 100);
+            const lostPct = Math.round((lostCount / total) * 100);
+            const notSameOrBetterPct = Math.round((worseCondCount / total) * 100);
+            return {
+                averageStars: avg,
+                totalTx: total,
+                goodPct,
+                latePct,
+                lostPct,
+                notSameOrBetterPct,
+                details: {
+                    total,
+                    good: goodCount,
+                    late: lateCount,
+                    lost: lostCount,
+                    worseCondition: worseCondCount
+                },
+                txs: txDetails
+            };
+        }
 
-function daysLate(tx) {
-  const returned = parseDateLocal(tx.returnedAt || tx.returnRequestAt);
-  const due = parseDateLocal(tx.dueDate);
-  if (!returned || !due) return null;
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const diff = Math.floor((returned - due) / msPerDay);
-  return diff > 0 ? diff : 0;
-}
-
-function punctualityScore(tx) {
-  if (tx.status === 'lost') return 0;
-  const late = daysLate(tx);
-  if (late === null) return 0;
-  if (late === 0) return 50;
-  if (late === 1) return 40;
-  if (late >= 2 && late <= 3) return 30;
-  if (late >= 4 && late <= 7) return 15;
-  return 0;
-}
-
-function conditionScore(tx) {
-  const r = tx.conditionRating;
-  if (tx.status === 'lost') return 0;
-  if (r == null) return tx.status === 'returned' ? 50 : 0;
-  if (r >= 5) return 50;
-  if (r === 4) return 40;
-  if (r === 3) return 25;
-  if (r === 2 || r === 1) return 10;
-  return 0;
-}
-
-function computeTransactionScore(tx) {
-  const p = punctualityScore(tx);
-  const c = conditionScore(tx);
-  const total = (p || 0) + (c || 0);
-  const rawStars = total / 20;
-  const roundedStars = Math.round(rawStars * 10) / 10;
-  return { score100: total, stars: roundedStars, punctuality: p, condition: c, rawStars };
-}
-
-function userTransactionsAsBorrower(uid) {
-  // FIX: Only count as completed when lender has approved return (status returned/lost)
-  // Previously included returnedAt which counted pending_return before condition rating
-  return transactions.filter(t => t.borrower === uid && (t.status === 'returned' || t.status === 'lost'));
-}
-
-function computeUserCredit(uid) {
-  const txs = userTransactionsAsBorrower(uid);
-  const total = txs.length;
-  if (total === 0) {
-    return {
-      averageStars: 0.0,
-      totalTx: 0,
-      goodPct: 0,
-      latePct: 0,
-      lostPct: 0,
-      notSameOrBetterPct: 0,
-      details: { total:0, good:0, late:0, lost:0, worseCondition:0 },
-      txs: []
-    };
-  }
-  let sumStars = 0;
-  let goodCount = 0;
-  let lateCount = 0;
-  let lostCount = 0;
-  let worseCondCount = 0;
-  const txDetails = txs.map(tx => {
-    const s = tx.credit ? tx.credit : computeTransactionScore(tx);
-    sumStars += s.stars;
-    const isGood = s.stars >= 4.0;
-    if (isGood) goodCount++;
-    if ((s.punctuality || 0) < 50) lateCount++;
-    if (s.condition === 0 || tx.status === 'lost') lostCount++;
-    if (tx.conditionRating == null) {
-      if (tx.status === 'lost') worseCondCount++;
-    } else {
-      if (tx.conditionRating < 5) worseCondCount++;
-    }
-    return Object.assign({}, tx, { credit: s });
-  });
-  const avg = Math.round((sumStars / total) * 10) / 10;
-  const goodPct = Math.round((goodCount / total) * 100);
-  const latePct = Math.round((lateCount / total) * 100);
-  const lostPct = Math.round((lostCount / total) * 100);
-  const notSameOrBetterPct = Math.round((worseCondCount / total) * 100);
-  return {
-    averageStars: avg,
-    totalTx: total,
-    goodPct,
-    latePct,
-    lostPct,
-    notSameOrBetterPct,
-    details: { total, good:goodCount, late:lateCount, lost:lostCount, worseCondition:worseCondCount },
-    txs: txDetails
-  };
-}
-
-function renderStarsHtml(value, size='18px') {
-  value = Math.round((value || 0) * 10) / 10;
-  const pct = (value / 5) * 100;
-  return `<span class="star-rating" role="img" aria-label="${value.toFixed(1)} out of 5 stars" style="font-size:${size}">
+        function renderStarsHtml(value, size = '18px') {
+            value = Math.round((value || 0) * 10) / 10;
+            const pct = (value / 5) * 100;
+            return `<span class="star-rating" role="img" aria-label="${value.toFixed(1)} out of 5 stars" style="font-size:${size}">
             <span class="stars-outer">★★★★★</span>
             <span class="stars-inner" style="width:${pct}%">★★★★★</span>
           </span>`;
-}
+        }
 
-// AUTH DATA
-let registeredAccounts = {
-  'alex':   { password:'test', id:'alex',   name:'Alex',   avatar:'user-round' },
-  'jordan': { password:'test', id:'jordan', name:'Jordan', avatar:'user-round' },
-};
+        // AUTH DATA
+        let registeredAccounts = {
+            'alex': {
+                password: 'test',
+                id: 'alex',
+                name: 'Alex',
+                avatar: 'user-round'
+            },
+            'jordan': {
+                password: 'test',
+                id: 'jordan',
+                name: 'Jordan',
+                avatar: 'user-round'
+            },
+        };
 
-let selectedSignupAvatar = 'user-round';
+        let selectedSignupAvatar = 'user-round';
 
-let USERS = {
-  alex:   { id:'alex',   name:'Alex',   avatar:'user-round' },
-  jordan: { id:'jordan', name:'Jordan', avatar:'user-round' },
-  sam:    { id:'sam',    name:'Sam',    avatar:'user' },
-  riley:  { id:'riley',  name:'Riley',  avatar:'user-round' },
-  morgan: { id:'morgan', name:'Morgan', avatar:'user-round' },
-  casey:  { id:'casey',  name:'Casey',  avatar:'user-round' },
-};
+        let USERS = {
+            alex: {
+                id: 'alex',
+                name: 'Alex',
+                avatar: 'user-round'
+            },
+            jordan: {
+                id: 'jordan',
+                name: 'Jordan',
+                avatar: 'user-round'
+            },
+            sam: {
+                id: 'sam',
+                name: 'Sam',
+                avatar: 'user'
+            },
+            riley: {
+                id: 'riley',
+                name: 'Riley',
+                avatar: 'user-round'
+            },
+            morgan: {
+                id: 'morgan',
+                name: 'Morgan',
+                avatar: 'user-round'
+            },
+            casey: {
+                id: 'casey',
+                name: 'Casey',
+                avatar: 'user-round'
+            },
+        };
 
-const NOW = new Date();
-let currentUser = null;
+        const NOW = new Date();
+        let currentUser = null;
 
-let friendships = {
-  alex:   { friends:['jordan'], pendingIncoming:[], pendingOutgoing:[] },
-  jordan: { friends:['alex'],   pendingIncoming:[], pendingOutgoing:[] },
-  sam:    { friends:['riley'],  pendingIncoming:[], pendingOutgoing:[] },
-  riley:  { friends:['sam'],    pendingIncoming:[], pendingOutgoing:[] },
-  morgan: { friends:[],         pendingIncoming:[], pendingOutgoing:[] },
-  casey:  { friends:[],         pendingIncoming:[], pendingOutgoing:[] },
-};
+        let friendships = {
+            alex: {
+                friends: ['jordan'],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            },
+            jordan: {
+                friends: ['alex'],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            },
+            sam: {
+                friends: ['riley'],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            },
+            riley: {
+                friends: ['sam'],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            },
+            morgan: {
+                friends: [],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            },
+            casey: {
+                friends: [],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            },
+        };
 
-let chats = {
-  'alex-jordan': [
-    { from:'jordan', text:'Hey, do you have a spare calculator?', time:'2:30 PM' },
-    { from:'alex',   text:'Yeah! I have one you can borrow',      time:'2:32 PM' },
-    { from:'jordan', text:'Great! Can I use it for a week?',      time:'2:33 PM' },
-  ]
-};
+        let chats = {
+            'alex-jordan': [{
+                from: 'jordan',
+                text: 'Hey, do you have a spare calculator?',
+                time: '2:30 PM'
+            }, {
+                from: 'alex',
+                text: 'Yeah! I have one you can borrow',
+                time: '2:32 PM'
+            }, {
+                from: 'jordan',
+                text: 'Great! Can I use it for a week?',
+                time: '2:33 PM'
+            }, ]
+        };
 
-let transactions = [
-  {
-    id:1, borrower:'alex', lender:'jordan',
-    itemName:'Noise-Cancelling Headphones', itemIcon:'headphones',
-    itemCondition:'Good', itemNotes:'Right ear-pad slightly worn', status:'active',
-    requestedAt:'2026-06-08', startDate:'2026-06-09', dueDate:'2026-06-14',
-    returnRequestAt:null, returnedAt:null, conditionRating:null, lenderNotes:'', borrowerNote:'Need it for finals week'
-  },
-  {
-    id:2, borrower:'jordan', lender:'alex',
-    itemName:'Ruler & Compass Set', itemIcon:'ruler',
-    itemCondition:'Good', itemNotes:'', status:'returned',
-    requestedAt:'2026-06-01', startDate:'2026-06-02', dueDate:'2026-06-07',
-    returnRequestAt:'2026-06-06', returnedAt:'2026-06-07',
-    conditionRating:5, lenderNotes:'Perfect condition, returned early!', borrowerNote:'Just for one project'
-  }
-];
-let nextTxId = 3;
+        let transactions = [{
+            id: 1,
+            borrower: 'alex',
+            lender: 'jordan',
+            itemName: 'Noise-Cancelling Headphones',
+            itemIcon: 'headphones',
+            itemCondition: 'Good',
+            itemNotes: 'Right ear-pad slightly worn',
+            status: 'active',
+            requestedAt: '2026-06-08',
+            startDate: '2026-06-09',
+            dueDate: '2026-06-14',
+            returnRequestAt: null,
+            returnedAt: null,
+            conditionRating: null,
+            lenderNotes: '',
+            borrowerNote: 'Need it for finals week'
+        }, {
+            id: 2,
+            borrower: 'jordan',
+            lender: 'alex',
+            itemName: 'Ruler & Compass Set',
+            itemIcon: 'ruler',
+            itemCondition: 'Good',
+            itemNotes: '',
+            status: 'returned',
+            requestedAt: '2026-06-01',
+            startDate: '2026-06-02',
+            dueDate: '2026-06-07',
+            returnRequestAt: '2026-06-06',
+            returnedAt: '2026-06-07',
+            conditionRating: 5,
+            lenderNotes: 'Perfect condition, returned early!',
+            borrowerNote: 'Just for one project'
+        }];
+        let nextTxId = 3;
 
-// ── LOST & FOUND DATA - 8 demo lost items searchable, 50/100 start, 1 attempt only, manual review ──
-let lostFoundItems = [
-  {
-    id: 1,
-    finderId: 'jordan',
-    name: 'Blue Hydro Flask',
-    description: '32oz, with a few dents, white cap, mountain sticker',
-    location: 'Library 2nd floor',
-    foundDate: '2026-06-12',
-    verificationQuestions: [
-      { question: 'What color is the lid?', answer: 'white' },
-      { question: 'Any stickers on it?', answer: 'yes, a mountain sticker' }
-    ],
-    status: 'open',
-    postedAt: '2026-06-12'
-  },
-  {
-    id: 2,
-    finderId: 'sam',
-    name: 'Black AirPods Pro',
-    description: 'In white charging case with scratch on lid',
-    location: 'Gym locker room',
-    foundDate: '2026-06-13',
-    verificationQuestions: [
-      { question: 'What is engraved on the case?', answer: 'S.M.' },
-      { question: 'What color is the inside?', answer: 'white' }
-    ],
-    status: 'open',
-    postedAt: '2026-06-13'
-  },
-  {
-    id: 3,
-    finderId: 'riley',
-    name: 'Red JanSport Backpack',
-    description: 'Contains textbooks and a calculator',
-    location: 'Cafeteria',
-    foundDate: '2026-06-10',
-    verificationQuestions: [
-      { question: 'What brand of calculator inside?', answer: 'TI-84' },
-      { question: 'How many textbooks?', answer: '2' }
-    ],
-    status: 'open',
-    postedAt: '2026-06-10'
-  },
-  {
-    id: 4,
-    finderId: 'alex',
-    name: 'Silver MacBook Charger',
-    description: '60W USB-C, apple logo, slightly frayed cable',
-    location: 'Study Room 101',
-    foundDate: '2026-06-11',
-    verificationQuestions: [
-      { question: 'What wattage?', answer: '60W' },
-      { question: 'Any damage?', answer: 'frayed cable' }
-    ],
-    status: 'open',
-    postedAt: '2026-06-11'
-  },
-  {
-    id: 5,
-    finderId: 'morgan',
-    name: 'Green Water Bottle',
-    description: 'Nalgene 32oz with blue cap, has name sticker',
-    location: 'Tennis Court',
-    foundDate: '2026-06-09',
-    verificationQuestions: [
-      { question: 'What is the name on sticker?', answer: 'Morgan' },
-      { question: 'What size?', answer: '32oz' }
-    ],
-    status: 'open',
-    postedAt: '2026-06-09'
-  },
-  {
-    id: 6,
-    finderId: 'casey',
-    name: 'Brown Leather Wallet',
-    description: 'Bifold, contains ID and a few cards, no cash',
-    location: 'Parking Lot B',
-    foundDate: '2026-06-08',
-    verificationQuestions: [
-      { question: 'What ID inside?', answer: 'student ID' },
-      { question: 'How many cards?', answer: '3' }
-    ],
-    status: 'open',
-    postedAt: '2026-06-08'
-  },
-  {
-    id: 7,
-    finderId: 'jordan',
-    name: 'White Sony Headphones',
-    description: 'WH-1000XM4, in black pouch',
-    location: 'Lecture Hall 3',
-    foundDate: '2026-06-14',
-    verificationQuestions: [
-      { question: 'What model?', answer: 'WH-1000XM4' },
-      { question: 'What color pouch?', answer: 'black' }
-    ],
-    status: 'open',
-    postedAt: '2026-06-14'
-  },
-  {
-    id: 8,
-    finderId: 'sam',
-    name: 'Keys with Blue Lanyard',
-    description: '3 keys + 1 car fob, blue lanyard with university logo',
-    location: 'Main Entrance',
-    foundDate: '2026-06-07',
-    verificationQuestions: [
-      { question: 'How many keys?', answer: '3' },
-      { question: 'What is on lanyard?', answer: 'university logo' }
-    ],
-    status: 'open',
-    postedAt: '2026-06-07'
-  }
-];
-let nextLostFoundId = 9;
-let lostFoundClaims = [];
-let nextClaimId = 1;
-let lostFoundScores = { alex: 50, jordan: 50, sam: 50, riley: 50, morgan: 50, casey: 50 };
-let lostFoundAttempts = {};
-let weeklyClaimTracker = {};
+        // ── LOST & FOUND DATA - 8 demo lost items searchable, 50/100 start, 1 attempt only, manual review ──
+        let lostFoundItems = [{
+            id: 1,
+            finderId: 'jordan',
+            name: 'Blue Hydro Flask',
+            description: '32oz, with a few dents, white cap, mountain sticker',
+            location: 'Library 2nd floor',
+            foundDate: '2026-06-12',
+            verificationQuestions: [{
+                question: 'What color is the lid?',
+                answer: 'white'
+            }, {
+                question: 'Any stickers on it?',
+                answer: 'yes, a mountain sticker'
+            }],
+            status: 'open',
+            postedAt: '2026-06-12'
+        }, {
+            id: 2,
+            finderId: 'sam',
+            name: 'Black AirPods Pro',
+            description: 'In white charging case with scratch on lid',
+            location: 'Gym locker room',
+            foundDate: '2026-06-13',
+            verificationQuestions: [{
+                question: 'What is engraved on the case?',
+                answer: 'S.M.'
+            }, {
+                question: 'What color is the inside?',
+                answer: 'white'
+            }],
+            status: 'open',
+            postedAt: '2026-06-13'
+        }, {
+            id: 3,
+            finderId: 'riley',
+            name: 'Red JanSport Backpack',
+            description: 'Contains textbooks and a calculator',
+            location: 'Cafeteria',
+            foundDate: '2026-06-10',
+            verificationQuestions: [{
+                question: 'What brand of calculator inside?',
+                answer: 'TI-84'
+            }, {
+                question: 'How many textbooks?',
+                answer: '2'
+            }],
+            status: 'open',
+            postedAt: '2026-06-10'
+        }, {
+            id: 4,
+            finderId: 'alex',
+            name: 'Silver MacBook Charger',
+            description: '60W USB-C, apple logo, slightly frayed cable',
+            location: 'Study Room 101',
+            foundDate: '2026-06-11',
+            verificationQuestions: [{
+                question: 'What wattage?',
+                answer: '60W'
+            }, {
+                question: 'Any damage?',
+                answer: 'frayed cable'
+            }],
+            status: 'open',
+            postedAt: '2026-06-11'
+        }, {
+            id: 5,
+            finderId: 'morgan',
+            name: 'Green Water Bottle',
+            description: 'Nalgene 32oz with blue cap, has name sticker',
+            location: 'Tennis Court',
+            foundDate: '2026-06-09',
+            verificationQuestions: [{
+                question: 'What is the name on sticker?',
+                answer: 'Morgan'
+            }, {
+                question: 'What size?',
+                answer: '32oz'
+            }],
+            status: 'open',
+            postedAt: '2026-06-09'
+        }, {
+            id: 6,
+            finderId: 'casey',
+            name: 'Brown Leather Wallet',
+            description: 'Bifold, contains ID and a few cards, no cash',
+            location: 'Parking Lot B',
+            foundDate: '2026-06-08',
+            verificationQuestions: [{
+                question: 'What ID inside?',
+                answer: 'student ID'
+            }, {
+                question: 'How many cards?',
+                answer: '3'
+            }],
+            status: 'open',
+            postedAt: '2026-06-08'
+        }, {
+            id: 7,
+            finderId: 'jordan',
+            name: 'White Sony Headphones',
+            description: 'WH-1000XM4, in black pouch',
+            location: 'Lecture Hall 3',
+            foundDate: '2026-06-14',
+            verificationQuestions: [{
+                question: 'What model?',
+                answer: 'WH-1000XM4'
+            }, {
+                question: 'What color pouch?',
+                answer: 'black'
+            }],
+            status: 'open',
+            postedAt: '2026-06-14'
+        }, {
+            id: 8,
+            finderId: 'sam',
+            name: 'Keys with Blue Lanyard',
+            description: '3 keys + 1 car fob, blue lanyard with university logo',
+            location: 'Main Entrance',
+            foundDate: '2026-06-07',
+            verificationQuestions: [{
+                question: 'How many keys?',
+                answer: '3'
+            }, {
+                question: 'What is on lanyard?',
+                answer: 'university logo'
+            }],
+            status: 'open',
+            postedAt: '2026-06-07'
+        }];
+        let nextLostFoundId = 9;
+        let lostFoundClaims = [];
+        let nextClaimId = 1;
+        let lostFoundScores = {
+            alex: 50,
+            jordan: 50,
+            sam: 50,
+            riley: 50,
+            morgan: 50,
+            casey: 50
+        };
+        let lostFoundAttempts = {};
+        let weeklyClaimTracker = {};
 
-let currentTheme = 'orange';
-let toggles = { borrowNotifs:true, returnReminders:true, friendRequests:true, lateAlerts:true };
-let friendSearchQ = '';
+        let currentTheme = 'orange';
+        let toggles = {
+            borrowNotifs: true,
+            returnReminders: true,
+            friendRequests: true,
+            lateAlerts: true
+        };
+        let friendSearchQ = '';
 
-// ── SIMPLE PERSISTENCE - ALL DATA IN ONE FILE, VISIBLE, FOREVER ──
-// Uses localStorage in same file, no hidden files, keeps test accounts too
-const STORAGE_KEY = 'trustr_all_data_v2';
-function saveAll() {
-  try {
-    const data = {
-      registeredAccounts,
-      USERS,
-      friendships,
-      chats,
-      transactions,
-      nextTxId,
-      lostFoundItems,
-      nextLostFoundId,
-      lostFoundClaims,
-      nextClaimId,
-      lostFoundScores,
-      lostFoundAttempts,
-      weeklyClaimTracker,
-      currentTheme,
-      toggles
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch(e) { console.warn('save failed', e); }
-}
-function loadAll() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    const d = JSON.parse(raw);
-    if (d.registeredAccounts) registeredAccounts = d.registeredAccounts;
-    if (d.USERS) USERS = d.USERS;
-    if (d.friendships) friendships = d.friendships;
-    if (d.chats) chats = d.chats;
-    if (d.transactions) transactions = d.transactions;
-    if (d.nextTxId) nextTxId = d.nextTxId;
-    if (d.lostFoundItems) lostFoundItems = d.lostFoundItems;
-    if (d.nextLostFoundId) nextLostFoundId = d.nextLostFoundId;
-    if (d.lostFoundClaims) lostFoundClaims = d.lostFoundClaims;
-    if (d.nextClaimId) nextClaimId = d.nextClaimId;
-    if (d.lostFoundScores) lostFoundScores = d.lostFoundScores;
-    if (d.lostFoundAttempts) lostFoundAttempts = d.lostFoundAttempts;
-    if (d.weeklyClaimTracker) weeklyClaimTracker = d.weeklyClaimTracker;
-    if (d.currentTheme) currentTheme = d.currentTheme;
-    if (d.toggles) toggles = d.toggles;
-    // Ensure test accounts always exist
-    if (!registeredAccounts['alex']) registeredAccounts['alex'] = { password:'test', id:'alex', name:'Alex', avatar:'user-round' };
-    if (!registeredAccounts['jordan']) registeredAccounts['jordan'] = { password:'test', id:'jordan', name:'Jordan', avatar:'user-round' };
-    if (!USERS['alex']) USERS['alex'] = { id:'alex', name:'Alex', avatar:'user-round' };
-    if (!USERS['jordan']) USERS['jordan'] = { id:'jordan', name:'Jordan', avatar:'user-round' };
-    if (!friendships['alex']) friendships['alex'] = { friends:['jordan'], pendingIncoming:[], pendingOutgoing:[] };
-    if (!friendships['jordan']) friendships['jordan'] = { friends:['alex'], pendingIncoming:[], pendingOutgoing:[] };
-    return true;
-  } catch(e) { console.warn('load failed', e); return false; }
-}
+        // ── SIMPLE PERSISTENCE - ALL DATA IN ONE FILE, VISIBLE, FOREVER ──
+        // Uses localStorage in same file, no hidden files, keeps test accounts too
+        const STORAGE_KEY = 'trustr_all_data_v2';
 
-const AVATAR_OPTIONS = [
-  'user-round','user','user-round-check','smile','laugh','heart','star','sparkles','flame','zap','sun','moon',
-  'cat','dog','bird','fish','bug','paw-print','rabbit','turtle',
-  'trophy','medal','award','dumbbell','bike','soccer','basketball','volleyball','activity','swords','target','flag',
-  'rocket','palette','music','mic','headphones','camera','graduation-cap','book-open','gamepad-2','guitar','drum','clapperboard',
-  'code','code-2','shield','shield-check','wand-sparkles','crown','gem','lightbulb','wrench','hammer'
-];
+        function saveAll() {
+            try {
+                const data = {
+                    registeredAccounts,
+                    USERS,
+                    friendships,
+                    chats,
+                    transactions,
+                    nextTxId,
+                    lostFoundItems,
+                    nextLostFoundId,
+                    lostFoundClaims,
+                    nextClaimId,
+                    lostFoundScores,
+                    lostFoundAttempts,
+                    weeklyClaimTracker,
+                    currentTheme,
+                    toggles
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.warn('save failed', e);
+            }
+        }
 
-const ITEM_ICONS = [
-  'package','book-open','headphones','laptop','smartphone','watch','gamepad-2','guitar',
-  'camera','clapperboard','palette','pencil','pen-line','ruler','wrench','hammer',
-  'footprints','shirt','backpack','shopping-bag','briefcase','umbrella','circle-dot',
-  'trophy','medal','dumbbell','bike','soccer','basketball','volleyball','tent','lantern'
-];
+        function loadAll() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return false;
+                const d = JSON.parse(raw);
+                if (d.registeredAccounts) registeredAccounts = d.registeredAccounts;
+                if (d.USERS) USERS = d.USERS;
+                if (d.friendships) friendships = d.friendships;
+                if (d.chats) chats = d.chats;
+                if (d.transactions) transactions = d.transactions;
+                if (d.nextTxId) nextTxId = d.nextTxId;
+                if (d.lostFoundItems) lostFoundItems = d.lostFoundItems;
+                if (d.nextLostFoundId) nextLostFoundId = d.nextLostFoundId;
+                if (d.lostFoundClaims) lostFoundClaims = d.lostFoundClaims;
+                if (d.nextClaimId) nextClaimId = d.nextClaimId;
+                if (d.lostFoundScores) lostFoundScores = d.lostFoundScores;
+                if (d.lostFoundAttempts) lostFoundAttempts = d.lostFoundAttempts;
+                if (d.weeklyClaimTracker) weeklyClaimTracker = d.weeklyClaimTracker;
+                if (d.currentTheme) currentTheme = d.currentTheme;
+                if (d.toggles) toggles = d.toggles;
+                // Ensure test accounts always exist
+                if (!registeredAccounts['alex']) registeredAccounts['alex'] = {
+                    password: 'test',
+                    id: 'alex',
+                    name: 'Alex',
+                    avatar: 'user-round'
+                };
+                if (!registeredAccounts['jordan']) registeredAccounts['jordan'] = {
+                    password: 'test',
+                    id: 'jordan',
+                    name: 'Jordan',
+                    avatar: 'user-round'
+                };
+                if (!USERS['alex']) USERS['alex'] = {
+                    id: 'alex',
+                    name: 'Alex',
+                    avatar: 'user-round'
+                };
+                if (!USERS['jordan']) USERS['jordan'] = {
+                    id: 'jordan',
+                    name: 'Jordan',
+                    avatar: 'user-round'
+                };
+                if (!friendships['alex']) friendships['alex'] = {
+                    friends: ['jordan'],
+                    pendingIncoming: [],
+                    pendingOutgoing: []
+                };
+                if (!friendships['jordan']) friendships['jordan'] = {
+                    friends: ['alex'],
+                    pendingIncoming: [],
+                    pendingOutgoing: []
+                };
+                return true;
+            } catch (e) {
+                console.warn('load failed', e);
+                return false;
+            }
+        }
 
-let borrowFormState = { itemName:'', itemIcon:'package', itemCondition:'Good', dueDate:'', borrowerNote:'', targetFriend:null };
+        const AVATAR_OPTIONS = [
+            'user-round', 'user', 'user-round-check', 'smile', 'laugh', 'heart', 'star', 'sparkles', 'flame', 'zap', 'sun', 'moon',
+            'cat', 'dog', 'bird', 'fish', 'bug', 'paw-print', 'rabbit', 'turtle',
+            'trophy', 'medal', 'award', 'dumbbell', 'bike', 'soccer', 'basketball', 'volleyball', 'activity', 'swords', 'target', 'flag',
+            'rocket', 'palette', 'music', 'mic', 'headphones', 'camera', 'graduation-cap', 'book-open', 'gamepad-2', 'guitar', 'drum', 'clapperboard',
+            'code', 'code-2', 'shield', 'shield-check', 'wand-sparkles', 'crown', 'gem', 'lightbulb', 'wrench', 'hammer'
+        ];
 
-// AUTH FUNCTIONS
-function switchAuthTab(tab) {
-  $('auth-tab-login').classList.toggle('active', tab==='login');
-  $('auth-tab-signup').classList.toggle('active', tab==='signup');
-  $('auth-login-form').style.display  = tab==='login'  ? 'block' : 'none';
-  $('auth-signup-form').style.display = tab==='signup' ? 'block' : 'none';
-  refreshIcons();
-}
+        const ITEM_ICONS = [
+            'package', 'book-open', 'headphones', 'laptop', 'smartphone', 'watch', 'gamepad-2', 'guitar',
+            'camera', 'clapperboard', 'palette', 'pencil', 'pen-line', 'ruler', 'wrench', 'hammer',
+            'footprints', 'shirt', 'backpack', 'shopping-bag', 'briefcase', 'umbrella', 'circle-dot',
+            'trophy', 'medal', 'dumbbell', 'bike', 'soccer', 'basketball', 'volleyball', 'tent', 'lantern'
+        ];
 
-function renderSignupAvatarGrid() {
-  const g = $('signup-avatar-grid');
-  if (!g) return;
-  g.innerHTML = AVATAR_OPTIONS.map(e =>
-    `<div class="av-signup-opt${selectedSignupAvatar===e?' sel':''}" onclick="selectSignupAvatar(this,'${e}')">${icon(e)}</div>`
-  ).join('');
-  refreshIcons();
-}
+        let borrowFormState = {
+            itemName: '',
+            itemIcon: 'package',
+            itemCondition: 'Good',
+            dueDate: '',
+            borrowerNote: '',
+            targetFriend: null
+        };
 
-function selectSignupAvatar(el, avatar) {
-  selectedSignupAvatar = avatar;
-  document.querySelectorAll('.av-signup-opt').forEach(d => d.classList.remove('sel'));
-  el.classList.add('sel');
-}
+        // AUTH FUNCTIONS
+        function switchAuthTab(tab) {
+            $('auth-tab-login').classList.toggle('active', tab === 'login');
+            $('auth-tab-signup').classList.toggle('active', tab === 'signup');
+            $('auth-login-form').style.display = tab === 'login' ? 'block' : 'none';
+            $('auth-signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+            refreshIcons();
+        }
 
-function quickLogin(uid) { doLoginAs(uid); }
+        function renderSignupAvatarGrid() {
+            const g = $('signup-avatar-grid');
+            if (!g) return;
+            g.innerHTML = AVATAR_OPTIONS.map(e =>
+                `<div class="av-signup-opt${selectedSignupAvatar===e?' sel':''}" onclick="selectSignupAvatar(this,'${e}')">${icon(e)}</div>`
+            ).join('');
+            refreshIcons();
+        }
 
-function doLogin() {
-  const username = ($('login-username').value || '').trim().toLowerCase();
-  const password = $('login-password').value || '';
-  if (!username || !password) { toast('Fill in both fields'); return; }
-  if (!registeredAccounts[username]) { toast('Account not found'); return; }
-  if (registeredAccounts[username].password !== password) { toast('Wrong password'); return; }
-  doLoginAs(username);
-}
+        function selectSignupAvatar(el, avatar) {
+            selectedSignupAvatar = avatar;
+            document.querySelectorAll('.av-signup-opt').forEach(d => d.classList.remove('sel'));
+            el.classList.add('sel');
+        }
 
-function doSignup() {
-  const username    = ($('signup-username').value    || '').trim().toLowerCase();
-  const displayName = ($('signup-displayname').value || '').trim();
-  const password    = $('signup-password').value || '';
-  const confirm     = $('signup-confirm').value  || '';
-  if (!username || !displayName || !password || !confirm) { toast('Fill in all fields'); return; }
-  if (password !== confirm)              { toast('Passwords don\'t match'); return; }
-  if (password.length < 3)              { toast('Password too short (min 3)'); return; }
-  if (registeredAccounts[username])     { toast('Username already taken'); return; }
-  if (!/^[a-z0-9_]+$/.test(username))  { toast('Username: letters, numbers, _ only'); return; }
+        function quickLogin(uid) {
+            doLoginAs(uid);
+        }
 
-  registeredAccounts[username] = { password, id:username, name:displayName, avatar:selectedSignupAvatar };
-  USERS[username] = { id:username, name:displayName, avatar:selectedSignupAvatar };
-  friendships[username] = { friends:[], pendingIncoming:[], pendingOutgoing:[] };
-  lostFoundScores[username] = 100;
-  saveAll();
-  doLoginAs(username);
-}
+        function doLogin() {
+            const username = ($('login-username').value || '').trim().toLowerCase();
+            const password = $('login-password').value || '';
+            if (!username || !password) {
+                toast('Fill in both fields');
+                return;
+            }
+            if (!registeredAccounts[username]) {
+                toast('Account not found');
+                return;
+            }
+            if (registeredAccounts[username].password !== password) {
+                toast('Wrong password');
+                return;
+            }
+            doLoginAs(username);
+        }
 
-function doLoginAs(uid) {
-  currentUser = uid;
-  if (!USERS[uid]) USERS[uid] = { ...registeredAccounts[uid] };
-  if (!friendships[uid]) friendships[uid] = { friends:[], pendingIncoming:[], pendingOutgoing:[] };
-  if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 100;
-  $('header-user-display').textContent = USERS[uid].name;
-  saveAll();
-  $('auth-screen').classList.add('hidden');
-  render('friends');
-  navigate('friends');
-  toast('Welcome, ' + USERS[uid].name + '!');
-}
+        function doSignup() {
+            const username = ($('signup-username').value || '').trim().toLowerCase();
+            const displayName = ($('signup-displayname').value || '').trim();
+            const password = $('signup-password').value || '';
+            const confirm = $('signup-confirm').value || '';
+            if (!username || !displayName || !password || !confirm) {
+                toast('Fill in all fields');
+                return;
+            }
+            if (password !== confirm) {
+                toast('Passwords don\'t match');
+                return;
+            }
+            if (password.length < 3) {
+                toast('Password too short (min 3)');
+                return;
+            }
+            if (registeredAccounts[username]) {
+                toast('Username already taken');
+                return;
+            }
+            if (!/^[a-z0-9_]+$/.test(username)) {
+                toast('Username: letters, numbers, _ only');
+                return;
+            }
 
-function doLogout() {
-  currentUser = null;
-  $('auth-screen').classList.remove('hidden');
-  if ($('login-username')) $('login-username').value = '';
-  if ($('login-password')) $('login-password').value = '';
-}
+            registeredAccounts[username] = {
+                password,
+                id: username,
+                name: displayName,
+                avatar: selectedSignupAvatar
+            };
+            USERS[username] = {
+                id: username,
+                name: displayName,
+                avatar: selectedSignupAvatar
+            };
+            friendships[username] = {
+                friends: [],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            };
+            lostFoundScores[username] = 50;
+            saveAll();
+            doLoginAs(username);
+        }
 
-// HELPERS
-function toast(msg) {
-  const el = $('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2800);
-}
+        function doLoginAs(uid) {
+            currentUser = uid;
+            if (!USERS[uid]) USERS[uid] = {...registeredAccounts[uid]
+            };
+            if (!friendships[uid]) friendships[uid] = {
+                friends: [],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            };
+            if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 50;
+            $('header-user-display').textContent = USERS[uid].name;
+            saveAll();
+            $('auth-screen').classList.add('hidden');
+            render('friends');
+            navigate('friends');
+            toast('Welcome, ' + USERS[uid].name + '!');
+        }
 
-function closeModal(id) { $(id).classList.remove('open'); }
-function openModal(id)  { $(id).classList.add('open'); refreshIcons(); }
+        function doLogout() {
+            currentUser = null;
+            $('auth-screen').classList.remove('hidden');
+            if ($('login-username')) $('login-username').value = '';
+            if ($('login-password')) $('login-password').value = '';
+        }
 
-document.querySelectorAll('.modal-overlay').forEach(o =>
-  o.addEventListener('click', e => { if (e.target===o) o.classList.remove('open'); })
-);
+        // HELPERS
+        function toast(msg) {
+            const el = $('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            clearTimeout(el._t);
+            el._t = setTimeout(() => el.classList.remove('show'), 2800);
+        }
 
-function fmt(ds) {
-  if (!ds) return '—';
-  return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-}
+        function closeModal(id) {
+            $(id).classList.remove('open');
+        }
 
-function dueChip(ds) {
-  const due = new Date(ds+'T23:59:59');
-  const diff = Math.ceil((due - NOW) / 864e5);
-  if (diff<0)   return `<span class="due-chip due-over">${icon('circle-alert')} ${Math.abs(diff)}d overdue</span>`;
-  if (diff===0) return `<span class="due-chip due-soon">${icon('triangle-alert')} Due today</span>`;
-  if (diff<=3)  return `<span class="due-chip due-soon">${icon('zap')} ${diff}d left</span>`;
-  return `<span class="due-chip due-ok">${icon('calendar-days')} ${diff}d left</span>`;
-}
+        function openModal(id) {
+            $(id).classList.add('open');
+            refreshIcons();
+        }
 
-function isLate(tx) {
-  const due = new Date(tx.dueDate+'T23:59:59');
-  if (!tx.returnRequestAt) return NOW > due;
-  return new Date(tx.returnRequestAt+'T23:59:59') > due;
-}
+        document.querySelectorAll('.modal-overlay').forEach(o =>
+            o.addEventListener('click', e => {
+                if (e.target === o) o.classList.remove('open');
+            })
+        );
 
-function getTx(id) { return transactions.find(t => t.id===id); }
+        function fmt(ds) {
+            if (!ds) return '—';
+            return new Date(ds + 'T00:00:00').toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
 
-function pendingCount(uid) {
-  return transactions.filter(tx => tx.lender===uid && (tx.status==='requested'||tx.status==='pending_return')).length;
-}
+        function dueChip(ds) {
+            const due = new Date(ds + 'T23:59:59');
+            const diff = Math.ceil((due - NOW) / 864e5);
+            if (diff < 0) return `<span class="due-chip due-over">${icon('circle-alert')} ${Math.abs(diff)}d overdue</span>`;
+            if (diff === 0) return `<span class="due-chip due-soon">${icon('triangle-alert')} Due today</span>`;
+            if (diff <= 3) return `<span class="due-chip due-soon">${icon('zap')} ${diff}d left</span>`;
+            return `<span class="due-chip due-ok">${icon('calendar-days')} ${diff}d left</span>`;
+        }
 
-function pendingFriendRequests(uid) {
-  return (friendships[uid]||{pendingIncoming:[]}).pendingIncoming.length;
-}
+        function isLate(tx) {
+            const due = new Date(tx.dueDate + 'T23:59:59');
+            if (!tx.returnRequestAt) return NOW > due;
+            return new Date(tx.returnRequestAt + 'T23:59:59') > due;
+        }
 
-function updateBadges() {
-  const n  = pendingCount(currentUser);
-  const el = $('req-badge');
-  if (el) { el.textContent = n; el.style.display = n>0 ? 'inline-flex' : 'none'; }
-  const fr  = pendingFriendRequests(currentUser);
-  const el2 = $('friend-req-badge');
-  if (el2) { el2.textContent = fr; el2.style.display = fr>0 ? 'inline-flex' : 'none'; }
-}
+        function getTx(id) {
+            return transactions.find(t => t.id === id);
+        }
 
-function emptyState(lucideIcon, msg) {
-  return `<div class="empty-state"><div class="empty-icon">${icon(lucideIcon)}</div><p>${msg}</p></div>`;
-}
+        function pendingCount(uid) {
+            return transactions.filter(tx => tx.lender === uid && (tx.status === 'requested' || tx.status === 'pending_return')).length;
+        }
 
-let currentScreen = 'friends';
-function updateFABVisibility() {
-  const fab = $('fab-borrow');
-  const fabLF = $('fab-lostfound');
-  if (fab) {
-    (currentScreen==='borrows'||currentScreen==='requests') ? fab.classList.remove('hidden') : fab.classList.add('hidden');
-  }
-  if (fabLF) {
-    (currentScreen==='lostfound') ? fabLF.classList.remove('hidden') : fabLF.classList.add('hidden');
-  }
-}
+        function pendingFriendRequests(uid) {
+            return (friendships[uid] || {
+                pendingIncoming: []
+            }).pendingIncoming.length;
+        }
 
-function navigate(screen) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-pill').forEach(n => n.classList.remove('active'));
-  $('screen-'+screen).classList.add('active');
-  $('nav-'+screen).classList.add('active');
-  currentScreen = screen;
-  render(screen);
-  updateFABVisibility();
-}
+        function updateBadges() {
+            const n = pendingCount(currentUser);
+            const el = $('req-badge');
+            if (el) {
+                el.textContent = n;
+                el.style.display = n > 0 ? 'inline-flex' : 'none';
+            }
+            const fr = pendingFriendRequests(currentUser);
+            const el2 = $('friend-req-badge');
+            if (el2) {
+                el2.textContent = fr;
+                el2.style.display = fr > 0 ? 'inline-flex' : 'none';
+            }
+        }
 
-function render(screen) {
-  if (screen==='friends')  renderFriends();
-  if (screen==='borrows')  renderBorrows();
-  if (screen==='lostfound') renderLostFound();
-  if (screen==='requests') renderRequests();
-  if (screen==='profile')  renderProfile();
-  if (screen==='settings') renderSettings();
-  updateBadges();
-  refreshIcons();
-}
+        function emptyState(lucideIcon, msg) {
+            return `<div class="empty-state"><div class="empty-icon">${icon(lucideIcon)}</div><p>${msg}</p></div>`;
+        }
 
-// FRIENDS
-let friendsTab = 'my-friends';
-let currentChatFriend = null;
+        let currentScreen = 'friends';
 
-function switchFriendsTab(tab) {
-  friendsTab = tab;
-  $('tab-my-friends').classList.toggle('active', tab==='my-friends');
-  $('tab-pending-req').classList.toggle('active', tab==='pending-req');
-  const addTab = $('tab-add-friends');
-  if (addTab) addTab.classList.toggle('active', tab==='add-friends');
-  $('friends-my-friends').style.display  = tab==='my-friends'  ? 'block' : 'none';
-  $('friends-pending-req').style.display = tab==='pending-req' ? 'block' : 'none';
-  const addCont = $('friends-add-friends');
-  if (addCont) addCont.style.display = tab==='add-friends' ? 'block' : 'none';
-  if (tab==='add-friends') renderAddFriends();
-  refreshIcons();
-}
+        function updateFABVisibility() {
+            const fab = $('fab-borrow');
+            const fabLF = $('fab-lostfound');
+            if (fab) {
+                (currentScreen === 'borrows' || currentScreen === 'requests') ? fab.classList.remove('hidden'): fab.classList.add('hidden');
+            }
+            if (fabLF) {
+                (currentScreen === 'lostfound') ? fabLF.classList.remove('hidden'): fabLF.classList.add('hidden');
+            }
+        }
 
-function renderFriends() {
-  const fs = friendships[currentUser] || {friends:[],pendingIncoming:[]};
-  const myFriends   = (fs.friends||[]).map(id=>USERS[id]).filter(Boolean);
-  const pendingReqs = (fs.pendingIncoming||[]).map(id=>USERS[id]).filter(Boolean);
+        function navigate(screen) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-pill').forEach(n => n.classList.remove('active'));
+            $('screen-' + screen).classList.add('active');
+            $('nav-' + screen).classList.add('active');
+            currentScreen = screen;
+            render(screen);
+            updateFABVisibility();
+        }
 
-  $('friends-my-friends').innerHTML = myFriends.length
-    ? myFriends.map(f=>{
-        const credit = computeUserCredit(f.id);
-        return `
+        function render(screen) {
+            if (screen === 'friends') renderFriends();
+            if (screen === 'borrows') renderBorrows();
+            if (screen === 'lostfound') renderLostFound();
+            if (screen === 'requests') renderRequests();
+            if (screen === 'profile') renderProfile();
+            if (screen === 'settings') renderSettings();
+            updateBadges();
+            refreshIcons();
+        }
+
+        // FRIENDS
+        let friendsTab = 'my-friends';
+        let currentChatFriend = null;
+
+        function switchFriendsTab(tab) {
+            friendsTab = tab;
+            $('tab-my-friends').classList.toggle('active', tab === 'my-friends');
+            $('tab-pending-req').classList.toggle('active', tab === 'pending-req');
+            const addTab = $('tab-add-friends');
+            if (addTab) addTab.classList.toggle('active', tab === 'add-friends');
+            $('friends-my-friends').style.display = tab === 'my-friends' ? 'block' : 'none';
+            $('friends-pending-req').style.display = tab === 'pending-req' ? 'block' : 'none';
+            const addCont = $('friends-add-friends');
+            if (addCont) addCont.style.display = tab === 'add-friends' ? 'block' : 'none';
+            if (tab === 'add-friends') renderAddFriends();
+            refreshIcons();
+        }
+
+        function renderFriends() {
+            const fs = friendships[currentUser] || {
+                friends: [],
+                pendingIncoming: []
+            };
+            const myFriends = (fs.friends || []).map(id => USERS[id]).filter(Boolean);
+            const pendingReqs = (fs.pendingIncoming || []).map(id => USERS[id]).filter(Boolean);
+
+            $('friends-my-friends').innerHTML = myFriends.length ?
+                myFriends.map(f => {
+                    const credit = computeUserCredit(f.id);
+                    return `
         <div class="card" style="cursor:default">
           <div class="friend-row">
             <div class="friend-avatar">${icon(f.avatar)}</div>
@@ -1316,13 +2946,13 @@ function renderFriends() {
             <button class="btn btn-sm btn-primary" style="flex:1" onclick="openChat('${f.id}')"><i data-lucide="message-circle"></i> Chat</button>
           </div>
         </div>`;
-      }).join('')
-    : emptyState('frown','No friends yet. Add some in Settings!');
+                }).join('') :
+                emptyState('frown', 'No friends yet. Add some in Settings!');
 
-  $('friends-pending-req').innerHTML = pendingReqs.length
-    ? pendingReqs.map(f=>{
-        const credit = computeUserCredit(f.id);
-        return `
+            $('friends-pending-req').innerHTML = pendingReqs.length ?
+                pendingReqs.map(f => {
+                    const credit = computeUserCredit(f.id);
+                    return `
         <div class="card" style="cursor:default">
           <div class="friend-row">
             <div class="friend-avatar">${icon(f.avatar)}</div>
@@ -1338,26 +2968,30 @@ function renderFriends() {
             <button class="btn btn-success btn-sm" style="flex:1" onclick="respondFriendRequest('${f.id}',true)"><i data-lucide="check"></i> Accept</button>
           </div>
         </div>`;
-      }).join('')
-    : emptyState('party-popper','No pending friend requests!');
-  refreshIcons();
-}
+                }).join('') :
+                emptyState('party-popper', 'No pending friend requests!');
+            refreshIcons();
+        }
 
-function renderAddFriends() {
-  const fs = friendships[currentUser]||{friends:[],pendingIncoming:[],pendingOutgoing:[]};
-  const myFriends = fs.friends;
-  const myOut = fs.pendingOutgoing;
-  const discoverable = Object.keys(USERS).filter(uid =>
-    uid!==currentUser && !myFriends.includes(uid) && !fs.pendingIncoming.includes(uid)
-  );
-  const filtered = friendSearchQ
-    ? discoverable.filter(uid => USERS[uid].name.toLowerCase().includes(friendSearchQ.toLowerCase()))
-    : discoverable;
+        function renderAddFriends() {
+            const fs = friendships[currentUser] || {
+                friends: [],
+                pendingIncoming: [],
+                pendingOutgoing: []
+            };
+            const myFriends = fs.friends;
+            const myOut = fs.pendingOutgoing;
+            const discoverable = Object.keys(USERS).filter(uid =>
+                uid !== currentUser && !myFriends.includes(uid) && !fs.pendingIncoming.includes(uid)
+            );
+            const filtered = friendSearchQ ?
+                discoverable.filter(uid => USERS[uid].name.toLowerCase().includes(friendSearchQ.toLowerCase())) :
+                discoverable;
 
-  const container = $('friends-add-friends');
-  if (!container) return;
+            const container = $('friends-add-friends');
+            if (!container) return;
 
-  container.innerHTML = `
+            container.innerHTML = `
     <div class="card" style="cursor:default">
       <input class="form-input" placeholder="Search users…" value="${friendSearchQ.replace(/"/g,'&quot;')}" oninput="friendSearchQ=this.value;renderAddFriends()" style="margin-bottom:${filtered.length?'12px':'0'}">
       ${filtered.map(uid => {
@@ -1460,12 +3094,6 @@ function openBorrowModal() {
       <div class="icon-grid">${iconGrid}</div>
     </div>
     <div class="form-group">
-      <label class="form-label"><i data-lucide="clipboard-list"></i> Condition</label>
-      <select id="borrow-condition" class="form-select">
-        <option>Like New</option><option selected>Good</option><option>Fair</option><option>Used</option>
-      </select>
-    </div>
-    <div class="form-group">
       <label class="form-label"><i data-lucide="calendar-days"></i> Return by (required)</label>
       <input type="date" id="borrow-due-date" class="form-input" min="${minDateStr}">
     </div>
@@ -1502,7 +3130,7 @@ function submitBorrowRequest() {
   transactions.push({
     id: nextTxId++, borrower: currentUser, lender: friendId,
     itemName, itemIcon: borrowFormState.itemIcon,
-    itemCondition: $('borrow-condition').value, itemNotes:'',
+    itemCondition: 'Good', itemNotes:'',
     status:'requested',
     requestedAt: NOW.toISOString().split('T')[0], startDate:null, dueDate,
     returnRequestAt:null, returnedAt:null, conditionRating:null, lenderNotes:'',
@@ -1756,7 +3384,7 @@ function renderRequests() {
 
 
 // ── LOST & FOUND LOGIC ─────────────────────────
-let lostFoundTab = 'all';
+let lostFoundTab = 'lost';
 
 function getWeekId(date = new Date()) {
   const d = new Date(date);
@@ -1768,18 +3396,18 @@ function getWeekId(date = new Date()) {
 }
 
 function getLFScore(uid) {
-  if (!uid) return 100;
-  if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 100;
+  if (!uid) return 50;
+  if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 50;
   return lostFoundScores[uid];
 }
 
 function updateLFScore(uid, delta) {
   if (!uid) return;
-  if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 100;
-  lostFoundScores[uid] = Math.max(0, Math.min(200, lostFoundScores[uid] + delta));
+  if (lostFoundScores[uid] === undefined) lostFoundScores[uid] = 50;
+  lostFoundScores[uid] = Math.max(0, Math.min(100, lostFoundScores[uid] + delta));
   if (uid === currentUser) {
     const el = $('lf-credit-display');
-    if (el) el.textContent = `${lostFoundScores[uid]}/200`;
+    if (el) el.textContent = `${lostFoundScores[uid]}/100`;
   }
 }
 
@@ -1830,7 +3458,7 @@ function recordWeeklyClaim(uid, itemId) {
 
 function switchLostFoundTab(tab) {
   lostFoundTab = tab;
-  ['all','mine','claims'].forEach(t => {
+  ['lost','mine','claims'].forEach(t => {
     const tabEl = $('tab-lf-'+t);
     if (tabEl) tabEl.classList.toggle('active', t===tab);
     const cont = $('lostfound-'+t);
@@ -1841,7 +3469,7 @@ function switchLostFoundTab(tab) {
 }
 
 function renderLostFound() {
-  const allCont = $('lostfound-all');
+  const allCont = $('lostfound-lost');
   const mineCont = $('lostfound-mine');
   const claimsCont = $('lostfound-claims');
   if (!allCont) return;
@@ -1849,7 +3477,7 @@ function renderLostFound() {
   // Update credit displays
   const score = getLFScore(currentUser);
   const creditEl = $('lf-credit-display');
-  if (creditEl) creditEl.textContent = `${score}/200`;
+  if (creditEl) creditEl.textContent = `${score}/100`;
   const weekly = getWeeklyClaims(currentUser);
   const weeklyEl = $('lf-weekly-display');
   if (weeklyEl) weeklyEl.textContent = `${weekly.items.length}/3 items`;
@@ -1870,7 +3498,7 @@ function renderLostFound() {
         </div>
         <div class="item-meta" style="margin-bottom:6px">${icon('map-pin')} ${item.location} • ${icon('calendar-days')} ${fmt(item.foundDate)} • by ${finder?finder.name:item.finderId}</div>
         <div style="font-size:13px; color:var(--text-sub); margin-bottom:10px">${item.description}</div>
-        <div style="font-size:12px; color:var(--text-sub); margin-bottom:10px">${icon('shield-question')} ${item.verificationQuestions.length} verification questions • Finder L&F: ${getLFScore(item.finderId)}/200</div>
+        <div style="font-size:12px; color:var(--text-sub); margin-bottom:10px">${icon('shield-question')} ${item.verificationQuestions.length} verification questions • Finder L&F: ${getLFScore(item.finderId)}/100</div>
         <div style="display:flex; gap:8px">
           <button class="btn btn-sm btn-outline" style="flex:1" onclick="openLostFoundDetails(${item.id})"><i data-lucide="eye"></i> View & Claim</button>
         </div>
@@ -1901,7 +3529,7 @@ function renderLostFound() {
             ${pendingClaims.map(c => {
               const claimant = USERS[c.claimantId];
               return `<div style="padding:8px; background:rgba(0,0,0,0.03); border-radius:10px; margin-bottom:6px">
-                <div style="font-weight:700; font-size:13px">${claimant?claimant.name:c.claimantId} • L&F ${getLFScore(c.claimantId)}/200</div>
+                <div style="font-weight:700; font-size:13px">${claimant?claimant.name:c.claimantId} • L&F ${getLFScore(c.claimantId)}/100</div>
                 <div style="font-size:12px; color:var(--text-sub)">${c.personalDetails||'No extra details'}</div>
                 <div style="font-size:11px; margin-top:4px">Answers: ${c.answers.map((a,i)=>`Q${i+1}: ${a.answer}`).join(' | ')}</div>
                 <div style="display:flex; gap:6px; margin-top:8px">
@@ -2032,7 +3660,7 @@ function openLostFoundDetails(itemId) {
   let html = `
     <div class="card" style="cursor:default; margin-bottom:12px">
       <div class="item-name" style="font-size:18px">${item.name}</div>
-      <div class="item-meta" style="margin:6px 0">${icon('map-pin')} ${item.location} • ${icon('calendar-days')} ${fmt(item.foundDate)} • by ${finder?finder.name:item.finderId} • L&F ${getLFScore(item.finderId)}/200</div>
+      <div class="item-meta" style="margin:6px 0">${icon('map-pin')} ${item.location} • ${icon('calendar-days')} ${fmt(item.foundDate)} • by ${finder?finder.name:item.finderId} • L&F ${getLFScore(item.finderId)}/100</div>
       <div style="font-size:13px; margin-top:8px">${item.description}</div>
       <div class="divider"></div>
       <div style="font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-sub); margin-bottom:8px">${item.verificationQuestions.length} verification questions (answers hidden)</div>
@@ -2216,10 +3844,10 @@ renderProfile = function(uid) {
       <div class="card" style="cursor:default; margin-top:12px; background:var(--teal-light); border:1.5px solid rgba(91,168,160,0.25)">
         <div style="font-weight:900; display:flex; align-items:center; gap:6px"><i data-lucide="search"></i> Lost & Found Credit</div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
-          <div style="font-size:22px; font-weight:900; color:var(--teal-dark)">${lfScore}/200</div>
+          <div style="font-size:22px; font-weight:900; color:var(--teal-dark)">${lfScore}/100</div>
           <div style="font-size:11px; color:var(--text-sub); text-align:right">Start 100 • Post +5<br>Correct claim +20 both<br>Wrong -5 • Denied -10<br>Exhausted -25</div>
         </div>
-        <div style="margin-top:8px; background:#E0E0E0; border-radius:8px; height:8px; overflow:hidden"><div style="width:${(lfScore/200)*100}%; background:var(--teal); height:100%"></div></div>
+        <div style="margin-top:8px; background:#E0E0E0; border-radius:8px; height:8px; overflow:hidden"><div style="width:${(lfScore/100)*100}%; background:var(--teal); height:100%"></div></div>
       </div>
     `;
     cont.appendChild(extra.firstElementChild);
@@ -2277,6 +3905,12 @@ function renderProfile(uid) {
     ? `<div style="margin-top:12px; padding:8px 14px; background:var(--teal-light); border:1px solid rgba(91,168,160,0.25); border-radius:12px; display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:14px; color:var(--teal-dark)">${icon('clock-3')} New User: No Transactions Yet</div>`
     : `<div style="margin-top:12px">${renderStarsHtml(credit.averageStars, '26px')} <span style="font-weight:800; margin-left:6px; vertical-align:middle">${credit.averageStars.toFixed(1)} / 5.0</span></div>`;
 
+  // Lender transactions (items they lent out, completed)
+  const lentTxs = transactions.filter(tx => tx.lender === targetId && (tx.status === 'returned' || tx.status === 'lost'));
+  const lentTotal = lentTxs.length;
+  const lentGood = lentTxs.filter(tx => tx.conditionRating >= 4).length;
+  const lentLost = lentTxs.filter(tx => tx.status === 'lost').length;
+
   $('profile-content').innerHTML = `
     <div class="card avatar-wrap" style="cursor:default">
       <div class="avatar-icon">${icon(user.avatar)}</div>
@@ -2284,30 +3918,32 @@ function renderProfile(uid) {
       <div class="avatar-sub">@${targetId} • Profile: ${statusText}</div>
       ${starsHtml}
       <div class="divider"></div>
-      <div class="info-row"><span class="info-label">Transactions (as borrower)</span><span class="info-value">${credit.totalTx}</span></div>
-      <div class="info-row"><span class="info-label">Good (≥4★)</span><span class="info-value">${credit.goodPct}%</span></div>
-      <div class="info-row"><span class="info-label">Late</span><span class="info-value">${credit.latePct}%</span></div>
+      <div class="info-row"><span class="info-label">Borrowed (completed)</span><span class="info-value">${credit.totalTx}</span></div>
+      <div class="info-row"><span class="info-label">Good borrows (≥4★)</span><span class="info-value">${credit.goodPct}%</span></div>
+      <div class="info-row"><span class="info-label">Late returns</span><span class="info-value">${credit.latePct}%</span></div>
       <div class="info-row"><span class="info-label">Lost / Problem</span><span class="info-value">${credit.lostPct}%</span></div>
+      <div class="divider"></div>
+      <div class="info-row"><span class="info-label">Items lent out (completed)</span><span class="info-value">${lentTotal}</span></div>
+      <div class="info-row"><span class="info-label">Returned in good shape (≥4★)</span><span class="info-value">${lentTotal ? Math.round(lentGood/lentTotal*100) : 0}%</span></div>
+      <div class="info-row"><span class="info-label">Lost by borrower</span><span class="info-value">${lentLost}</span></div>
     </div>
 
-
-
     <div class="stats-grid">
-      <div class="stat-card" style="cursor:default"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
-      <div class="stat-card" style="cursor:default"><div class="stat-number">${returned}</div><div class="stat-label">On Time</div></div>
-      <div class="stat-card" style="cursor:default"><div class="stat-number">${late}</div><div class="stat-label">Late</div></div>
-      <div class="stat-card" style="cursor:default"><div class="stat-number">${lost}</div><div class="stat-label">Lost</div></div>
+      <div class="stat-card" style="cursor:default"><div class="stat-number">${credit.totalTx + lentTotal}</div><div class="stat-label">Total Tx</div></div>
+      <div class="stat-card" style="cursor:default"><div class="stat-number">${credit.totalTx}</div><div class="stat-label">Borrowed</div></div>
+      <div class="stat-card" style="cursor:default"><div class="stat-number">${lentTotal}</div><div class="stat-label">Lent</div></div>
+      <div class="stat-card" style="cursor:default"><div class="stat-number">${credit.lostPct}%</div><div class="stat-label">Lost Rate</div></div>
     </div>
 
     <div class="card" style="cursor:default">
-      <div style="font-weight:900;margin-bottom:8px; display:flex; align-items:center; gap:6px"><i data-lucide="history"></i> Recent transactions (as borrower)</div>
-      <div id="profile-tx-list">
-        ${credit.txs.length ? credit.txs.slice(0,8).map(tx => {
+      <div style="font-weight:900;margin-bottom:8px; display:flex; align-items:center; gap:6px"><i data-lucide="arrow-down-circle"></i> As Borrower (rated)</div>
+      <div>
+        ${credit.txs.length ? credit.txs.slice(0,5).map(tx => {
           return `<div style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
                     <div style="display:flex;justify-content:space-between;align-items:center">
                       <div>
                         <div style="font-weight:800">${tx.itemName}</div>
-                        <div style="font-size:12px;color:var(--text-sub)">${USERS[tx.lender]?USERS[tx.lender].name:tx.lender} • ${tx.startDate || tx.requestedAt || ''} → ${tx.dueDate || ''}</div>
+                        <div style="font-size:12px;color:var(--text-sub)">from ${USERS[tx.lender]?USERS[tx.lender].name:tx.lender} • due ${tx.dueDate||''}</div>
                       </div>
                       <div style="text-align:right">
                         ${renderStarsHtml(tx.credit.stars, '16px')}
@@ -2315,7 +3951,28 @@ function renderProfile(uid) {
                       </div>
                     </div>
                   </div>`;
-        }).join('') : `<div style="text-align:center; padding:12px; color:var(--text-sub); font-size:13px">No borrower history yet</div>`}
+        }).join('') : `<div style="text-align:center; padding:12px; color:var(--text-sub); font-size:13px">No borrow history yet</div>`}
+      </div>
+    </div>
+
+    <div class="card" style="cursor:default">
+      <div style="font-weight:900;margin-bottom:8px; display:flex; align-items:center; gap:6px"><i data-lucide="arrow-up-circle"></i> As Lender</div>
+      <div>
+        ${lentTxs.length ? lentTxs.slice(0,5).map(tx => {
+          const rating = tx.conditionRating;
+          return `<div style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <div>
+                        <div style="font-weight:800">${tx.itemName}</div>
+                        <div style="font-size:12px;color:var(--text-sub)">to ${USERS[tx.borrower]?USERS[tx.borrower].name:tx.borrower} • due ${tx.dueDate||''}</div>
+                      </div>
+                      <div style="text-align:right">
+                        ${rating ? renderStarsHtml(rating, '16px') : `<span style="font-size:11px;color:var(--text-sub)">no rating</span>`}
+                        <div style="font-size:12px;color:var(--text-sub)">${tx.status}</div>
+                      </div>
+                    </div>
+                  </div>`;
+        }).join('') : `<div style="text-align:center; padding:12px; color:var(--text-sub); font-size:13px">No lend history yet</div>`}
       </div>
     </div>
 
@@ -2495,6 +4152,65 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }).observe(document.body, { attributes: true });
 });
-</script>
+
+// ── DESKTOP SIDEBAR SYNC ─────────────────────────
+function isDesktop() { return window.innerWidth >= 900; }
+
+function syncDesktopSidebar() {
+  const sidebar = $('desktop-sidebar');
+  if (!sidebar) return;
+  sidebar.style.display = isDesktop() ? 'flex' : 'none';
+  const screens = ['friends','borrows','requests','profile','settings','lostfound'];
+  screens.forEach(s => {
+    const el = $('ds-nav-' + s);
+    if (el) el.classList.toggle('active', s === currentScreen);
+  });
+  const dsUser = $('ds-user-display');
+  const dsSub = $('ds-user-sub');
+  if (dsUser && currentUser && USERS[currentUser]) {
+    dsUser.textContent = USERS[currentUser].name;
+    if (dsSub) dsSub.textContent = '@' + currentUser;
+  }
+}
+
+function syncDesktopBadges() {
+  const n = pendingCount(currentUser);
+  const fr = pendingFriendRequests(currentUser);
+  const reqEl = $('ds-req-badge'); if (reqEl) { reqEl.textContent = n; reqEl.style.display = n > 0 ? 'inline-flex' : 'none'; }
+  const frEl = $('ds-friend-badge'); if (frEl) { frEl.textContent = fr; frEl.style.display = fr > 0 ? 'inline-flex' : 'none'; }
+  // L&F badge
+  const pendingLF = lostFoundClaims ? lostFoundClaims.filter(c => {
+    const item = lostFoundItems.find(i => i.id === c.itemId);
+    return item && item.finderId === currentUser && c.status === 'pending';
+  }).length : 0;
+  const dsLfEl = $('ds-lf-badge'); if (dsLfEl) { dsLfEl.textContent = pendingLF; dsLfEl.style.display = pendingLF > 0 ? 'inline-flex' : 'none'; }
+}
+
+// Patch navigate to also sync sidebar
+const _dsOrigNavigate = navigate;
+navigate = function(screen) {
+  _dsOrigNavigate(screen);
+  syncDesktopSidebar();
+  syncDesktopBadges();
+};
+
+// Patch updateBadges to sync desktop too
+const _dsOrigUpdateBadges = updateBadges;
+updateBadges = function() {
+  _dsOrigUpdateBadges();
+  syncDesktopBadges();
+};
+
+// Patch doLoginAs to sync desktop display name
+const _dsOrigDoLoginAs = doLoginAs;
+doLoginAs = function(uid) {
+  _dsOrigDoLoginAs(uid);
+  setTimeout(() => { syncDesktopSidebar(); syncDesktopBadges(); refreshIcons(); }, 50);
+};
+
+window.addEventListener('resize', syncDesktopSidebar);
+document.addEventListener('DOMContentLoaded', syncDesktopSidebar);
+    </script>
 </body>
+
 </html>
