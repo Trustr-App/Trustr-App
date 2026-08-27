@@ -3676,7 +3676,7 @@ function openLostFoundDetails(itemId) {
     } else {
       html += `
         <div class="card" style="cursor:default">
-          <div style="font-weight:900; margin-bottom:10px">Claim this item • Attempt ${attempts+1}/3 • Wrong -5 pts</div>
+          <div style="font-weight:900; margin-bottom:10px">Claim this item • Attempt ${attempts+1}/3 • Reviewed by finder</div>
           <div id="lf-claim-answers">
             ${item.verificationQuestions.map((q,i)=>`
               <div class="form-group"><label class="form-label">Answer Q${i+1}: ${q.question}</label><input type="text" id="lf-claim-a${i}" class="form-input" placeholder="Your answer"></div>
@@ -3750,33 +3750,21 @@ function submitLFClaim(itemId) {
 
   if (!allCorrect) {
     const attemptInfo = incLFAttempt(currentUser, itemId, false);
-    updateLFScore(currentUser, -5);
+    // No points deducted yet — finder reviews first before any penalty applies
+    const claim = {
+      id: nextClaimId++,
+      itemId, claimantId: currentUser,
+      answers, personalDetails,
+      status: 'pending',
+      attemptsUsed: attemptInfo.count,
+      isCorrect: false,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    lostFoundClaims.push(claim);
     if (attemptInfo.blocked) {
-      updateLFScore(currentUser, -25);
-      const claim = {
-        id: nextClaimId++,
-        itemId, claimantId: currentUser,
-        answers, personalDetails,
-        status: 'failed',
-        attemptsUsed: 3,
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      lostFoundClaims.push(claim);
-      toast('Wrong answers - blocked after 3 attempts • -5 pts and -25 pts');
+      toast('Answers submitted • Attempt 3/3 used • Awaiting finder review');
     } else {
-      const claim = {
-        id: nextClaimId++,
-        itemId, claimantId: currentUser,
-        answers, personalDetails,
-        status: 'pending',
-        attemptsUsed: attemptInfo.count,
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      // For wrong answers we still keep pending? But spec says each wrong costs 5. We'll keep it as pending for finder to review, but mark as wrong internally
-      // Actually if wrong, we should not auto approve, but still allow finder to see? We'll set status pending but with flag
-      claim.isCorrect = false;
-      lostFoundClaims.push(claim);
-      toast(`Wrong answer • -5 pts • Attempt ${attemptInfo.count}/3`);
+      toast(`Answers submitted • Attempt ${attemptInfo.count}/3 • Awaiting finder review`);
     }
   } else {
     // Correct answers
@@ -3845,7 +3833,7 @@ renderProfile = function(uid) {
         <div style="font-weight:900; display:flex; align-items:center; gap:6px"><i data-lucide="search"></i> Lost & Found Credit</div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
           <div style="font-size:22px; font-weight:900; color:var(--teal-dark)">${lfScore}/100</div>
-          <div style="font-size:11px; color:var(--text-sub); text-align:right">Start 100 • Post +5<br>Correct claim +20 both<br>Wrong -5 • Denied -10<br>Exhausted -25</div>
+          <div style="font-size:11px; color:var(--text-sub); text-align:right">Start 50 • Post +5<br>Correct claim +20 both<br>Wrong -5 • Denied -10<br>Exhausted -25</div>
         </div>
         <div style="margin-top:8px; background:#E0E0E0; border-radius:8px; height:8px; overflow:hidden"><div style="width:${(lfScore/100)*100}%; background:var(--teal); height:100%"></div></div>
       </div>
