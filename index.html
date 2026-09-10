@@ -1525,6 +1525,49 @@
         body[data-theme="light"] .lf-score-card .lf-score-number {
             color: #4A9490 !important;
         }
+        /* Borrower rating card — visible in all themes */
+        .borrower-rating-card {
+            background: var(--teal-light);
+            border: 1.5px solid rgba(91,168,160,0.35);
+        }
+        body[data-theme="dark"] .borrower-rating-card {
+            background: #252545 !important;
+            border-color: rgba(91,168,160,0.35) !important;
+        }
+        /* Text inside — explicit so light text isn't lost on light bg in dark mode and vice versa */
+        .borrower-rating-card .br-title {
+            color: var(--text);
+        }
+        .borrower-rating-card .br-score {
+            color: var(--text);
+        }
+        .borrower-rating-card .br-sub {
+            color: var(--text-sub);
+        }
+        body[data-theme="dark"] .borrower-rating-card .br-title,
+        body[data-theme="dark"] .borrower-rating-card .br-score {
+            color: #E8E8FF !important;
+        }
+        body[data-theme="dark"] .borrower-rating-card .br-sub {
+            color: #9AA0C8 !important;
+        }
+        body[data-theme="light"] .borrower-rating-card .br-title,
+        body[data-theme="light"] .borrower-rating-card .br-score {
+            color: #111 !important;
+        }
+        body[data-theme="light"] .borrower-rating-card .br-sub {
+            color: #555 !important;
+        }
+        /* Also fix star contrast — ensure gold stars pop on both bg */
+        .borrower-rating-card .stars-outer {
+            color: rgba(0,0,0,0.22);
+        }
+        body[data-theme="dark"] .borrower-rating-card .stars-outer {
+            color: rgba(255,255,255,0.25) !important;
+        }
+        .borrower-rating-card .stars-inner {
+            color: #F5B800;
+        }
         
         .lf-score-number {
             font-weight: 900;
@@ -3223,6 +3266,25 @@ function openTransactionDetails(txId) {
     </div>`;
 
   if (tx.status==='requested' && !isBorrower) {
+    // ── Borrower star rating (lender view) ──
+    const borrowerCredit = computeUserCredit(tx.borrower);
+    const borrowerUser = USERS[tx.borrower];
+    const borrowerName = borrowerUser ? borrowerUser.name : tx.borrower;
+    let borrowerRatingHtml = '';
+    if (borrowerCredit.totalTx === 0) {
+      borrowerRatingHtml = `<div class="br-sub" style="font-size:12px; margin-top:4px">New user — no completed borrows yet</div>`;
+    } else {
+      borrowerRatingHtml = `<div class="br-sub" style="font-size:12px; margin-top:4px">${borrowerCredit.goodPct}% good borrows (${borrowerCredit.details.good}/${borrowerCredit.totalTx}) • ${borrowerCredit.latePct}% late • ${borrowerCredit.lostPct}% lost</div>`;
+    }
+    html += `<div class="card borrower-rating-card" style="cursor:default; margin-bottom:10px;">
+      <div class="br-title" style="font-weight:900; font-size:13px; display:flex; align-items:center; gap:6px; margin-bottom:6px">${icon('star')} Borrower Rating — ${borrowerName}</div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+        ${renderStarsHtml(borrowerCredit.averageStars, '18px')}
+        <span class="br-score" style="font-weight:800; font-size:15px">${borrowerCredit.averageStars.toFixed(1)}</span>
+        <span class="br-sub" style="font-size:12px;">(${borrowerCredit.totalTx} ${borrowerCredit.totalTx===1?'borrow':'borrows'})</span>
+      </div>
+      ${borrowerRatingHtml}
+    </div>`;
     html += `<div style="display:flex;gap:8px">
       <button class="btn btn-danger" style="flex:1" onclick="rejectBorrowRequest(${txId})"><i data-lucide="x"></i> Reject</button>
       <button class="btn btn-success" style="flex:1" onclick="approveBorrowRequest(${txId})"><i data-lucide="check"></i> Approve</button>
@@ -3375,7 +3437,7 @@ function renderRequests() {
       </div>
       <div class="item-row">
         <div class="item-icon">${icon(tx.itemIcon)}</div>
-        <div><div style="font-weight:700">${tx.itemName}</div><div class="item-meta">from ${b?b.name:'?'}</div></div>
+        <div><div style="font-weight:700">${tx.itemName}</div><div class="item-meta">from ${b?b.name:'?'}</div>${(() => { const cr = computeUserCredit(tx.borrower); return `<div style="margin-top:4px; display:flex; align-items:center; gap:6px">${renderStarsHtml(cr.averageStars,'13px')}<span style="font-size:12px; font-weight:700">${cr.totalTx===0?'New user':cr.averageStars.toFixed(1)+' ('+cr.totalTx+')'}</span></div>`; })()}</div>
       </div>
     </div>`;
   }).join('') : emptyState('sparkles','No pending requests!');
@@ -3676,7 +3738,7 @@ function openLostFoundDetails(itemId) {
     } else {
       html += `
         <div class="card" style="cursor:default">
-          <div style="font-weight:900; margin-bottom:10px">Claim this item • Attempt ${attempts+1}/3 • Reviewed by finder</div>
+          <div style="font-weight:900; margin-bottom:10px">Claim this item • Attempt ${attempts+1}/3 • Wrong -5 pts</div>
           <div id="lf-claim-answers">
             ${item.verificationQuestions.map((q,i)=>`
               <div class="form-group"><label class="form-label">Answer Q${i+1}: ${q.question}</label><input type="text" id="lf-claim-a${i}" class="form-input" placeholder="Your answer"></div>
@@ -3750,21 +3812,33 @@ function submitLFClaim(itemId) {
 
   if (!allCorrect) {
     const attemptInfo = incLFAttempt(currentUser, itemId, false);
-    // No points deducted yet — finder reviews first before any penalty applies
-    const claim = {
-      id: nextClaimId++,
-      itemId, claimantId: currentUser,
-      answers, personalDetails,
-      status: 'pending',
-      attemptsUsed: attemptInfo.count,
-      isCorrect: false,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    lostFoundClaims.push(claim);
+    updateLFScore(currentUser, -5);
     if (attemptInfo.blocked) {
-      toast('Answers submitted • Attempt 3/3 used • Awaiting finder review');
+      updateLFScore(currentUser, -25);
+      const claim = {
+        id: nextClaimId++,
+        itemId, claimantId: currentUser,
+        answers, personalDetails,
+        status: 'failed',
+        attemptsUsed: 3,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      lostFoundClaims.push(claim);
+      toast('Wrong answers - blocked after 3 attempts • -5 pts and -25 pts');
     } else {
-      toast(`Answers submitted • Attempt ${attemptInfo.count}/3 • Awaiting finder review`);
+      const claim = {
+        id: nextClaimId++,
+        itemId, claimantId: currentUser,
+        answers, personalDetails,
+        status: 'pending',
+        attemptsUsed: attemptInfo.count,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      // For wrong answers we still keep pending? But spec says each wrong costs 5. We'll keep it as pending for finder to review, but mark as wrong internally
+      // Actually if wrong, we should not auto approve, but still allow finder to see? We'll set status pending but with flag
+      claim.isCorrect = false;
+      lostFoundClaims.push(claim);
+      toast(`Wrong answer • -5 pts • Attempt ${attemptInfo.count}/3`);
     }
   } else {
     // Correct answers
@@ -3833,7 +3907,7 @@ renderProfile = function(uid) {
         <div style="font-weight:900; display:flex; align-items:center; gap:6px"><i data-lucide="search"></i> Lost & Found Credit</div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
           <div style="font-size:22px; font-weight:900; color:var(--teal-dark)">${lfScore}/100</div>
-          <div style="font-size:11px; color:var(--text-sub); text-align:right">Start 50 • Post +5<br>Correct claim +20 both<br>Wrong -5 • Denied -10<br>Exhausted -25</div>
+          <div style="font-size:11px; color:var(--text-sub); text-align:right">Start 100 • Post +5<br>Correct claim +20 both<br>Wrong -5 • Denied -10<br>Exhausted -25</div>
         </div>
         <div style="margin-top:8px; background:#E0E0E0; border-radius:8px; height:8px; overflow:hidden"><div style="width:${(lfScore/100)*100}%; background:var(--teal); height:100%"></div></div>
       </div>
