@@ -1526,45 +1526,57 @@
             color: #4A9490 !important;
         }
         /* Borrower rating card — visible in all themes */
+        
         .borrower-rating-card {
             background: var(--teal-light);
-            border: 1.5px solid rgba(91,168,160,0.35);
+            border: 1.5px solid rgba(91, 168, 160, 0.35);
         }
+        
         body[data-theme="dark"] .borrower-rating-card {
             background: #252545 !important;
-            border-color: rgba(91,168,160,0.35) !important;
+            border-color: rgba(91, 168, 160, 0.35) !important;
         }
         /* Text inside — explicit so light text isn't lost on light bg in dark mode and vice versa */
+        
         .borrower-rating-card .br-title {
             color: var(--text);
         }
+        
         .borrower-rating-card .br-score {
             color: var(--text);
         }
+        
         .borrower-rating-card .br-sub {
             color: var(--text-sub);
         }
+        
         body[data-theme="dark"] .borrower-rating-card .br-title,
         body[data-theme="dark"] .borrower-rating-card .br-score {
             color: #E8E8FF !important;
         }
+        
         body[data-theme="dark"] .borrower-rating-card .br-sub {
             color: #9AA0C8 !important;
         }
+        
         body[data-theme="light"] .borrower-rating-card .br-title,
         body[data-theme="light"] .borrower-rating-card .br-score {
             color: #111 !important;
         }
+        
         body[data-theme="light"] .borrower-rating-card .br-sub {
             color: #555 !important;
         }
         /* Also fix star contrast — ensure gold stars pop on both bg */
+        
         .borrower-rating-card .stars-outer {
-            color: rgba(0,0,0,0.22);
+            color: rgba(0, 0, 0, 0.22);
         }
+        
         body[data-theme="dark"] .borrower-rating-card .stars-outer {
-            color: rgba(255,255,255,0.25) !important;
+            color: rgba(255, 255, 255, 0.25) !important;
         }
+        
         .borrower-rating-card .stars-inner {
             color: #F5B800;
         }
@@ -2104,6 +2116,14 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-extension">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i data-lucide="calendar-plus"></i> Request Extension</div>
+            <div id="modal-extension-body"></div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modal-details">
         <div class="modal">
             <div class="modal-handle"></div>
@@ -2589,6 +2609,8 @@
         };
         let lostFoundAttempts = {};
         let weeklyClaimTracker = {};
+        let extensionRequests = [];
+        let nextExtReqId = 1;
 
         let currentTheme = 'orange';
         let toggles = {
@@ -2622,6 +2644,8 @@
                     currentTheme,
                     toggles
                 };
+                data.extensionRequests = extensionRequests;
+                data.nextExtReqId = nextExtReqId;
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             } catch (e) {
                 console.warn('save failed', e);
@@ -2648,6 +2672,8 @@
                 if (d.weeklyClaimTracker) weeklyClaimTracker = d.weeklyClaimTracker;
                 if (d.currentTheme) currentTheme = d.currentTheme;
                 if (d.toggles) toggles = d.toggles;
+                if (d.extensionRequests) extensionRequests = d.extensionRequests;
+                if (d.nextExtReqId) nextExtReqId = d.nextExtReqId;
                 // Ensure test accounts always exist
                 if (!registeredAccounts['alex']) registeredAccounts['alex'] = {
                     password: 'test',
@@ -2883,7 +2909,9 @@
         }
 
         function pendingCount(uid) {
-            return transactions.filter(tx => tx.lender === uid && (tx.status === 'requested' || tx.status === 'pending_return')).length;
+            const txPending = transactions.filter(tx => tx.lender === uid && (tx.status === 'requested' || tx.status === 'pending_return')).length;
+            const extPending = extensionRequests.filter(r => r.status==='pending' && (() => { const tx = transactions.find(t=>t.id===r.txId); return tx && tx.lender===uid; })()).length;
+            return txPending + extPending;
         }
 
         function pendingFriendRequests(uid) {
@@ -3290,7 +3318,19 @@ function openTransactionDetails(txId) {
       <button class="btn btn-success" style="flex:1" onclick="approveBorrowRequest(${txId})"><i data-lucide="check"></i> Approve</button>
     </div>`;
   } else if (tx.status==='active' && isBorrower) {
-    html += `<button class="btn btn-primary btn-full" onclick="openReturnModal(${txId})"><i data-lucide="rotate-ccw"></i> Request Return</button>`;
+    const pendingExt = extensionRequests.find(r => r.txId===txId && r.status==='pending');
+    const deniedExt = extensionRequests.filter(r => r.txId===txId && r.status==='denied').slice(-1)[0];
+    html += `<div style="display:flex;gap:8px;flex-direction:column">
+      <button class="btn btn-primary btn-full" onclick="openReturnModal(${txId})"><i data-lucide="rotate-ccw"></i> Request Return</button>
+      ${pendingExt
+        ? `<div class="card" style="cursor:default;background:var(--warning-light);border:1.5px solid var(--warning);padding:10px 14px;font-size:13px;font-weight:700;color:var(--warning)">${icon('clock-3')} Extension request pending — awaiting lender response</div>`
+        : `<button class="btn btn-outline btn-full" onclick="openExtensionModal(${txId})"><i data-lucide="calendar-plus"></i> Request Extension</button>`
+      }
+      ${deniedExt && !pendingExt
+        ? `<div class="card" style="cursor:default;background:var(--danger-light);border:1.5px solid var(--danger);padding:10px 14px;font-size:13px;font-weight:700;color:var(--danger)">${icon('circle-x')} Your extension request to ${fmt(deniedExt.newDueDate)} was denied</div>`
+        : ''
+      }
+    </div>`;
   } else if (tx.status==='pending_return' && !isBorrower) {
     lenderReturnRating=5;
     const tmpTx = Object.assign({}, tx);
@@ -3333,6 +3373,68 @@ function rejectBorrowRequest(txId) {
   transactions = transactions.filter(t => t.id!==txId);
   saveAll();
   toast('Request rejected'); closeModal('modal-details');
+  renderBorrows(); renderRequests(); updateBadges();
+}
+
+// ── EXTENSION REQUESTS ─────────────────────────
+function openExtensionModal(txId) {
+  const tx = getTx(txId); if (!tx) return;
+  const today = NOW.toISOString().split('T')[0];
+  $('modal-extension-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label"><i data-lucide="calendar-days"></i> New due date</label>
+      <input type="date" id="ext-new-date" class="form-input" min="${tx.dueDate}">
+    </div>
+    <div class="form-group">
+      <label class="form-label"><i data-lucide="notebook-pen"></i> Reason (optional)</label>
+      <input type="text" id="ext-reason" class="form-input" placeholder="e.g. Need a few more days">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-extension')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="submitExtensionRequest(${txId})"><i data-lucide="calendar-plus"></i> Send Request</button>
+    </div>`;
+  closeModal('modal-details');
+  openModal('modal-extension');
+}
+
+function submitExtensionRequest(txId) {
+  const tx = getTx(txId); if (!tx) return;
+  const newDueDate = $('ext-new-date').value;
+  const reason = ($('ext-reason').value||'').trim();
+  if (!newDueDate) { toast('Please pick a new due date'); return; }
+  if (newDueDate <= tx.dueDate) { toast('New date must be after current due date'); return; }
+
+  extensionRequests.push({
+    id: nextExtReqId++,
+    txId,
+    borrowerId: currentUser,
+    lenderId: tx.lender,
+    newDueDate,
+    reason,
+    status: 'pending',
+    requestedAt: NOW.toISOString().split('T')[0]
+  });
+  saveAll();
+  toast(`Extension request sent to ${USERS[tx.lender]?USERS[tx.lender].name:'lender'}!`);
+  closeModal('modal-extension');
+  renderBorrows(); renderRequests(); updateBadges();
+}
+
+function approveExtension(extReqId) {
+  const req = extensionRequests.find(r => r.id===extReqId); if (!req) return;
+  const tx = getTx(req.txId); if (!tx) return;
+  tx.dueDate = req.newDueDate;
+  req.status = 'approved';
+  saveAll();
+  toast(`Extension approved! New due date: ${fmt(req.newDueDate)}`);
+  renderBorrows(); renderRequests(); updateBadges();
+}
+
+function denyExtension(extReqId) {
+  const req = extensionRequests.find(r => r.id===extReqId); if (!req) return;
+  req.status = 'denied';
+  saveAll();
+  toast('Extension denied');
   renderBorrows(); renderRequests(); updateBadges();
 }
 
@@ -3427,10 +3529,42 @@ function renderRequests() {
   const pending = transactions.filter(tx =>
     tx.lender===currentUser && (tx.status==='requested'||tx.status==='pending_return')
   );
-  $('requests-list').innerHTML = pending.length ? pending.map(tx => {
+  const pendingExtensions = extensionRequests.filter(r =>
+    r.status==='pending' && (() => { const tx = getTx(r.txId); return tx && tx.lender===currentUser; })()
+  );
+
+  let html = '';
+
+  // Extension requests first
+  pendingExtensions.forEach(r => {
+    const tx = getTx(r.txId); if (!tx) return;
+    const b = USERS[tx.borrower];
+    html += `<div class="card" style="border:1.5px solid var(--teal)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="item-name">${icon('calendar-plus')} Extension Request</div>
+        <span class="badge b-active">${icon('clock-3')} Pending</span>
+      </div>
+      <div class="item-row" style="margin-bottom:10px">
+        <div class="item-icon">${icon(tx.itemIcon)}</div>
+        <div>
+          <div style="font-weight:700">${tx.itemName}</div>
+          <div class="item-meta">from ${b?b.name:'?'}</div>
+          <div class="item-meta">New due date: <strong>${fmt(r.newDueDate)}</strong></div>
+          ${r.reason ? `<div class="item-meta">Reason: ${r.reason}</div>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-danger" style="flex:1" onclick="denyExtension(${r.id})"><i data-lucide="x"></i> Deny</button>
+        <button class="btn btn-success" style="flex:1" onclick="approveExtension(${r.id})"><i data-lucide="check"></i> Approve</button>
+      </div>
+    </div>`;
+  });
+
+  // Borrow and return requests
+  pending.forEach(tx => {
     const isBorrow = tx.status==='requested';
     const b = USERS[tx.borrower];
-    return `<div class="card" onclick="openTransactionDetails(${tx.id})">
+    html += `<div class="card" onclick="openTransactionDetails(${tx.id})">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div class="item-name">${isBorrow?icon('package')+' Borrow Request':icon('rotate-ccw')+' Return Request'}</div>
         <span class="badge b-${tx.status}">${isBorrow?icon('clock-3')+' Pending':icon('rotate-ccw')+' Pending'}</span>
@@ -3440,7 +3574,9 @@ function renderRequests() {
         <div><div style="font-weight:700">${tx.itemName}</div><div class="item-meta">from ${b?b.name:'?'}</div>${(() => { const cr = computeUserCredit(tx.borrower); return `<div style="margin-top:4px; display:flex; align-items:center; gap:6px">${renderStarsHtml(cr.averageStars,'13px')}<span style="font-size:12px; font-weight:700">${cr.totalTx===0?'New user':cr.averageStars.toFixed(1)+' ('+cr.totalTx+')'}</span></div>`; })()}</div>
       </div>
     </div>`;
-  }).join('') : emptyState('sparkles','No pending requests!');
+  });
+
+  $('requests-list').innerHTML = html || emptyState('sparkles','No pending requests!');
   refreshIcons();
 }
 
